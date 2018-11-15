@@ -12,28 +12,25 @@ get_header();
 
 <?php if (have_posts()) : usces_remove_filter(); ?>
 
-<div class="post" id="wc_<?php usces_page_name(); ?>">
+	<div class="post" id="wc_<?php usces_page_name(); ?>">
 
-<h1 class="cart_page_title"><?php _e('Error', 'usces'); ?></h1>
-<div class="entry">
-		
-<div id="error-page">
+		<h1 class="cart_page_title"><?php _e('Your order has not been completed', 'usces'); ?></h1>
+		<div class="entry">
 
-<h2>ERROR</h2>
-<div class="post">
-<!-- <p><?php _e('Your order has not been completed', 'usces'); ?></p>
-<p>(error <?php esc_html_e( urldecode($_REQUEST['acting_return']) ); ?>)</p> -->
+			<div id="error-page">
 
-<?php uesces_get_error_settlement(); ?>
+				<div class="post">
 
-</div><!-- end of post -->
+				<?php uesces_get_error_settlement(); ?>
 
-</div><!-- end of error-page -->
+				</div><!-- end of post -->
+
+			</div><!-- end of error-page -->
 
 		</div><!-- end of entry -->
 	</div><!-- end of post -->
 <?php else: ?>
-<p><?php _e('Sorry, no posts matched your criteria.'); ?></p>
+<p><?php _e('Sorry, no posts matched your criteria.', 'usces'); ?></p>
 <?php endif; ?>
 </div><!-- end of catbox -->
 </div><!-- end of content -->

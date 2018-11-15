@@ -27,11 +27,11 @@ if(usces_is_membersystem_state()){
 	<table width="100%" border="0" cellpadding="0" cellspacing="0" class="customer_form">
 	<tr>
 	<th scope="row">'.__('e-mail adress', 'usces').'</th>
-	<td><input name="loginmail" id="mailaddress1" type="text" value="' . esc_attr($usces_entries['customer']['mailaddress1']) . '" /></td>
+	<td><input name="loginmail" id="loginmail" type="text" value="' . esc_attr($usces_entries['customer']['mailaddress1']) . '" /></td>
 	</tr>
 	<tr>
 	<th scope="row">'.__('password', 'usces').'</th>
-	<td><input class="hidden" value=" " /><input name="loginpass" id="mailaddress1" type="password" value="" autocomplete="off" /></td>
+	<td><input class="hidden" value=" " /><input name="loginpass" id="loginpass" type="password" value="" autocomplete="off" /></td>
 	</tr>
 	</table>
 	<div class="send"><input name="customerlogin" type="submit" value="'.__(' Next ', 'usces').'" /></div>';

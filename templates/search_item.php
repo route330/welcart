@@ -1,5 +1,5 @@
 <?php
-$uscpaged = isset($_REQUEST['paged']) ? $_REQUEST['paged'] : 1;
+$uscpaged = isset($_REQUEST['paged']) ? absint( wp_unslash( $_REQUEST['paged'] ) ) : 1;
 
 $html = '<script type="text/javascript">
 function usces_nextpage() {
@@ -19,18 +19,18 @@ $html .= '<div id="searchbox">';
 
 if (isset($_REQUEST['usces_search'])) {
 
-	$catresult = usces_search_categories(); 
+	$catresult = usces_search_categories();
 	$search_query = array('category__and' => $catresult, 'posts_per_page' => 10, 'paged' => $uscpaged);
 	$search_query = apply_filters('usces_filter_search_query', $search_query);
 
 	$my_query = new WP_Query( $search_query );
-	
+
 	$html .= '<div class="title">'.__('Search results', 'usces') . '&nbsp;&nbsp;' . number_format($my_query->found_posts) . __('cases', 'usces') . '</div>';
-	
+
 	if ($my_query->have_posts()) {
-	
+
 		$html .= apply_filters('usces_filter_search_result_pre', NULL, $my_query);
-	
+
 		$html .= '<div class="navigation clearfix">';
 		if( $uscpaged > 1 ) {
 			$html .= '<a style="float:left; cursor:pointer;" onclick="usces_prepage();">'.__('&laquo; Previous article', 'usces').'</a>';
@@ -39,12 +39,12 @@ if (isset($_REQUEST['usces_search'])) {
 			$html .= '<a style="float:right; cursor:pointer;" onclick="usces_nextpage();">'.__('Next article &raquo;', 'usces').'</a>';
 		}
 		$html .= '</div>';
-	
+
 		$itemhtml = '<div class="searchitems">';
 		while ($my_query->have_posts()) {
 			$my_query->the_post();
 			usces_the_item();
-	
+
 			$itemhtml .= '<div class="itemlist clearfix"><div class="loopimg">
 				<a href="' . get_permalink($post->ID) . '">' . usces_the_itemImage(0, 100, 100, $post, 'return') . '</a>
 				</div>
@@ -65,9 +65,9 @@ if (isset($_REQUEST['usces_search'])) {
 			$html .= '<a style="float:right; cursor:pointer;" onclick="usces_nextpage();">'.__('Next article &raquo;', 'usces').'</a>';
 		}
 		$html .= '</div>';
-		
+
 	}else{
-	
+
 		$html .= '<div class="searchitems">';
 		$html .= '<p>' . __('The article was not found.', 'usces') . '</p>';
 		$html .= '</div><!-- searchitems -->';

@@ -6,6 +6,7 @@ $payments = usces_get_payments_by_name($usces_entries['order']['payment_name']);
 $acting_flag = '';
 $rand = usces_acting_key();
 $cart = $usces->cart->get_cart();
+$cart_count = ( $cart && is_array( $cart ) ) ? count( $cart ) : 0;
 
 $purchase_disabled = '';
 $purchase_html = '';
@@ -46,7 +47,7 @@ if( 'acting' != substr($payments['settlement'], 0, 6) || 0 == $usces_entries['or
 				<input type="hidden" name="night_phone_a" value="'.esc_attr($country_num).'">
 				<input type="hidden" name="night_phone_b" value="'.esc_attr($tel).'">
 				<input type="hidden" name="night_phone_c" value="">';
-			if( 1 < count($cart) ) {
+			if( 1 < $cart_count ) {
 				$html .= '<input type="hidden" name="item_name" value="' . esc_attr($send_item_name) . ' ' . __('Others', 'usces') . '">';
 			}else{
 				$html .= '<input type="hidden" name="item_name" value="' . esc_attr($send_item_name) . '">';
@@ -80,7 +81,7 @@ if( 'acting' != substr($payments['settlement'], 0, 6) || 0 == $usces_entries['or
 				<input type="hidden" name="user_id" value="' . $memid . '">
 				<input type="hidden" name="user_name" value="' . esc_attr($usces_entries['customer']['name1'] . ' ' . $usces_entries['customer']['name2']) . '">
 				<input type="hidden" name="user_mail_add" value="' . esc_attr($usces_entries['customer']['mailaddress1']) . '">';
-			if( 1 < count($cart) ) {
+			if( 1 < $cart_count ) {
 				$html .= '<input type="hidden" name="item_code" value="99999999">
 					<input type="hidden" name="item_name" value="' . esc_attr(mb_substr($send_item_name, 0, 25, 'UTF-8')) . ' ' . __('Others', 'usces') . '">';
 			}else{
@@ -254,7 +255,7 @@ if( 'acting' != substr($payments['settlement'], 0, 6) || 0 == $usces_entries['or
 			$usces->save_order_acting_data($rand);
 			usces_save_order_acting_data( $rand );
 			$itemName = $usces->getItemName($cart[0]['post_id']);
-			if(1 < count($cart)) $itemName .= ','.__('Others', 'usces');
+			if(1 < $cart_count) $itemName .= ','.__('Others', 'usces');
 			if(50 < mb_strlen($itemName, 'UTF-8')) $itemName = mb_substr($itemName, 0, 50, 'UTF-8').'...';
 			$quantity = 0;
 			foreach($cart as $cart_row) {
@@ -300,7 +301,7 @@ if( 'acting' != substr($payments['settlement'], 0, 6) || 0 == $usces_entries['or
 			$usces->save_order_acting_data($rand);
 			usces_save_order_acting_data( $rand );
 			$itemName = $usces->getItemName($cart[0]['post_id']);
-			if(1 < count($cart)) $itemName .= ','.__('Others', 'usces');
+			if(1 < $cart_count) $itemName .= ','.__('Others', 'usces');
 			if(50 < mb_strlen($itemName, 'UTF-8')) $itemName = mb_substr($itemName, 0, 50, 'UTF-8').'...';
 			$quantity = 0;
 			foreach($cart as $cart_row) {
@@ -346,7 +347,7 @@ if( 'acting' != substr($payments['settlement'], 0, 6) || 0 == $usces_entries['or
 			$usces->save_order_acting_data($rand);
 			usces_save_order_acting_data( $rand );
 			$itemName = $usces->getItemName($cart[0]['post_id']);
-			if(1 < count($cart)) $itemName .= ','.__('Others', 'usces');
+			if(1 < $cart_count) $itemName .= ','.__('Others', 'usces');
 			if(50 < mb_strlen($itemName, 'UTF-8')) $itemName = mb_substr($itemName, 0, 50, 'UTF-8').'...';
 			$quantity = 0;
 			foreach($cart as $cart_row) {
@@ -439,8 +440,8 @@ if( 'acting' != substr($payments['settlement'], 0, 6) || 0 == $usces_entries['or
 						<input type="hidden" name="L_PAYMENTREQUEST_0_AMT'.$i.'" value="'.usces_crform($cart_row['price'], false, false, 'return', false).'">
 						<input type="hidden" name="L_PAYMENTREQUEST_0_NUMBER'.$i.'" value="'.esc_attr($usces->getItemCode($cart_row['post_id'])).' '.esc_attr(urldecode($cart_row['sku'])).'">
 						<input type="hidden" name="L_PAYMENTREQUEST_0_QTY'.$i.'" value="'.esc_attr($cart_row['quantity']).'">';
-					$options = $cart_row['options'];
-					if( is_array($options) && count($options) > 0 ) {
+					$options = ( isset( $cart_row['options'] ) && is_array( $cart_row['options'] ) ) ? $cart_row['options'] : array();
+					if( count( $options ) > 0 ) {
 						$optstr = '';
 						foreach( $options as $key => $value ) {
 							if( !empty($key) ) {
@@ -645,7 +646,7 @@ if( 'acting' != substr($payments['settlement'], 0, 6) || 0 == $usces_entries['or
 			}
 			$item_id = $cart[0]['post_id'];
 			$item_name = $usces->getItemName($cart[0]['post_id']);
-			if(1 < count($cart)) $item_name .= ' '.__('Others', 'usces');
+			if(1 < $cart_count) $item_name .= ' '.__('Others', 'usces');
 			if(36 < mb_strlen($item_name, 'UTF-8')) $item_name = mb_substr($item_name, 0, 30, 'UTF-8').'...';
 			$item_name = esc_attr( $item_name );
 			$amount = usces_crform($usces_entries['order']['total_full_price'], false, false, 'return', false);
@@ -793,7 +794,7 @@ if( 'acting' != substr($payments['settlement'], 0, 6) || 0 == $usces_entries['or
 				$fuka = $acting_flag;
 			}
 			$item_name = $usces->getItemName($cart[0]['post_id']);
-			if( 1 < count($cart) ) $item_name .= ','.__('Others', 'usces');
+			if( 1 < $cart_count ) $item_name .= ','.__('Others', 'usces');
 			if( 46 < strlen($item_name) ) $item_name = mb_strimwidth( $item_name, 0, 50, '...', 'UTF-8' );
 			$kakutei = ( empty($acting_opts['card_kakutei']) ) ? '0' : $acting_opts['card_kakutei'];
 			$html .= '<form id="purchase_form" name="purchase_form" action="'.$send_url.'" method="post" onKeyDown="if (event.keyCode == 13) {return false;}" accept-charset="Shift_JIS">
@@ -844,12 +845,13 @@ if( 'acting' != substr($payments['settlement'], 0, 6) || 0 == $usces_entries['or
 			$usces->save_order_acting_data($sid);
 			usces_save_order_acting_data( $sid );
 			$item_name = $usces->getItemName($cart[0]['post_id']);
-			if( 1 < count($cart) ) $item_name .= ','.__('Others', 'usces');
+			if( 1 < $cart_count ) $item_name .= ','.__('Others', 'usces');
 			if( 46 < strlen($item_name) ) $item_name = mb_strimwidth( $item_name, 0, 50, '...', 'UTF-8' );
 			$today = date( 'Y-m-d', current_time('timestamp') );
 			list( $year, $month, $day ) = explode( '-', $today );
 			$kigen = date( 'Ymd', mktime(0, 0, 0, (int)$month, (int)$day + (int)$acting_opts['conv_kigen'], (int)$year) );
-			$store = ( 1 < count($acting_opts['conv_store']) ) ? '99' : $acting_opts['conv_store'][0];
+			$conv_store = ( isset( $acting_opts['conv_store'] ) && is_array( $acting_opts['conv_store'] ) ) ? $acting_opts['conv_store'] : array();
+			$store = ( 1 == count( $conv_store ) ) ? $conv_store[0] : '99';
 			$html .= '<form id="purchase_form" name="purchase_form" action="'.USCES_CART_URL.'" method="post" onKeyDown="if (event.keyCode == 13) {return false;}" accept-charset="Shift_JIS">
 				<input type="hidden" name="IP" value="'.$acting_opts['conv_ip'].'" />
 				<input type="hidden" name="SID" value="'.$sid.'" />

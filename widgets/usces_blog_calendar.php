@@ -36,9 +36,9 @@ function get_wcblog_calendar($initial = true, $echo = true) {
 	} elseif ( !empty($m) ) {
 		$thisyear = ''.intval(substr($m, 0, 4));
 		if ( strlen($m) < 6 )
-				$thismonth = '01';
+			$thismonth = '01';
 		else
-				$thismonth = ''.zeroise(intval(substr($m, 4, 2)), 2);
+			$thismonth = ''.zeroise(intval(substr($m, 4, 2)), 2);
 	} else {
 		$thisyear = gmdate('Y', current_time('timestamp'));
 		$thismonth = gmdate('m', current_time('timestamp'));
@@ -54,18 +54,18 @@ function get_wcblog_calendar($initial = true, $echo = true) {
 		AND post_type = 'post' AND post_status = 'publish'
 			ORDER BY post_date DESC
 			LIMIT 1");
-	$next = $wpdb->get_row("SELECT	DISTINCT MONTH(post_date) AS month, YEAR(post_date) AS year
+	$next = $wpdb->get_row("SELECT DISTINCT MONTH(post_date) AS month, YEAR(post_date) AS year
 		FROM $wpdb->posts
-		WHERE post_date >	'$thisyear-$thismonth-01'
+		WHERE post_date > '$thisyear-$thismonth-01'
 		AND post_mime_type <> 'item' 
 		AND MONTH( post_date ) != MONTH( '$thisyear-$thismonth-01' )
 		AND post_type = 'post' AND post_status = 'publish'
-			ORDER	BY post_date ASC
+			ORDER BY post_date ASC
 			LIMIT 1");
 
 	/* translators: Calendar caption: 1: month name, 2: 4-digit year */
 	$calendar_caption = _x('%1$s %2$s', 'calendar caption');
-	$calendar_output = '<table id="wp-calendar" summary="' . esc_attr__('Calendar') . '">
+	$calendar_output = '<table id="wp-calendar" summary="' . esc_attr__('Calendar', 'usces') . '">
 	<caption>' . sprintf($calendar_caption, $wp_locale->get_month($thismonth), date('Y', $unixmonth)) . '</caption>
 	<thead>
 	<tr>';
@@ -79,7 +79,7 @@ function get_wcblog_calendar($initial = true, $echo = true) {
 	foreach ( $myweek as $wd ) {
 		$day_name = (true == $initial) ? $wp_locale->get_weekday_initial($wd) : $wp_locale->get_weekday_abbrev($wd);
 		$wd = esc_attr($wd);
-		$calendar_output .= "\n\t\t<th scope=\"col\" title=\"$wd\">$day_name</th>";
+		$calendar_output .= "<th scope=\"col\" title=\"$wd\">$day_name</th>";
 	}
 
 	$calendar_output .= '
@@ -90,17 +90,17 @@ function get_wcblog_calendar($initial = true, $echo = true) {
 	<tr>';
 
 	if ( $previous ) {
-		$calendar_output .= "\n\t\t".'<td colspan="3" id="prev"><a href="' . get_month_link($previous->year, $previous->month) . '" title="' . sprintf(__('View posts for %1$s %2$s'), $wp_locale->get_month($previous->month), date('Y', mktime(0, 0 , 0, $previous->month, 1, $previous->year))) . '">&laquo; ' . $wp_locale->get_month_abbrev($wp_locale->get_month($previous->month)) . '</a></td>';
+		$calendar_output .= '<td colspan="3" id="prev"><a href="' . get_month_link($previous->year, $previous->month) . '" title="' . sprintf(__('View posts for %1$s %2$s', 'usces'), $wp_locale->get_month($previous->month), date('Y', mktime(0, 0 , 0, $previous->month, 1, $previous->year))) . '">&laquo; ' . $wp_locale->get_month_abbrev($wp_locale->get_month($previous->month)) . '</a></td>';
 	} else {
-		$calendar_output .= "\n\t\t".'<td colspan="3" id="prev" class="pad">&nbsp;</td>';
+		$calendar_output .= '<td colspan="3" id="prev" class="pad">&nbsp;</td>';
 	}
 
-	$calendar_output .= "\n\t\t".'<td class="pad">&nbsp;</td>';
+	$calendar_output .= '<td class="pad">&nbsp;</td>';
 
 	if ( $next ) {
-		$calendar_output .= "\n\t\t".'<td colspan="3" id="next"><a href="' . get_month_link($next->year, $next->month) . '" title="' . esc_attr( sprintf(__('View posts for %1$s %2$s'), $wp_locale->get_month($next->month), date('Y', mktime(0, 0 , 0, $next->month, 1, $next->year))) ) . '">' . $wp_locale->get_month_abbrev($wp_locale->get_month($next->month)) . ' &raquo;</a></td>';
+		$calendar_output .= '<td colspan="3" id="next"><a href="' . get_month_link($next->year, $next->month) . '" title="' . esc_attr( sprintf(__('View posts for %1$s %2$s', 'usces'), $wp_locale->get_month($next->month), date('Y', mktime(0, 0 , 0, $next->month, 1, $next->year))) ) . '">' . $wp_locale->get_month_abbrev($wp_locale->get_month($next->month)) . ' &raquo;</a></td>';
 	} else {
-		$calendar_output .= "\n\t\t".'<td colspan="3" id="next" class="pad">&nbsp;</td>';
+		$calendar_output .= '<td colspan="3" id="next" class="pad">&nbsp;</td>';
 	}
 
 	$calendar_output .= '
@@ -142,14 +142,14 @@ function get_wcblog_calendar($initial = true, $echo = true) {
 	if ( $ak_post_titles ) {
 		foreach ( (array) $ak_post_titles as $ak_post_title ) {
 
-				$post_title = esc_attr( apply_filters( 'the_title', $ak_post_title->post_title, $ak_post_title->ID ) );
+			$post_title = esc_attr( apply_filters( 'the_title', $ak_post_title->post_title, $ak_post_title->ID ) );
 
-				if ( empty($ak_titles_for_day['day_'.$ak_post_title->dom]) )
-					$ak_titles_for_day['day_'.$ak_post_title->dom] = '';
-				if ( empty($ak_titles_for_day["$ak_post_title->dom"]) ) // first one
-					$ak_titles_for_day["$ak_post_title->dom"] = $post_title;
-				else
-					$ak_titles_for_day["$ak_post_title->dom"] .= $ak_title_separator . $post_title;
+			if ( empty($ak_titles_for_day['day_'.$ak_post_title->dom]) )
+				$ak_titles_for_day['day_'.$ak_post_title->dom] = '';
+			if ( empty($ak_titles_for_day["$ak_post_title->dom"]) ) // first one
+				$ak_titles_for_day["$ak_post_title->dom"] = $post_title;
+			else
+				$ak_titles_for_day["$ak_post_title->dom"] .= $ak_title_separator . $post_title;
 		}
 	}
 
@@ -157,12 +157,12 @@ function get_wcblog_calendar($initial = true, $echo = true) {
 	// See how much we should pad in the beginning
 	$pad = calendar_week_mod(date('w', $unixmonth)-$week_begins);
 	if ( 0 != $pad )
-		$calendar_output .= "\n\t\t".'<td colspan="'. esc_attr($pad) .'" class="pad">&nbsp;</td>';
+		$calendar_output .= '<td colspan="'. esc_attr($pad) .'" class="pad">&nbsp;</td>';
 
 	$daysinmonth = intval(date('t', $unixmonth));
 	for ( $day = 1; $day <= $daysinmonth; ++$day ) {
 		if ( isset($newrow) && $newrow )
-			$calendar_output .= "\n\t</tr>\n\t<tr>\n\t\t";
+			$calendar_output .= '</tr><tr>';
 		$newrow = false;
 
 		if ( $day == gmdate('j', current_time('timestamp')) && $thismonth == gmdate('m', current_time('timestamp')) && $thisyear == gmdate('Y', current_time('timestamp')) )
@@ -171,7 +171,7 @@ function get_wcblog_calendar($initial = true, $echo = true) {
 			$calendar_output .= '<td>';
 
 		if ( in_array($day, $daywithpost) ) // any posts today?
-				$calendar_output .= '<a href="' . get_day_link($thisyear, $thismonth, $day) . "\" title=\"" . esc_attr($ak_titles_for_day[$day]) . "\">$day</a>";
+			$calendar_output .= '<a href="' . get_day_link($thisyear, $thismonth, $day) . "\" title=\"" . esc_attr($ak_titles_for_day[$day]) . "\">$day</a>";
 		else
 			$calendar_output .= $day;
 		$calendar_output .= '</td>';
@@ -182,9 +182,9 @@ function get_wcblog_calendar($initial = true, $echo = true) {
 
 	$pad = 7 - calendar_week_mod(date('w', mktime(0, 0 , 0, $thismonth, $day, $thisyear))-$week_begins);
 	if ( $pad != 0 && $pad != 7 )
-		$calendar_output .= "\n\t\t".'<td class="pad" colspan="'. esc_attr($pad) .'">&nbsp;</td>';
+		$calendar_output .= '<td class="pad" colspan="'. esc_attr($pad) .'">&nbsp;</td>';
 
-	$calendar_output .= "\n\t</tr>\n\t</tbody>\n\t</table>";
+	$calendar_output .= '</tr></tbody></table>';
 
 	$cache[ $key ] = $calendar_output;
 	wp_cache_set( 'get_calendar', $cache, 'calendar' );
@@ -199,8 +199,8 @@ function get_wcblog_calendar($initial = true, $echo = true) {
 class Welcart_Blog_Calendar extends WP_Widget {
 
 	function __construct() {
-		$widget_ops = array('classname' => 'welcart_blog_calendar', 'description' => __( 'A calendar of your site&#8217;s posts').'（商品以外）' );
-		parent::__construct('welcart-blog-calendar', 'Welcart Blog Calendar', $widget_ops);
+		$widget_ops = array('classname' => 'welcart_blog_calendar', 'description' => __( "A calendar of your site&#8217;s posts.", 'usces').__( 'Non-item', 'usces' ) );
+		parent::__construct('welcart-blog-calendar', 'Welcart '.__( 'Blog Calendar', 'usces' ), $widget_ops);
 	}
 
 	function widget( $args, $instance ) {
@@ -226,7 +226,7 @@ class Welcart_Blog_Calendar extends WP_Widget {
 		$instance = wp_parse_args( (array) $instance, array( 'title' => '' ) );
 		$title = strip_tags($instance['title']);
 ?>
-		<p><label for="<?php echo $this->get_field_id('title'); ?>"><?php _e('Title:'); ?></label>
+		<p><label for="<?php echo $this->get_field_id('title'); ?>"><?php _e('Title:', 'usces'); ?></label>
 		<input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo esc_attr($title); ?>" /></p>
 <?php
 	}

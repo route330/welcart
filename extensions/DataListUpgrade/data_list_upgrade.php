@@ -13,7 +13,7 @@ class USCES_DATALIST_UPGRADE
 		self::initialize_data();
 	
 		if( is_admin() ){
-//usces_p($_REQUEST);		
+
 			add_action( 'usces_action_admin_system_extentions', array( $this, 'setting_form') );
 			add_action( 'init', array( $this, 'save_data') );
 
@@ -601,8 +601,9 @@ class USCES_DATALIST_UPGRADE
 			$order_id = $data['ID'];
 			$deli = unserialize($data['deli_name']);
 			$cart = usces_get_ordercartdata($order_id);
+			$cart_count = ( $cart && is_array( $cart ) ) ? count( $cart ) : 0;
 
-			for($i = 0; $i < count($cart); $i++) {
+			for($i = 0; $i < $cart_count; $i++) {
 				$cart_row = $cart[$i];
 
 				$line .= $tr_h;
@@ -903,7 +904,7 @@ class USCES_DATALIST_UPGRADE
 				if(isset($_REQUEST['check']['options'])) {
 					$options = usces_get_ordercart_meta( 'option', $cart_row['cart_id'] );
 					$optstr = '';
-					if(is_array($options) && count($options) > 0) {
+					if( $options && is_array($options) && count($options) > 0) {
 						foreach((array)$options as $key => $value) {
 							if(!empty($value['meta_key'])) {
 								$meta_value = maybe_unserialize($value['meta_value']);

@@ -429,7 +429,11 @@ jQuery(document).ready(function($){
 			
 		<?php elseif( $key == 'sku' ): ?>
 		<?php
-				$no_sku = ( 0 === count($value) ) ? "&nbsp;" : "";
+				if( is_array( $value ) ) {
+					$no_sku = ( 0 === count( $value ) ) ? "&nbsp;" : "";
+				} else {
+					$no_sku = "&nbsp;";
+				}
 				ob_start();
 		?>
 			<td class="sku">

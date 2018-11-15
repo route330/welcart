@@ -16,7 +16,6 @@ list($lateryy, $latermm, $laterdd) = getAfterMonth($todayyy, $todaymm, 1, 2);
 $cal3 = new calendarData();
 $cal3->setToday($lateryy, $latermm, $laterdd);
 $cal3->setCalendarData();
-//20131205_kitamu_start
 //the_4th_month(three months later)
 list($the_4th_monthyy, $the_4th_monthmm, $the_4th_monthdd) = getAfterMonth($todayyy, $todaymm, 1, 3);
 $cal4 = new calendarData();
@@ -62,7 +61,6 @@ list($the_12th_monthyy, $the_12th_monthmm, $the_12th_monthdd) = getAfterMonth($t
 $cal12 = new calendarData();
 $cal12->setToday($the_12th_monthyy, $the_12th_monthmm, $the_12th_monthdd);
 $cal12->setCalendarData();
-//20131205_kitamu_end
 
 $yearstr = substr(get_date_from_gmt(gmdate('Y-m-d H:i:s', time())), 0, 4);
 
@@ -154,7 +152,6 @@ function cangeWday3(id, c) {
 <?php endfor; ?>
 }
 
-//20131206_kitamu_start▼
 //4th
 function cangeWday4(id, c) {
 <?php for ($i = 0; $i < $cal4->getRow(); $i++) : ?>
@@ -342,7 +339,6 @@ function cangeWday12(id, c) {
 	}
 <?php endfor; ?>
 }
-//20131206_kitamu_end▲
 
 </script>
 <div class="wrap">
@@ -534,7 +530,6 @@ function cangeWday12(id, c) {
 		</td>
 		<td>&nbsp;</td>
 	</tr>
-<!--20131206_kitamu_start▼-->
 <!--4th-->
 	<tr>
 	    <th><?php echo sprintf(__('%2$s/%1$s', 'usces'),$the_4th_monthyy,$the_4th_monthmm); ?></th>
@@ -832,7 +827,6 @@ function cangeWday12(id, c) {
 		</td>
 		<td>&nbsp;</td>
 	</tr>
-<!--20131206_kitamu_end▲-->
 </table>
 <hr size="1" color="#CCCCCC" />
 <div id="ex_shipping_charge" class="explanation"></div>

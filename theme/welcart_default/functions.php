@@ -12,9 +12,9 @@ if(!defined('USCES_VERSION')) return;
 add_action( 'after_setup_theme', 'welcart_setup' );
 if ( ! function_exists( 'welcart_setup' ) ):
 function welcart_setup() {
-	
-	load_theme_textdomain( 'uscestheme', TEMPLATEPATH . '/languages' );
-	
+
+	load_theme_textdomain( 'uscestheme', get_template_directory() . '/languages' );
+
 	$GLOBALS['content_width'] = 770;
 
 	add_theme_support('title-tag');
@@ -43,7 +43,7 @@ if ( function_exists('register_sidebar') ) {
 	register_sidebar(array(
 		'name' => __( 'Home Left', 'uscestheme' ),
 		'id' => 'homeleft-widget-area',
-		'description' => __( 'home left sidebar widget area', 'uscestheme' ),
+		'description' => __( 'Top page left sidebar widget area', 'uscestheme' ),
 		'before_widget' => '<li id="%1$s" class="widget %2$s">',
 		'after_widget' => '</li>',
 		'before_title' => '<div class="widget_title">',
@@ -53,7 +53,7 @@ if ( function_exists('register_sidebar') ) {
 	register_sidebar(array(
 		'name' => __( 'Home Right', 'uscestheme' ),
 		'id' => 'homeright-widget-area',
-		'description' => __( 'home right sidebar widget area', 'uscestheme' ),
+		'description' => __( 'Top page right sidebar widget area', 'uscestheme' ),
 		'before_widget' => '<li id="%1$s" class="widget %2$s">',
 		'after_widget' => '</li>',
 		'before_title' => '<div class="widget_title">',
@@ -63,7 +63,7 @@ if ( function_exists('register_sidebar') ) {
 	register_sidebar(array(
 		'name' => __( 'Other Left', 'uscestheme' ),
 		'id' => 'otherleft-widget-area',
-		'description' => __( 'other left sidebar widget area', 'uscestheme' ),
+		'description' => __( 'Other page left sidebar widget area', 'uscestheme' ),
 		'before_widget' => '<li id="%1$s" class="widget %2$s">',
 		'after_widget' => '</li>',
 		'before_title' => '<div class="widget_title">',
@@ -71,9 +71,9 @@ if ( function_exists('register_sidebar') ) {
 	));
 	// Area 4, CartMemberLeft.
 	register_sidebar(array(
-		'name' => __( 'CartMemberLeft', 'uscestheme' ),
+		'name' => __( 'Cart Member Left', 'uscestheme' ),
 		'id' => 'cartmemberleft-widget-area',
-		'description' => __( 'cart or member left sidebar widget area', 'uscestheme' ),
+		'description' => __( 'Cart or Member page left sidebar widget area', 'uscestheme' ),
 		'before_widget' => '<li id="%1$s" class="widget %2$s">',
 		'after_widget' => '</li>',
 		'before_title' => '<div class="widget_title">',

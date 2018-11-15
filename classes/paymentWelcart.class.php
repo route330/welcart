@@ -1195,6 +1195,7 @@ jQuery(document).ready( function($) {
 			} else {
 				unset($usces->payment_structure['acting_welcart_atodene']);
 			}
+			usces_admin_orderlist_show_wc_trans_id();
 		} else {
 			$usces->action_status = 'error';
 			$usces->action_message = __('Data have deficiency.','usces');
@@ -3835,7 +3836,7 @@ src="<?php esc_html_e( $acting_opts['api_token'] ); ?>?k_TokenNinsyoCode=<?php e
 		$total_full_price = $order_data['order_item_total_price'] - $order_data['order_usedpoint'] + $order_data['order_discount'] + $order_data['order_shipping_charge'] + $order_data['order_cod_fee'] + $order_data['order_tax'];
 
 		$log_data = $this->get_acting_log( $order_id );
-		$num = count($log_data) + 1;
+		$num = ( $log_data ) ? count( $log_data ) + 1 : 1;
 
 		$KaiinId = $this->get_quick_kaiin_id( $member_id );
 		$card = ( empty($KaiinId) ) ? '&nbsp;<span id="settlement-status"><span class="acting-status card-error">'.__('Card unregistered','usces').'</span></span>' : '';
@@ -4728,7 +4729,7 @@ src="<?php esc_html_e( $acting_opts['api_token'] ); ?>?k_TokenNinsyoCode=<?php e
 
 		$status = '';
 		$log_data = $this->get_acting_log( $order_id );
-		if( 0 < count($log_data) ) {
+		if( $log_data && 0 < count($log_data) ) {
 			$acting_data = usces_unserialize($log_data[0]['log']);
 			$trans_id = ( isset($acting_data['MerchantFree1']) ) ? $acting_data['MerchantFree1'] : '';
 		} else {

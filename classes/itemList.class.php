@@ -315,13 +315,13 @@ class dataList
 						LEFT JOIN $wpdb->term_taxonomy AS tt ON tt.term_taxonomy_id = tr.term_taxonomy_id 
 						LEFT JOIN $wpdb->terms AS te ON te.term_id = tt.term_id ",
 						'_isku_');
-			}	
+			}
 		}
-					
+
 		$query .= $where . $order;// . $limit;
-					
+
 		$rows = $wpdb->get_results($query, ARRAY_A);
-		$this->selectedRow = count($rows);
+		$this->selectedRow = ( $rows && is_array( $rows ) ) ? count( $rows ) : 0;
 		if($this->pageLimit == 'off') {
 			$this->rows = $rows;
 		} else {
@@ -397,7 +397,8 @@ class dataList
 		$this->lastPage = ceil($this->selectedRow / $this->maxRow);
 		$this->previousPage = ($this->currentPage - 1 == 0) ? 1 : $this->currentPage - 1;
 		$this->nextPage = ($this->currentPage + 1 > $this->lastPage) ? $this->lastPage : $this->currentPage + 1;
-		
+		$box = array();
+
 		for($i=0; $i<$this->naviMaxButton; $i++){
 			if($i > $this->lastPage-1) break;
 			if($this->lastPage <= $this->naviMaxButton) {
@@ -425,7 +426,8 @@ class dataList
 			$html .= '<li class="navigationStr"><a href="' . site_url() . '/wp-admin/admin.php?page=usces_itemedit&changePage=' . $this->previousPage . '">prev&lt;</a></li>'."\n";
 		}
 		if($this->selectedRow > 0) {
-			for($i=0; $i<count($box); $i++){
+			$box_count = count( $box );
+			for($i=0; $i<$box_count; $i++){
 				if($box[$i] == $this->currentPage){
 					$html .= '<li class="navigationButtonSelected">' . $box[$i] . '</li>'."\n";
 				}else{

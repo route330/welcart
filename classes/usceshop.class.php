@@ -446,7 +446,7 @@ class usc_e_shop
 		if( $this->is_cart_or_member_page($_SERVER['REQUEST_URI']) || $this->is_inquiry_page($_SERVER['REQUEST_URI']) ){
 			$uri = USCES_SSL_URL_ADMIN. '/' . WPINC . '/images/crystal';
 		}else{
-			$link = apply_filters('usces_ssl_icon_dir_uri', $uri);
+			$uri = apply_filters('usces_ssl_icon_dir_uri', $uri);
 		}
 		return $uri;
 	}
@@ -4680,7 +4680,8 @@ class usc_e_shop
 		foreach ( $history as $umhs ) {
 			$cart = $umhs['cart'];
 			$status = $umhs['order_status'];
-			for($i=0; $i<count($cart); $i++) { 
+			$cart_count = ( $cart && is_array( $cart ) ) ? count( $cart ) : 0;
+			for($i=0; $i<$cart_count; $i++) { 
 				$cart_row = $cart[$i];
 				$sku_code = urldecode($cart_row['sku']);
 				if( empty($sku) ){
@@ -4864,7 +4865,8 @@ class usc_e_shop
 		$cart = $this->cart->get_cart();
 		$stocks = array();
 		
-		for($i=0; $i<count($cart); $i++) { 
+		$cart_count = ( $cart && is_array( $cart ) ) ? count( $cart ) : 0;
+		for($i=0; $i<$cart_count; $i++) { 
 			$cart_row = $cart[$i];
 			$post_id = $cart_row['post_id'];
 			$sku = $cart_row['sku'];
@@ -5397,7 +5399,7 @@ class usc_e_shop
 				KEY acc_date ( acc_date ), 
 				KEY acc_num1 ( acc_num1 ), 
 				KEY acc_num2 ( acc_num2 )  
-				) ENGINE = MYISAM AUTO_INCREMENT=0 $charset_collate;";
+				) AUTO_INCREMENT=0 $charset_collate;";
 		
 			dbDelta($sql);
 			add_option("usces_db_access", USCES_DB_ACCESS);
@@ -5428,7 +5430,7 @@ class usc_e_shop
 				mem_nicename VARCHAR( 50 ) NULL ,
 				KEY mem_email ( mem_email ) ,  
 				KEY mem_pass ( mem_pass )  
-				) ENGINE = MYISAM AUTO_INCREMENT=1000 $charset_collate;";
+				) AUTO_INCREMENT=1000 $charset_collate;";
 		
 			dbDelta($sql);
 			add_option("usces_db_member", USCES_DB_MEMBER);
@@ -5443,7 +5445,7 @@ class usc_e_shop
 				PRIMARY KEY  (mmeta_id),
 				KEY order_id (member_id),
 				KEY meta_key (meta_key)
-				) ENGINE = MYISAM $charset_collate;";
+				) $charset_collate;";
 		
 			dbDelta($sql);
 			add_option("usces_db_member_meta", USCES_DB_MEMBER_META);
@@ -5492,7 +5494,7 @@ class usc_e_shop
 				KEY order_address1 ( order_address1 ) ,  
 				KEY order_tel ( order_tel ) ,  
 				KEY order_date ( order_date )  
-				) ENGINE = MYISAM AUTO_INCREMENT=1000 $charset_collate;";
+				) AUTO_INCREMENT=1000 $charset_collate;";
 		
 			dbDelta($sql);
 			add_option("usces_db_order", USCES_DB_ORDER);
@@ -5507,7 +5509,7 @@ class usc_e_shop
 				PRIMARY KEY  (ometa_id),
 				KEY order_id (order_id),
 				KEY meta_key (meta_key)
-				) ENGINE = MYISAM $charset_collate;";
+				) $charset_collate;";
 		
 			dbDelta($sql);
 			add_option("usces_db_order_meta", USCES_DB_ORDER_META);
@@ -5540,7 +5542,7 @@ class usc_e_shop
 				KEY  `item_name` (  `item_name`  ) ,
 				KEY  `sku_code` (  `sku_code`  ) ,
 				KEY  `sku_name` (  `sku_name`  ) 
-				) ENGINE = MYISAM AUTO_INCREMENT=1000 $charset_collate;";
+				) AUTO_INCREMENT=1000 $charset_collate;";
 		
 			dbDelta($sql);
 			add_option("usces_db_ordercart", USCES_DB_ORDERCART);
@@ -5556,7 +5558,7 @@ class usc_e_shop
 				PRIMARY  KEY (  `cartmeta_id`  ) ,
 				KEY  `cart_id` (  `cart_id`  ) ,
 				KEY  `meta_key` (  `meta_key`  ) 
-				) ENGINE = MYISAM $charset_collate;";
+				) $charset_collate;";
 		
 			dbDelta($sql);
 			add_option("usces_db_ordercart_meta", USCES_DB_ORDERCART_META);
@@ -5573,7 +5575,7 @@ class usc_e_shop
 				KEY datetime ( datetime ),
 				KEY log_type ( log_type ),
 				KEY log_key ( log_key )
-				) ENGINE = MYISAM $charset_collate;";
+				) $charset_collate;";
 		
 			dbDelta($sql);
 			add_option("usces_db_log", USCES_DB_LOG);
@@ -5619,7 +5621,7 @@ class usc_e_shop
 				KEY acc_date (acc_date), 
 				KEY acc_num1 (acc_num1), 
 				KEY acc_num2 (acc_num2)  
-				) ENGINE = MYISAM;";
+				);";
 			
 			dbDelta($sql);
 			update_option( "usces_db_access", USCES_DB_ACCESS );
@@ -5650,7 +5652,7 @@ class usc_e_shop
 				mem_nicename VARCHAR(50) NULL ,
 				KEY mem_email (mem_email) ,  
 				KEY mem_pass (mem_pass)  
-				) ENGINE = MYISAM;";
+				);";
 			
 			dbDelta($sql);
 			update_option( "usces_db_member", USCES_DB_MEMBER );
@@ -5664,7 +5666,7 @@ class usc_e_shop
 				meta_value longtext,
 				KEY order_id (member_id),
 				KEY meta_key (meta_key)
-				) ENGINE = MYISAM;";
+				);";
 		
 			dbDelta($sql);
 			update_option("usces_db_member_meta", USCES_DB_MEMBER_META);
@@ -5713,7 +5715,7 @@ class usc_e_shop
 				KEY order_address1 (order_address1),
 				KEY order_tel (order_tel),
 				KEY order_date (order_date)
-				) ENGINE = MYISAM;";
+				);";
 		
 			dbDelta($sql);
 			update_option("usces_db_order", USCES_DB_ORDER);
@@ -5727,7 +5729,7 @@ class usc_e_shop
 				meta_value longtext,
 				KEY order_id (order_id),
 				KEY meta_key (meta_key)
-				) ENGINE = MYISAM;";
+				);";
 		
 			dbDelta($sql);
 			update_option("usces_db_order_meta", USCES_DB_ORDER_META);
@@ -5758,7 +5760,7 @@ class usc_e_shop
 				KEY  item_name (item_name) ,
 				KEY  sku_code (sku_code) ,
 				KEY  sku_name (sku_name) 
-				) ENGINE = MYISAM;";
+				);";
 		
 			dbDelta($sql);
 			update_option("usces_db_ordercart", USCES_DB_ORDERCART);
@@ -5773,7 +5775,7 @@ class usc_e_shop
 				meta_value longtext,
 				KEY  cart_id (cart_id) ,
 				KEY  meta_key (meta_key) 
-				) ENGINE = MYISAM;";
+				);";
 		
 			dbDelta($sql);
 			update_option("usces_db_ordercart_meta", USCES_DB_ORDERCART_META);
@@ -5789,7 +5791,7 @@ class usc_e_shop
 				KEY datetime (datetime),
 				KEY log_type (log_type),
 				KEY log_key (log_key)
-				) ENGINE = MYISAM;";
+				);";
 
 			dbDelta($sql);
 			update_option("usces_db_log", USCES_DB_LOG);
@@ -5919,8 +5921,9 @@ class usc_e_shop
 
 		$update_shipping_charge = false;
 		$shipping_charge = isset($this->options['shipping_charge']) ? $this->options['shipping_charge'] : array();
+		$shipping_charge_count = ( $shipping_charge && is_array( $shipping_charge ) ) ? count( $shipping_charge ) : 0;
 		foreach( (array)$target_market as $tm ) {
-			for( $i = 0; $i < count($shipping_charge); $i++ ) {
+			for( $i = 0; $i < $shipping_charge_count; $i++ ) {
 				if( isset($shipping_charge[$i]['country']) and $shipping_charge[$i]['country'] == $tm ) {
 					foreach( $shipping_charge[$i]['value'] as $pref => $value ) {
 						$shipping_charge[$i][$tm][$pref] = $value;
@@ -5935,8 +5938,9 @@ class usc_e_shop
 
 		$update_delivery_days = false;
 		$delivery_days = isset($this->options['delivery_days']) ? $this->options['delivery_days'] : array();
+		$delivery_days_count = ( $delivery_days && is_array( $delivery_days ) ) ? count( $delivery_days ) : 0;
 		foreach( (array)$target_market as $tm ) {
-			for( $i = 0; $i < count($delivery_days); $i++ ) {
+			for( $i = 0; $i < $delivery_days_count; $i++ ) {
 				if( isset($delivery_days[$i]['country']) and $delivery_days[$i]['country'] == $tm ) {
 					foreach( $delivery_days[$i]['value'] as $pref => $value ) {
 						$delivery_days[$i][$tm][$pref] = $value;
@@ -6345,8 +6349,8 @@ class usc_e_shop
 	}
 	
 	function getItemChargingDay( $post_id ){
-		$array = get_post_meta($post_id, '_item_chargingday',true );
-		$day = (int)$array;
+		$value = get_post_meta($post_id, '_item_chargingday',true );
+		$day = (int)$value;
 		$chargingday = empty($day) ? 1 : $day;
 		return $chargingday;
 	}
@@ -6571,7 +6575,7 @@ class usc_e_shop
 				break;
 			}
 		}
-		return 	$res;
+		return $res;
 	}
 	
 	function order_processing( $results = array() ) {
@@ -7211,7 +7215,8 @@ class usc_e_shop
 		$total_price = 0;
 
 		if( !empty($cart) ) {
-			for($i=0; $i<count($cart); $i++) { 
+			$cart_count = ( is_array( $cart ) ) ? count( $cart ) : 0;
+			for($i=0; $i<$cart_count; $i++) { 
 				$quantity = $cart[$i]['quantity'];
 				$skuPrice = $cart[$i]['price'];
 				
@@ -7228,7 +7233,8 @@ class usc_e_shop
 		$total_quantity = 0;
 
 		if( !empty($cart) ) {
-			for($i=0; $i<count($cart); $i++) { 
+			$cart_count = ( is_array( $cart ) ) ? count( $cart ) : 0;
+			for($i=0; $i<$cart_count; $i++) { 
 				$total_quantity += $cart[$i]['quantity'];
 			}
 		}
@@ -7476,16 +7482,16 @@ class usc_e_shop
 		$decipad = (int)str_pad( '1', $decimal+1, '0', STR_PAD_RIGHT );
 		switch( $this->options['tax_method'] ){
 			case 'cutting':
-				$tax = floor($tax*$decipad)/$decipad;
+				$tax = floor( (float)$tax * $decipad ) / $decipad;
 				break;
 			case 'bring':
-				$tax = ceil($tax*$decipad)/$decipad;
+				$tax = ceil( (float)$tax * $decipad ) / $decipad;
 				break;
 			case 'rounding':
 				if( 0 < $decimal ){
-					$tax = round($tax, (int)$decimal);
+					$tax = round( (float)$tax, (int)$decimal );
 				}else{
-					$tax = round($tax);
+					$tax = round( (float)$tax );
 				}
 				break;
 		}
@@ -8031,7 +8037,8 @@ class usc_e_shop
 
 	function get_delivery_method_index($id) {
 		$index = false; 
-		for($i=0; $i<count($this->options['delivery_method']); $i++){
+		$delivery_method_count = ( $this->options['delivery_method'] && is_array( $this->options['delivery_method'] ) ) ? count( $this->options['delivery_method'] ) : 0;
+		for($i=0; $i<$delivery_method_count; $i++){
 			if( isset($this->options['delivery_method'][$i]['id']) && $this->options['delivery_method'][$i]['id'] === (int)$id ){
 				$index = $i;
 			}
@@ -8044,7 +8051,8 @@ class usc_e_shop
 
 	function get_shipping_charge_index($id) {
 		$index = false; 
-		for($i=0; $i<count($this->options['shipping_charge']); $i++){
+		$shipping_charge_count = ( $this->options['shipping_charge'] && is_array( $this->options['shipping_charge'] ) ) ? count( $this->options['shipping_charge'] ) : 0;
+		for($i=0; $i<$shipping_charge_count; $i++){
 			if( isset($this->options['shipping_charge'][$i]) && (int)$this->options['shipping_charge'][$i]['id'] == (int)$id ){
 				$index = $i;
 			}

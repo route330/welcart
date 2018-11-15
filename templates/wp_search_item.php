@@ -6,7 +6,6 @@ $html = '<div class="loopimg">
 	</div>
 	<div class="loopexp">
 		<div class="field">' . $content . '</div>
-	</div>
-	';
+	</div>';
 $html = apply_filters( 'usces_filter_item_list_loopimg', $html, $content);
 ?>

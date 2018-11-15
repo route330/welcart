@@ -4,7 +4,7 @@ usces_get_members();
 usces_get_entries();
 usces_get_carts();
 $html = '<div id="info-confirm">
-	
+
 	<div class="usccart_navi">
 	<ol class="ucart">
 	<li class="ucart usccart">' . __('1.Cart','usces') . '</li>
@@ -155,9 +155,9 @@ $customer_info_table = '
 	<th>'.__('e-mail adress', 'usces').'</th>
 	<td>' . esc_html($usces_entries['customer']['mailaddress1']) . '</td>
 	</tr>';
-	
+
 $customer_info_table .= uesces_addressform( 'confirm', $usces_entries );
-	
+
 $customer_info_table .= '<tr>';
 $customer_info_table .= '<td class="ttl" colspan="2"><h3>'.__('Others', 'usces').'</h3></td>
 	</tr>';

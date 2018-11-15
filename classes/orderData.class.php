@@ -70,4 +70,3 @@ class orderDataObject
 		$this->reserve = array();
 	}
 }
-?>

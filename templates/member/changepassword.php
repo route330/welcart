@@ -34,7 +34,7 @@ $html .= '<div class="footer_explanation">';
 $footer = '';
 $html .= apply_filters('usces_filter_changepass_page_footer', $footer);
 $html .= '</div>';
-	
+
 
 $html .= '</div>
 

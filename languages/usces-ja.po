@@ -1,9 +1,9 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Welcart eCommerce\n"
+"Project-Id-Version: Welcart e-Commerce\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-01-20 00:00+0900\n"
-"PO-Revision-Date: 2018-08-27 14:20+0900\n"
+"PO-Revision-Date: 2018-11-01 12:05+0900\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -5642,3 +5642,70 @@ msgstr "「売り切れ時の購入制限」の値が異常です"
 
 msgid "Sorry, no posts matched your criteria."
 msgstr "条件に一致する投稿が見つかりませんでした。"
+
+msgid "Title:"
+msgstr "タイトル:"
+
+msgid "A calendar of your site&#8217;s posts."
+msgstr "投稿のカレンダー"
+
+msgid "Non-item"
+msgstr "（商品以外）"
+
+msgid "Your site&#8217;s most recent posts."
+msgstr "直近の投稿"
+
+msgid "Recent Posts"
+msgstr "最近の投稿"
+
+msgid "Number of posts to show:"
+msgstr "表示する投稿数:"
+
+msgid "View posts for %1$s %2$s"
+msgstr "%2$s年%1$sの投稿を表示"
+
+msgid "Blog Calendar"
+msgstr "ブログカレンダー"
+
+msgid "Last edited on %1$s at %2$s"
+msgstr "最後の編集: %1$s %2$s"
+
+msgid ""
+"Custom fields can be used to add extra metadata to a post that you can <a "
+"href=\"%s\">use in your theme</a>."
+msgstr ""
+"カスタムフィールドは投稿に特別なメタデータを追加するために使うものです。追加"
+"されたカスタムフィールドは<a href=\"%s\">テーマの中で利用</a>できます。"
+
+msgid ""
+"Trackbacks are a way to notify legacy blog systems that you&#8217;ve linked "
+"to them. If you link other WordPress sites, they&#8217;ll be notified "
+"automatically using <a href=\"%s\">pingbacks</a>, no other action necessary."
+msgstr ""
+"トラックバックは、レガシー的なブログシステムに対してリンクしたことを知らせる"
+"通知機能です。他の WordPress サイトにリンクすると、自動的に<a href=\"%s\">ピ"
+"ンバック</a>によって通知され、他には何もする必要はありません。"
+
+msgid ""
+"Excerpts are optional hand-crafted summaries of your content that can be "
+"used in your theme. <a href=\"%s\">Learn more about manual excerpts</a>."
+msgstr ""
+"抜粋は投稿内容から自分で作成する要約で、テーマの中で使用できます (オプショ"
+"ン)。<a href=\"%s\">詳しくは解説ページをご覧ください</a>。"
+
+msgid "Allow comments."
+msgstr "コメントの投稿を許可する。"
+
+msgid "Allow <a href=\"%s\">trackbacks and pingbacks</a> on this page."
+msgstr "このページで<a href=\"%s\">トラックバックとピンバック</a>を許可する。"
+
+msgid "Add new tag"
+msgstr "新規タグ追加"
+
+msgid "Most Used"
+msgstr "よく使うもの"
+
+msgid ""
+"Sorry, If you have any questions, please contact the administrator of the "
+"site."
+msgstr "ご不明な点は、サイトの管理者にお問い合わせください。"

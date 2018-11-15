@@ -47,6 +47,9 @@ if($member_action == 'new'){
 	$oa = 'editpost';
 	$ID = $_REQUEST['member_id'];
 	$member_metas = $this->get_member_meta($ID);
+	if( !$member_metas ) {
+		$member_metas = array();
+	}
 	ksort($member_metas);
 	global $wpdb;
 
@@ -55,6 +58,9 @@ if($member_action == 'new'){
 	$data = $wpdb->get_row( $query, ARRAY_A );
 
 	$usces_member_history = $this->get_member_history($ID);
+	if( !$usces_member_history ) {
+		$usces_member_history = array();
+	}
 	$csmb_meta = usces_has_custom_field_meta('member');
 	if(is_array($csmb_meta)) {
 		$keys = array_keys($csmb_meta);
@@ -246,7 +252,7 @@ function addComma(str)
 </div>
 <div id="member_history">
 <table>
-<?php if ( !count($usces_member_history) ) : ?>
+<?php if ( 0 == count( $usces_member_history ) ) : ?>
 <tr>
 <td><?php _e('There is no purchase history for this moment.', 'usces'); ?></td>
 </tr>
@@ -336,7 +342,8 @@ if( $this->is_status('duringorder', $value) ){
 	<th class="subtotal"><?php _e('Amount','usces'); ?>(<?php usces_crcode(); ?>)</th>
 	</tr>
 	<?php
-	for($i=0; $i<count($cart); $i++) { 
+	$cart_count = ( $cart && is_array( $cart ) ) ? count( $cart ) : 0;
+	for($i=0; $i<$cart_count; $i++) { 
 		$cart_row = $cart[$i];
 		$ordercart_id = $cart_row['cart_id'];
 		$post_id = $cart_row['post_id'];

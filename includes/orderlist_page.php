@@ -27,7 +27,8 @@ $pref = array();
 $target_market = $this->options['system']['target_market'];
 foreach((array)$target_market as $country) {
 	$prefs = get_usces_states($country);
-	if(is_array($prefs) and 0 < count($prefs)) {
+	$prefs_count = count( $prefs );
+	if(is_array($prefs) and 0 < $prefs_count) {
 		$pos = strpos($prefs[0], '--');
 		if($pos !== false) array_shift($prefs);
 		foreach((array)$prefs as $state) {
