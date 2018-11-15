@@ -92,7 +92,8 @@ function post_item_pict_box($post) {
 		$item_picts[] = wp_get_attachment_image( $pictid, array(260, 200), true );
 		$item_sumnails[] = wp_get_attachment_image( $pictid, array(50, 50), true );
 		$item_pictids = $usces->get_pictids($item_code);
-		for($i=0; $i<count($item_pictids); $i++){
+		$item_pictids_count = ( $item_pictids && is_array( $item_pictids ) ) ? count( $item_pictids ) : 0;
+		for($i=0; $i<$item_pictids_count; $i++){
 			$item_picts[] = wp_get_attachment_image( $item_pictids[$i], array(260, 200), true );
 			$item_sumnails[] = wp_get_attachment_image( $item_pictids[$i], array(50, 50), true );
 		}
@@ -113,7 +114,8 @@ function post_item_pict_box($post) {
 ?>
 		</div>
 		<div class="clearfix">
-	<?php for($i=0; $i<count($item_sumnails); $i++){ ?>
+	<?php $item_sumnails_count = count( $item_sumnails ); ?>
+	<?php for($i=0; $i<$item_sumnails_count; $i++){ ?>
 			<div class="subpict"><a onclick='uscesItem.cahngepict("<?php echo str_replace('"', '\"', $item_picts[$i]); ?>");'><?php echo $item_sumnails[$i]; ?></a></div>
 	<?php } ?>
 		</div>
@@ -260,7 +262,7 @@ $second_section .= '</select>
 <tr class="shipped">
 <th>' . __('shipping option','usces') . '</th>
 <td>';
-$delivery_methods = $this->options['delivery_method'];
+$delivery_methods = ( isset( $this->options['delivery_method'] ) && is_array( $this->options['delivery_method'] ) ) ? $this->options['delivery_method'] : array();
 if( count($delivery_methods) === 0 ){
 	$second_section .= __('* Please register an item, after you finished delivery setting!','usces');
 }else{

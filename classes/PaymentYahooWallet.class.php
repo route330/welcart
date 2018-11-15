@@ -182,7 +182,8 @@ class YAHOOWALLET_SETTLEMENT
 		<shopping_cart>
 		<items>
 		';
-		for( $i=0; $i<count($cart); $i++ ){
+		$cart_count = ( $cart && is_array( $cart ) ) ? count( $cart ) : 0;
+		for( $i=0; $i<$cart_count; $i++ ){
 			$cart_row = $cart[$i];
 			$post_id = $cart_row['post_id'];
 			$sku = urldecode($cart_row['sku']);

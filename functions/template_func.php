@@ -269,14 +269,14 @@ function usces_get_itemMeta($metakey, $post_id, $out = ''){
 
 function usces_sku_num() {
 	global $usces;
-	
-	return count($usces->itemskus);
+	$sku_num = ( !empty( $usces->itemskus ) && is_array( $usces->itemskus ) ) ? count( $usces->itemskus ) : 0;
+	return $sku_num;
 }
 
 function usces_is_skus() {
 	global $usces;
 	
-	if( 0 < count($usces->itemskus) ){
+	if( !empty( $usces->itemskus ) && is_array( $usces->itemskus ) && 0 < count( $usces->itemskus ) ){
 		$usces->current_itemsku = -1;
 		reset($usces->itemskus);
 		$usces->itemsku = array();
@@ -1044,7 +1044,8 @@ function usces_get_itemSubImageNums() {
 	if(!$code) return false;
 	$name = get_post_meta($post_id, '_itemName', true);
 	$pictids = $usces->get_pictids($code);
-	for($i=1; $i<=count($pictids); $i++){
+	$pictids_count = ( $pictids && is_array( $pictids ) ) ? count( $pictids ) : 0;
+	for($i=1; $i<=$pictids_count; $i++){
 		$res[] = $i;
 	}
 	return  $res;
@@ -1053,7 +1054,7 @@ function usces_get_itemSubImageNums() {
 function usces_is_options() {
 	global $usces;
 	
-	if( 0 < count($usces->itemopts) ){
+	if( !empty( $usces->itemopts ) && is_array( $usces->itemopts ) && 0 < count( $usces->itemopts ) ){
 		reset($usces->itemopts);
 		$usces->itemopt = array();
 		$usces->current_itemopt = -1;
@@ -1070,9 +1071,9 @@ function usces_have_options() {
 		$usces->current_itemopt = - 1;
 	}
 
-	if ( $usces->current_itemopt + 1 < count( $usces->itemopts ) ) {
+	if ( !empty( $usces->itemopts ) && is_array( $usces->itemopts ) && ( $usces->current_itemopt + 1 < count( $usces->itemopts ) ) ) {
 		$usces->current_itemopt++;
-		$usces->itemopt = $usces->itemopts[ $usces->current_itemopt ];
+		$usces->itemopt = ( isset( $usces->itemopts[ $usces->current_itemopt ] ) ) ? $usces->itemopts[ $usces->current_itemopt ] : array();
 
 		return true;
 	} else {
@@ -1367,9 +1368,8 @@ function usces_the_payment_method( $value = '', $out = '' ){
 		$continue_payment_method = apply_filters( 'usces_filter_the_continue_payment_method', array( 'acting_remise_card', 'acting_paypal_ec' ) );
 	}
 
-	$html = "<dl>\n";
 	$list = '';
-	$payment_ct = count($payments);
+	$payment_ct = ( $payments && is_array( $payments ) ) ? count( $payments ) : 0;
 	foreach ((array)$payments as $id => $payment) {
 		if( defined('WCEX_DLSELLER_VERSION') and version_compare( WCEX_DLSELLER_VERSION, '2.2-beta', '<=' ) ) {
 			if( $have_continue_charge ) {
@@ -1399,18 +1399,21 @@ function usces_the_payment_method( $value = '', $out = '' ){
 			$explanation = apply_filters( 'usces_fiter_the_payment_method_explanation', $payment['explanation'], $payment, $value );
 			if( (empty($module) || !file_exists($usces->options['settlement_path'] . $module)) && $payment['settlement'] == 'acting' ) {
 				$checked = '';
-				$list .= "\t".'<dt class="payment_'.$id.'"><label for="payment_name_' . $id . '"><input name="offer[payment_name]" id="payment_name_' . $id . '" type="radio" value="'.esc_attr($payment['name']).'"' . $checked . ' disabled onKeyDown="if (event.keyCode == 13) {return false;}" />'.esc_attr($payment['name'])."</label> <b> (" . __('cannot use this payment method now.','usces') . ") </b></dt>\n";
+				$list .= '<dt class="payment_'.$id.'"><label for="payment_name_'.$id.'"><input name="offer[payment_name]" id="payment_name_'.$id.'" type="radio" value="'.esc_attr($payment['name']).'"'.$checked.' disabled onKeyDown="if (event.keyCode == 13) {return false;}" />'.esc_attr($payment['name'])."</label> <b>(".__('cannot use this payment method now.','usces').")</b></dt>";
 			}else{
-				$list .= "\t".'<dt class="payment_'.$id.'"><label for="payment_name_' . $id . '"><input name="offer[payment_name]" id="payment_name_' . $id . '" type="radio" value="'.esc_attr($payment['name']).'"' . $checked . ' onKeyDown="if (event.keyCode == 13) {return false;}" />'.esc_attr($payment['name'])."</label></dt>\n";
+				$list .= '<dt class="payment_'.$id.'"><label for="payment_name_'.$id.'"><input name="offer[payment_name]" id="payment_name_'.$id.'" type="radio" value="'.esc_attr($payment['name']).'"'.$checked.' onKeyDown="if (event.keyCode == 13) {return false;}" />'.esc_attr($payment['name'])."</label></dt>";
 			}
-			$list .= "\t".'<dd class="payment_'.$id.'">'.$explanation.'</dd>'."\n";
+			if( !empty( $explanation ) ) {
+				$list .= '<dd class="payment_'.$id.'">'.$explanation.'</dd>';
+			}
 		}
 	}
 
-	$html .= $list . "</dl>\n";
-	
-	if( empty($list) )
-		$html = __('Not yet ready for the payment method. Please refer to a manager.', 'usces')."\n";
+	if( !empty( $list ) ) {
+		$html = '<dl>'.$list.'</dl>';
+	} else {
+		$html = '<div>'.__('Not yet ready for the payment method. Please refer to a manager.', 'usces').'</div>';
+	}
 
 	$html = apply_filters( 'usces_filter_the_payment_method_choices', $html, $payments );
 	if( $out == 'return' ){
@@ -1438,7 +1441,7 @@ function usces_the_delivery_method( $value = '', $out = '' ){
 	if( empty($deli_id) ){
 		$html = '<p>' . __('No valid shipping methods.', 'usces') . '</p>';
 	}else{
-		$cdeliid = count($deli_id);
+		$cdeliid = ( is_array( $deli_id ) ) ? count( $deli_id ) : 0;
 		$html = '<select name="offer[delivery_method]"  id="delivery_method_select" class="delivery_time" onKeyDown="if (event.keyCode == 13) {return false;}">'."\n";
 		foreach ($deli_id as $id) {
 			$index = $usces->get_delivery_method_index($id);
@@ -1529,16 +1532,16 @@ function usces_the_inquiry_form() {
 	global $usces;
 	$error_message = '';
 	if( isset($_POST['inq_name']) && !WCUtils::is_blank($_POST['inq_name']) ) {
-		$inq_name = trim($_POST['inq_name']);
+		$inq_name = trim( wp_unslash( $_POST['inq_name'] ) );
 	}else{
 		$inq_name = '';
 		if($usces->page == 'deficiency')
 			$error_message .= __('Please input your name.', 'usces') . "<br />";
 	}
-	if( isset($_POST['inq_mailaddress']) && is_email(trim($_POST['inq_mailaddress'])) ) {
-		$inq_mailaddress = trim($_POST['inq_mailaddress']);
-	}elseif( isset($_POST['inq_mailaddress']) && !is_email(trim($_POST['inq_mailaddress'])) ) {
-		$inq_mailaddress = trim($_POST['inq_mailaddress']);
+	if( isset($_POST['inq_mailaddress']) && is_email(trim(wp_unslash( $_POST['inq_mailaddress'] ))) ) {
+		$inq_mailaddress = trim(wp_unslash( $_POST['inq_mailaddress'] ));
+	}elseif( isset($_POST['inq_mailaddress']) && !is_email(trim(wp_unslash( $_POST['inq_mailaddress'] ))) ) {
+		$inq_mailaddress = trim(wp_unslash( $_POST['inq_mailaddress'] ));
 		if($usces->page == 'deficiency')
 			$error_message .= __('E-mail address is not correct', 'usces') . "<br />";
 	}else{
@@ -1547,7 +1550,7 @@ function usces_the_inquiry_form() {
 			$error_message .= __('Please input your e-mail address.', 'usces') . "<br />";
 	}
 	if( isset($_POST['inq_contents']) && !WCUtils::is_blank($_POST['inq_contents']) ) {
-		$inq_contents = trim($_POST['inq_contents']);
+		$inq_contents = trim(wp_unslash( $_POST['inq_contents'] ));
 	}else{
 		$inq_contents = '';
 		if($usces->page == 'deficiency')
@@ -1827,7 +1830,7 @@ function usces_list_post( $slug, $rownum, $widget_id=NULL ){
 	$list_index = 0;
 	while ($infolist->have_posts()) {
 		$infolist->the_post();
-		$list = '<li class="post_list'. apply_filters('usces_filter_post_list_class', NULL, $list_index, count($infolist)) . '">'."\n";
+		$list = '<li class="post_list'. apply_filters('usces_filter_post_list_class', NULL, $list_index, $infolist->post_count ) . '">'."\n";
 		$list .= "<div class='title'><a href='" . get_permalink($post->ID) . "'>" . get_the_title() . "</a></div>\n";
 		$list .= "<p>" . get_the_excerpt() . "</p>\n";
 		$list .= "</li>\n";
@@ -1886,7 +1889,7 @@ function usces_get_categories_checkbox($parent_id){
 function usces_search_categories(){
 	$cats = array();
 	if(isset($_REQUEST['category']))
-		$cats = $_REQUEST['category'];
+		$cats = wp_unslash( $_REQUEST['category'] );
 	else
 		$cats[] = USCES_ITEM_CAT_PARENT_ID;
 	sort($cats);
@@ -2575,140 +2578,138 @@ function usces_member_history( $out = '' ){
 	
 	$usces_members = $usces->get_member();
 	$usces_member_history = $usces->get_member_history($usces_members['ID']);
-	$colspan = usces_is_membersystem_point() ? 9 : 7;
-	if( !usces_is_tax_display() ) $colspan--;
+	$usces_member_history_count = ( $usces_member_history && is_array( $usces_member_history ) ) ? count( $usces_member_history ) : 0;
 
 	$html = '<div class="history-area">';
-	if ( !count($usces_member_history) ) {
+	if ( 0 == $usces_member_history_count ) {
 		$html .= '<table id="history_head"><tr>
 		<td>' . __('There is no purchase history for this moment.', 'usces') . '</td>
 		</tr></table>';
-	}
-	foreach ( $usces_member_history as $umhs ) {
-		$cart = $umhs['cart'];
-		$history_member_head = '<table id="history_head"><thead>
-			<tr class="order_head_label">
-			<th class="historyrow order_number">' . __('Order number', 'usces') . '</th>
-			<th class="historyrow purchase_date">' . __('Purchase date', 'usces') . '</th>
-			<th class="historyrow purchase_price">' . __('Purchase price', 'usces') . '</th>
-			<th class="historyrow discount">' . apply_filters( 'usces_member_discount_label', __('Special Price', 'usces'), $umhs['ID'] ) . '</th>';
-		if( usces_is_tax_display() && 'products' == usces_get_tax_target() ) {
-			$history_member_head .= '<th class="historyrow tax">' . usces_tax_label(array(), 'return') . '</th>';
-		}
-		if( usces_is_membersystem_point() && 0 == usces_point_coverage() ) {
-			$history_member_head .= '<th class="historyrow used_point">' . __('Used points', 'usces') . '</th>';
-		}
-		$history_member_head .= '<th class="historyrow shipping">' . __('Shipping', 'usces') . '</th>
-			<th class="historyrow cod">' . apply_filters( 'usces_filter_member_history_cod_label', __('C.O.D', 'usces'), $umhs['ID'] ) . '</th>';
-		if( usces_is_tax_display() && 'all' == usces_get_tax_target() ) {
-			$history_member_head .= '<th class="historyrow tax">' . usces_tax_label(array(), 'return') . '</th>';
-		}
-		if( usces_is_membersystem_point() && 1 == usces_point_coverage() ) {
-			$history_member_head .= '<th class="historyrow used_point">' . __('Used points', 'usces') . '</th>';
-		}
-		if( usces_is_membersystem_point() ) {
-			$history_member_head .= '<th class="historyrow get_point">' . __('Acquired points', 'usces') . '</th>';
-		}
-		$total_price = $usces->get_total_price($cart)-$umhs['usedpoint']+$umhs['discount']+$umhs['shipping_charge']+$umhs['cod_fee']+$umhs['tax'];
-		if( $total_price < 0 ) $total_price = 0;
-		$history_member_head .= '</tr></thead>
-			<tbody>
-			<tr class="order_head_value">
-			<td class="order_number">' . usces_get_deco_order_id($umhs['ID']) . '</td>
-			<td class="date purchase_date">' . $umhs['date'] . '</td>
-			<td class="rightnum purchase_price">' . usces_crform( $total_price, true, false, 'return' ) . '</td>
-			<td class="rightnum discount">' . usces_crform($umhs['discount'], true, false, 'return') . '</td>';
-		if( usces_is_tax_display() && 'products' == usces_get_tax_target() ) {
-			$history_member_head .= '<td class="rightnum tax">' . usces_tax($umhs, 'return') . '</td>';
-		}
-		if( usces_is_membersystem_point() && 0 == usces_point_coverage() ) {
-			$history_member_head .= '<td class="rightnum used_point">' . number_format($umhs['usedpoint']) . '</td>';
-		}
-		$history_member_head .= '<td class="rightnum shipping">' . usces_crform($umhs['shipping_charge'], true, false, 'return') . '</td>
-			<td class="rightnum cod">' . usces_crform($umhs['cod_fee'], true, false, 'return') . '</td>';
-		if( usces_is_tax_display() && 'all' == usces_get_tax_target() ) {
-			$history_member_head .= '<td class="rightnum tax">' . usces_tax($umhs, 'return') . '</td>';
-		}
-		if( usces_is_membersystem_point() && 1 == usces_point_coverage() ) {
-			$history_member_head .= '<td class="rightnum used_point">' . number_format($umhs['usedpoint']) . '</td>';
-		}
-		if( usces_is_membersystem_point() ) {
-			$history_member_head .= '<td class="rightnum get_point">' . number_format($umhs['getpoint']) . '</td>';
-		}
-		$history_member_head .= '</tr>';
-		$html .= apply_filters( 'usces_filter_history_member_head', $history_member_head, $umhs );
-		$html .= apply_filters('usces_filter_member_history_header', NULL, $umhs);
-		$html .= '</tbody></table>
-				<table id="retail_table_' . $umhs['ID'] . '" class="retail">';
-		$history_cart_head = '<thead><tr>
-				<th scope="row" class="cartrownum">No.</th>
-				<th class="thumbnail">&nbsp;</th>
-				<th class="productname">' . __('Items', 'usces') . '</th>
-				<th class="price">' . __('Unit price', 'usces') . '</th>
-				<th class="quantity">' . __('Quantity', 'usces') . '</th>
-				<th class="subtotal">' . __('Amount', 'usces') . '</th>
-				</tr></thead><tbody>';
-		$html .= apply_filters('usces_filter_history_cart_head', $history_cart_head, $umhs);
-			
-		for($i=0; $i<count($cart); $i++) { 
-			$cart_row = $cart[$i];
-			$ordercart_id = $cart_row['cart_id'];
-			$post_id = $cart_row['post_id'];
-			$sku = $cart_row['sku'];
-			$sku_code = urldecode($cart_row['sku']);
-			$quantity = $cart_row['quantity'];
-			$options = $cart_row['options'];
-			$itemCode = $cart_row['item_code'];
-			$itemName = $cart_row['item_name'];
-			$cartItemName = $usces->getCartItemName_byOrder($cart_row);
-			$skuPrice = $cart_row['price'];
-			$pictid = (int)$usces->get_mainpictid($itemCode);
-			$optstr =  '';
-			if( is_array($options) && count($options) > 0 ){
-				$optstr = '';
-				foreach($options as $key => $value){
-					if( !empty($key) ) {
-						$key = urldecode($key);
-						$value = maybe_unserialize($value);
-						if(is_array($value)) {
-							$c = '';
-							$optstr .= esc_html($key) . ' : '; 
-							foreach($value as $v) {
-								$optstr .= $c.nl2br(esc_html(rawurldecode($v)));
-								$c = ', ';
+	} else {
+		foreach ( $usces_member_history as $umhs ) {
+			$cart = $umhs['cart'];
+			$history_member_head = '<table id="history_head"><thead>
+				<tr class="order_head_label">
+				<th class="historyrow order_number">' . __('Order number', 'usces') . '</th>
+				<th class="historyrow purchase_date">' . __('Purchase date', 'usces') . '</th>
+				<th class="historyrow purchase_price">' . __('Purchase price', 'usces') . '</th>
+				<th class="historyrow discount">' . apply_filters( 'usces_member_discount_label', __('Special Price', 'usces'), $umhs['ID'] ) . '</th>';
+			if( usces_is_tax_display() && 'products' == usces_get_tax_target() ) {
+				$history_member_head .= '<th class="historyrow tax">' . usces_tax_label(array(), 'return') . '</th>';
+			}
+			if( usces_is_membersystem_point() && 0 == usces_point_coverage() ) {
+				$history_member_head .= '<th class="historyrow used_point">' . __('Used points', 'usces') . '</th>';
+			}
+			$history_member_head .= '<th class="historyrow shipping">' . __('Shipping', 'usces') . '</th>
+				<th class="historyrow cod">' . apply_filters( 'usces_filter_member_history_cod_label', __('C.O.D', 'usces'), $umhs['ID'] ) . '</th>';
+			if( usces_is_tax_display() && 'all' == usces_get_tax_target() ) {
+				$history_member_head .= '<th class="historyrow tax">' . usces_tax_label(array(), 'return') . '</th>';
+			}
+			if( usces_is_membersystem_point() && 1 == usces_point_coverage() ) {
+				$history_member_head .= '<th class="historyrow used_point">' . __('Used points', 'usces') . '</th>';
+			}
+			if( usces_is_membersystem_point() ) {
+				$history_member_head .= '<th class="historyrow get_point">' . __('Acquired points', 'usces') . '</th>';
+			}
+			$total_price = $usces->get_total_price($cart)-$umhs['usedpoint']+$umhs['discount']+$umhs['shipping_charge']+$umhs['cod_fee']+$umhs['tax'];
+			if( $total_price < 0 ) $total_price = 0;
+			$history_member_head .= '</tr></thead>
+				<tbody>
+				<tr class="order_head_value">
+				<td class="order_number">' . usces_get_deco_order_id($umhs['ID']) . '</td>
+				<td class="date purchase_date">' . $umhs['date'] . '</td>
+				<td class="rightnum purchase_price">' . usces_crform( $total_price, true, false, 'return' ) . '</td>
+				<td class="rightnum discount">' . usces_crform($umhs['discount'], true, false, 'return') . '</td>';
+			if( usces_is_tax_display() && 'products' == usces_get_tax_target() ) {
+				$history_member_head .= '<td class="rightnum tax">' . usces_tax($umhs, 'return') . '</td>';
+			}
+			if( usces_is_membersystem_point() && 0 == usces_point_coverage() ) {
+				$history_member_head .= '<td class="rightnum used_point">' . number_format($umhs['usedpoint']) . '</td>';
+			}
+			$history_member_head .= '<td class="rightnum shipping">' . usces_crform($umhs['shipping_charge'], true, false, 'return') . '</td>
+				<td class="rightnum cod">' . usces_crform($umhs['cod_fee'], true, false, 'return') . '</td>';
+			if( usces_is_tax_display() && 'all' == usces_get_tax_target() ) {
+				$history_member_head .= '<td class="rightnum tax">' . usces_tax($umhs, 'return') . '</td>';
+			}
+			if( usces_is_membersystem_point() && 1 == usces_point_coverage() ) {
+				$history_member_head .= '<td class="rightnum used_point">' . number_format($umhs['usedpoint']) . '</td>';
+			}
+			if( usces_is_membersystem_point() ) {
+				$history_member_head .= '<td class="rightnum get_point">' . number_format($umhs['getpoint']) . '</td>';
+			}
+			$history_member_head .= '</tr>';
+			$html .= apply_filters( 'usces_filter_history_member_head', $history_member_head, $umhs );
+			$html .= apply_filters('usces_filter_member_history_header', NULL, $umhs);
+			$html .= '</tbody></table>
+					<table id="retail_table_' . $umhs['ID'] . '" class="retail">';
+			$history_cart_head = '<thead><tr>
+					<th scope="row" class="cartrownum">No.</th>
+					<th class="thumbnail">&nbsp;</th>
+					<th class="productname">' . __('Items', 'usces') . '</th>
+					<th class="price">' . __('Unit price', 'usces') . '</th>
+					<th class="quantity">' . __('Quantity', 'usces') . '</th>
+					<th class="subtotal">' . __('Amount', 'usces') . '</th>
+					</tr></thead><tbody>';
+			$html .= apply_filters('usces_filter_history_cart_head', $history_cart_head, $umhs);
+			$cart_count = ( $cart && is_array( $cart ) ) ? count( $cart ) : 0;
+			for($i=0; $i<$cart_count; $i++) { 
+				$cart_row = $cart[$i];
+				$ordercart_id = $cart_row['cart_id'];
+				$post_id = $cart_row['post_id'];
+				$sku = $cart_row['sku'];
+				$sku_code = urldecode($cart_row['sku']);
+				$quantity = $cart_row['quantity'];
+				$options = ( !empty( $cart_row['options'] ) ) ? $cart_row['options'] : array();
+				$itemCode = $cart_row['item_code'];
+				$itemName = $cart_row['item_name'];
+				$cartItemName = $usces->getCartItemName_byOrder($cart_row);
+				$skuPrice = $cart_row['price'];
+				$pictid = (int)$usces->get_mainpictid($itemCode);
+				$optstr =  '';
+				if( is_array($options) && count($options) > 0 ){
+					foreach($options as $key => $value){
+						if( !empty($key) ) {
+							$key = urldecode($key);
+							$value = maybe_unserialize($value);
+							if(is_array($value)) {
+								$c = '';
+								$optstr .= esc_html($key) . ' : ';
+								foreach($value as $v) {
+									$optstr .= $c.nl2br(esc_html(rawurldecode($v)));
+									$c = ', ';
+								}
+								$optstr .= "<br />\n";
+							} else {
+								$optstr .= esc_html($key) . ' : ' . nl2br(esc_html(rawurldecode($value))) . "<br />\n";
 							}
-							$optstr .= "<br />\n"; 
-						} else {
-							$optstr .= esc_html($key) . ' : ' . nl2br(esc_html(rawurldecode($value))) . "<br />\n"; 
 						}
 					}
+					$optstr = apply_filters( 'usces_filter_option_history', $optstr, $options);
 				}
-				$optstr = apply_filters( 'usces_filter_option_history', $optstr, $options);
+				$optstr = apply_filters( 'usces_filter_option_info_history', $optstr, $umhs, $cart_row, $i );
+				$args = compact('cart', 'i', 'cart_row', 'post_id', 'sku' );
+
+				$cart_item_name = '<a href="' . get_permalink($post_id) . '">' . apply_filters('usces_filter_cart_item_name', esc_html($cartItemName), $args ) . '<br />' . $optstr . '</a>' . apply_filters('usces_filter_history_item_name', NULL, $umhs, $cart_row, $i);
+				$cart_item_name = apply_filters( 'usces_filter_history_cart_item_name', $cart_item_name, $cartItemName, $optstr, $cart_row, $i, $umhs );
+
+				$history_cart_row = '<tr>
+					<td class="cartrownum">' . ($i + 1) . '</td>
+					<td class="thumbnail">';
+				$cart_thumbnail = '<a href="' . get_permalink($post_id) . '">' . wp_get_attachment_image( $pictid, array(60, 60), true ) . '</a>';
+				$history_cart_row .= apply_filters('usces_filter_cart_thumbnail', $cart_thumbnail, $post_id, $pictid, $i, $cart_row);
+				$history_cart_row .= '</td>
+					<td class="aleft productname">' . $cart_item_name . '</td>
+					<td class="rightnum price">' . usces_crform($skuPrice, true, false, 'return') . '</td>
+					<td class="rightnum quantity">' . number_format($cart_row['quantity']) . '</td>
+					<td class="rightnum subtotal">' . usces_crform($skuPrice * $cart_row['quantity'], true, false, 'return') . '</td>
+					</tr>';
+				$materials = compact( 'cart_thumbnail', 'post_id', 'pictid', 'cartItemName', 'optstr' );
+				$html .= apply_filters( 'usces_filter_history_cart_row', $history_cart_row, $umhs, $cart_row, $i, $materials );
 			}
-			$optstr = apply_filters( 'usces_filter_option_info_history', $optstr, $umhs, $cart_row, $i );
-			$args = compact('cart', 'i', 'cart_row', 'post_id', 'sku' );
-
-			$cart_item_name = '<a href="' . get_permalink($post_id) . '">' . apply_filters('usces_filter_cart_item_name', esc_html($cartItemName), $args ) . '<br />' . $optstr . '</a>' . apply_filters('usces_filter_history_item_name', NULL, $umhs, $cart_row, $i);
-			$cart_item_name = apply_filters( 'usces_filter_history_cart_item_name', $cart_item_name, $cartItemName, $optstr, $cart_row, $i, $umhs );
-
-			$history_cart_row = '<tr>
-				<td class="cartrownum">' . ($i + 1) . '</td>
-				<td class="thumbnail">';
-			$cart_thumbnail = '<a href="' . get_permalink($post_id) . '">' . wp_get_attachment_image( $pictid, array(60, 60), true ) . '</a>';
-			$history_cart_row .= apply_filters('usces_filter_cart_thumbnail', $cart_thumbnail, $post_id, $pictid, $i, $cart_row);
-			$history_cart_row .= '</td>
-				<td class="aleft productname">' . $cart_item_name . '</td>
-				<td class="rightnum price">' . usces_crform($skuPrice, true, false, 'return') . '</td>
-				<td class="rightnum quantity">' . number_format($cart_row['quantity']) . '</td>
-				<td class="rightnum subtotal">' . usces_crform($skuPrice * $cart_row['quantity'], true, false, 'return') . '</td>
-				</tr>';
-			$materials = compact( 'cart_thumbnail', 'post_id', 'pictid', 'cartItemName', 'optstr' );
-			$html .= apply_filters( 'usces_filter_history_cart_row', $history_cart_row, $umhs, $cart_row, $i, $materials );
+			$html .= '</tbody></table>';
+			$html .= apply_filters( 'usces_filter_member_history_row', '', $umhs, $cart );
 		}
-		$html .= '</tbody></table>';
-		$html .= apply_filters( 'usces_filter_member_history_row', '', $umhs, $cart_row, $i );
 	}
-	
 	$html .= '</div>';
 	$args = array();
 	$html = apply_filters( 'usces_filter_member_history', $html, $args );
@@ -2792,15 +2793,16 @@ function usces_get_cart_rows( $out = '' ) {
 	global $usces, $usces_gp;
 	$cart = $usces->cart->get_cart();
 	$usces_gp = 0;
+	$cart_count = ( $cart && is_array( $cart ) ) ? count( $cart ) : 0;
 	$res = '';
 
-	for($i=0; $i<count($cart); $i++) { 
+	for($i=0; $i<$cart_count; $i++) { 
 		$cart_row = $cart[$i];
 		$post_id = (int)$cart_row['post_id'];
 		$sku = $cart_row['sku'];
 		$sku_code = urldecode($cart_row['sku']);
 		$quantity = $cart_row['quantity'];
-		$options = $cart_row['options'];
+		$options = ( !empty( $cart_row['options'] ) ) ? $cart_row['options'] : array();
 		$advance = $cart_row['advance'];
 		$itemCode = $usces->getItemCode($post_id);
 		$itemName = $usces->getItemName($post_id);
@@ -2815,10 +2817,6 @@ function usces_get_cart_rows( $out = '' ) {
 		$pictid = (int)$usces->get_mainpictid($itemCode);
 		$args = compact('cart', 'i', 'cart_row', 'post_id', 'sku' );
 		$row = '';
-		if ( empty($options) ) {
-			$optstr =  '';
-			$options =  array();
-		}
 		$row .= '<tr>
 			<td class="num">' . ($i + 1) . '</td>
 			<td class="thumbnail">';
@@ -2833,14 +2831,14 @@ function usces_get_cart_rows( $out = '' ) {
 					$key = urldecode($key);
 					if(is_array($value)) {
 						$c = '';
-						$optstr .= esc_html($key) . ' : '; 
+						$optstr .= esc_html($key) . ' : ';
 						foreach($value as $v) {
 							$optstr .= $c.nl2br(esc_html(urldecode($v)));
 							$c = ', ';
 						}
-						$optstr .= "<br />\n"; 
+						$optstr .= "<br />\n";
 					} else {
-						$optstr .= esc_html($key) . ' : ' . nl2br(esc_html(urldecode($value))) . "<br />\n"; 
+						$optstr .= esc_html($key) . ' : ' . nl2br(esc_html(urldecode($value))) . "<br />\n";
 					}
 				}
 			}
@@ -2864,13 +2862,15 @@ function usces_get_cart_rows( $out = '' ) {
 			<td class="aright subtotal">' . usces_crform(($skuPrice * $cart_row['quantity']), true, false, 'return') . '</td>
 			<td ' . $red . '>' . esc_html($stock) . '</td>
 			<td class="action">';
-		foreach($options as $key => $value){
-			if(is_array($value)) {
-				foreach($value as $v) {
-					$row .= '<input name="itemOption[' . $i . '][' . $post_id . '][' . esc_attr($sku) . '][' . esc_attr($key) . '][' . esc_attr($v) . ']" type="hidden" value="' . esc_attr($v) . '" />'."\n";
+		if( is_array($options) && count($options) > 0 ){
+			foreach($options as $key => $value){
+				if(is_array($value)) {
+					foreach($value as $v) {
+						$row .= '<input name="itemOption[' . $i . '][' . $post_id . '][' . esc_attr($sku) . '][' . esc_attr($key) . '][' . esc_attr($v) . ']" type="hidden" value="' . esc_attr($v) . '" />'."\n";
+					}
+				} else {
+					$row .= '<input name="itemOption[' . $i . '][' . $post_id . '][' . esc_attr($sku) . '][' . esc_attr($key) . ']" type="hidden" value="' . esc_attr($value) . '" />'."\n";
 				}
-			} else {
-				$row .= '<input name="itemOption[' . $i . '][' . $post_id . '][' . esc_attr($sku) . '][' . esc_attr($key) . ']" type="hidden" value="' . esc_attr($value) . '" />'."\n";
 			}
 		}
 		$row .= '<input name="itemRestriction[' . $i . ']" type="hidden" value="' . esc_attr($itemRestriction) . '" />
@@ -2905,14 +2905,16 @@ function usces_get_confirm_rows( $out = '' ) {
 	$usces_entries = $usces->cart->get_entry();
 
 	$cart = $usces->cart->get_cart();
+	$cart_count = ( $cart && is_array( $cart ) ) ? count( $cart ) : 0;
 	$res = '';
-	for($i=0; $i<count($cart); $i++) { 
+
+	for($i=0; $i<$cart_count; $i++) { 
 		$cart_row = $cart[$i];
 		$post_id = (int)$cart_row['post_id'];
 		$sku = $cart_row['sku'];
 		$sku_code = urldecode($cart_row['sku']);
 		$quantity = $cart_row['quantity'];
-		$options = $cart_row['options'];
+		$options = ( !empty( $cart_row['options'] ) ) ? $cart_row['options'] : array();
 		$advance = $cart_row['advance'];
 		$itemCode = $usces->getItemCode($post_id);
 		$itemName = $usces->getItemName($post_id);
@@ -2921,11 +2923,6 @@ function usces_get_confirm_rows( $out = '' ) {
 		$pictid = $usces->get_mainpictid($itemCode);
 		$args = compact('cart', 'i', 'cart_row', 'post_id', 'sku' );
 		$row = '';
-		if (empty($options)) {
-			$optstr =  '';
-			$options =  array();
-		}
-	
 		$row .= '<tr>
 			<td class="num">' . ($i + 1) . '</td>
 			<td class="thumbnail">';
@@ -2939,14 +2936,14 @@ function usces_get_confirm_rows( $out = '' ) {
 					$key = urldecode($key);
 					if(is_array($value)) {
 						$c = '';
-						$optstr .= esc_html($key) . ' : '; 
+						$optstr .= esc_html($key) . ' : ';
 						foreach($value as $v) {
 							$optstr .= $c.nl2br(esc_html(urldecode($v)));
 							$c = ', ';
 						}
-						$optstr .= "<br />\n"; 
+						$optstr .= "<br />\n";
 					} else {
-						$optstr .= esc_html($key) . ' : ' . nl2br(esc_html(urldecode($value))) . "<br />\n"; 
+						$optstr .= esc_html($key) . ' : ' . nl2br(esc_html(urldecode($value))) . "<br />\n";
 					}
 				}
 			}
@@ -2996,6 +2993,7 @@ function uesces_addressform( $type, $data, $out = 'return' ){
 	$data['type'] = $type;
 	$values['country'] = !empty($values['country']) ? $values['country'] : usces_get_local_addressform();
 	$values = $usces->stripslashes_deep_post($values);
+	$target_market_count = ( isset( $options['system']['target_market'] ) && is_array( $options['system']['target_market'] ) ) ? count( $options['system']['target_market'] ) : 1;
 
 	if( 'confirm' == $type ){
 	
@@ -3009,12 +3007,10 @@ function uesces_addressform( $type, $data, $out = 'return' ){
 			$formtag .= apply_filters( 'usces_filter_furigana_confirm_customer', $furigana_customer, $type, $values );
 			$formtag .= usces_custom_field_info($data, 'customer', 'name_after', 'return');
 			$formtag .= '<tr class="zipcode-row member-zipcode-row"><th>'.__('Zip/Postal Code', 'usces').'</th><td>' . esc_html($values['customer']['zipcode']) . '</td></tr>';
-//20131213_kitamura_start
-			if( count( $options['system']['target_market'] ) != 1 ){
+			if( 1 < $target_market_count ){
 				$customer_country = (!empty($usces_settings['country'][$values['customer']['country']])) ? $usces_settings['country'][$values['customer']['country']] : '';
 				$formtag .= '<tr class="country-row member-country-row"><th>'.__('Country', 'usces').'</th><td>' . esc_html($customer_country) . '</td></tr>';
 			}
-//20131213_kitamura_end
 			$customer_pref = ( $values['customer']['pref'] == __('-- Select --','usces') || $values['customer']['pref'] == '-- Select --' ) ? '' : $values['customer']['pref'];
 			$formtag .= '
 			<tr class="states-row member-states-row"><th>'.__('Province', 'usces').'</th><td>' . esc_html($customer_pref) . '</td></tr>
@@ -3035,12 +3031,10 @@ function uesces_addressform( $type, $data, $out = 'return' ){
 				$shipping_address_info .= apply_filters( 'usces_filter_furigana_confirm_delivery', $furigana_delivery, $type, $values );
 				$shipping_address_info .= usces_custom_field_info($values, 'delivery', 'name_after', 'return');
 				$shipping_address_info .= '<tr class="zipcode-row delivery-zipcode-row"><th>'.__('Zip/Postal Code', 'usces').'</th><td>' . esc_html($values['delivery']['zipcode']) . '</td></tr>';
-	//20131213_kitamura_start
-				if( count( $options['system']['target_market'] ) != 1 ){
+				if( 1 < $target_market_count ){
 					$shipping_country = (!empty($usces_settings['country'][$values['delivery']['country']])) ? $usces_settings['country'][$values['delivery']['country']] : '';
 					$shipping_address_info .= '<tr class="country-row delivery-country-row"><th>'.__('Country', 'usces').'</th><td>' . esc_html($shipping_country) . '</td></tr>';
 				}
-	//20131213_kitamura_end
 				$delivery_pref = ( $values['delivery']['pref'] == __('-- Select --','usces') || $values['delivery']['pref'] == '-- Select --' ) ? '' : $values['delivery']['pref'];
 				$shipping_address_info .= '
 				<tr class="states-row delivery-states-row"><th>'.__('Province', 'usces').'</th><td>' . esc_html($delivery_pref) . '</td></tr>
@@ -3058,12 +3052,10 @@ function uesces_addressform( $type, $data, $out = 'return' ){
 			$formtag .= usces_custom_field_info($data, 'customer', 'name_pre', 'return');
 			$formtag .= '<tr class="name-row member-name-row"><th>'.apply_filters( 'usces_filters_addressform_name_label', __('Full name', 'usces'), $type, $values, $applyform ).'</th><td>' . sprintf(_x('%s', 'honorific', 'usces'), esc_html(usces_localized_name( $values['customer']['name1'], $values['customer']['name2'], 'return' )) ) . '</td></tr>';
 			$formtag .= usces_custom_field_info($data, 'customer', 'name_after', 'return');
-//20131213_kitamura_start
-			if( count( $options['system']['target_market'] ) != 1 ){
+			if( 1 < $target_market_count ){
 				$customer_country = (!empty($usces_settings['country'][$values['customer']['country']])) ? $usces_settings['country'][$values['customer']['country']] : '';
 				$formtag .= '<tr class="country-row member-country-row"><th>'.__('Country', 'usces').'</th><td>' . esc_html($customer_country) . '</td></tr>';
 			}
-//20131213_kitamura_end
 			$customer_pref = ( $values['customer']['pref'] == __('-- Select --','usces') || $values['customer']['pref'] == '-- Select --' ) ? '' : $values['customer']['pref'];
 			$formtag .= '
 			<tr class="states-row member-states-row"><th>'.__('State', 'usces').'</th><td>' . esc_html($customer_pref) . '</td></tr>
@@ -3081,12 +3073,10 @@ function uesces_addressform( $type, $data, $out = 'return' ){
 				$shipping_address_info .= usces_custom_field_info($data, 'delivery', 'name_pre', 'return');
 				$shipping_address_info .= '<tr class="name-row delivery-name-row"><th>'.apply_filters( 'usces_filters_addressform_name_label', __('Full name', 'usces'), $type, $values, $applyform ).'</th><td>' . sprintf(_x('%s', 'honorific', 'usces'), esc_html(usces_localized_name( $values['delivery']['name1'], $values['delivery']['name2'], 'return' )) ) . '</td></tr>';
 				$shipping_address_info .= usces_custom_field_info($data, 'delivery', 'name_after', 'return');
-	//20131213_kitamura_start
-				if( count( $options['system']['target_market'] ) != 1 ){
+				if( 1 < $target_market_count ){
 					$shipping_country = (!empty($usces_settings['country'][$values['delivery']['country']])) ? $usces_settings['country'][$values['delivery']['country']] : '';
 					$shipping_address_info .= '<tr class="country-row delivery-country-row"><th>'.__('Country', 'usces').'</th><td>' . esc_html($shipping_country) . '</td></tr>';
 				}
-	//20131213_kitamura_end
 				$delivery_pref = ( $values['delivery']['pref'] == __('-- Select --','usces') || $values['delivery']['pref'] == '-- Select --' ) ? '' : $values['delivery']['pref'];
 				$shipping_address_info .= '
 				<tr class="states-row delivery-states-row"><th>'.__('State', 'usces').'</th><td>' . esc_html($delivery_pref) . '</td></tr>
@@ -3112,12 +3102,10 @@ function uesces_addressform( $type, $data, $out = 'return' ){
 			<tr class="address3-row member-address3-row"><th>'.__('Address Line2', 'usces').'</th><td>' . esc_html($values['customer']['address3']) . '</td></tr>
 			<tr class="address1-row member-address1-row"><th>'.__('city', 'usces').'</th><td>' . esc_html($values['customer']['address1']) . '</td></tr>
 			<tr class="states-row member-states-row"><th>'.__('State', 'usces').'</th><td>' . esc_html($customer_pref) . '</td></tr>';
-//20131213_kitamura_start
-			if( count( $options['system']['target_market'] ) != 1 ){
+			if( 1 < $target_market_count ){
 				$customer_country = (!empty($usces_settings['country'][$values['customer']['country']])) ? $usces_settings['country'][$values['customer']['country']] : '';
 				$formtag .= '<tr class="country-row member-country-row"><th>'.__('Country', 'usces').'</th><td>' . esc_html($customer_country) . '</td></tr>';
 			}
-//20131213_kitamura_end
 			$formtag .= '
 			<tr class="zipcode-row member-zipcode-row"><th>'.__('Zip', 'usces').'</th><td>' . esc_html($values['customer']['zipcode']) . '</td></tr>
 			<tr class="tel-row member-tel-row"><th>'.__('Phone number', 'usces').'</th><td>' . esc_html($values['customer']['tel']) . '</td></tr>
@@ -3136,12 +3124,10 @@ function uesces_addressform( $type, $data, $out = 'return' ){
 				<tr class="address3-row delivery-address3-row"><th>'.__('Address Line2', 'usces').'</th><td>' . esc_html($values['delivery']['address3']) . '</td></tr>
 				<tr class="address1-row delivery-address1-row"><th>'.__('city', 'usces').'</th><td>' . esc_html($values['delivery']['address1']) . '</td></tr>
 				<tr class="states-row delivery-states-row"><th>'.__('State', 'usces').'</th><td>' . esc_html($delivery_pref) . '</td></tr>';
-	//20131213_kitamura_start
-				if( count( $options['system']['target_market'] ) != 1 ){
+				if( 1 < $target_market_count ){
 					$shipping_country = (!empty($usces_settings['country'][$values['delivery']['country']])) ? $usces_settings['country'][$values['delivery']['country']] : '';
 					$shipping_address_info .= '<tr class="country-row delivery-country-row"><th>'.__('Country', 'usces').'</th><td>' . esc_html($shipping_country) . '</td></tr>';
 				}
-	//20131213_kitamura_end
 				$shipping_address_info .= '
 				<tr class="zipcode-row delivery-zipcode-row"><th>'.__('Zip', 'usces').'</th><td>' . esc_html($values['delivery']['zipcode']) . '</td></tr>
 				<tr class="tel-row delivery-tel-row"><th>'.__('Phone number', 'usces').'</th><td>' . esc_html($values['delivery']['tel']) . '</td></tr>
@@ -3186,16 +3172,14 @@ function uesces_addressform( $type, $data, $out = 'return' ){
 			<th scope="row">' . usces_get_essential_mark('zipcode', $data).__('Zip/Postal Code', 'usces').'</th>
 			<td colspan="2"><input name="' . $type . '[zipcode]" id="zipcode" type="text" value="' . esc_attr($values['zipcode']) . '" onKeyDown="if (event.keyCode == 13) {return false;}" style="ime-mode: inactive" />' . usces_postal_code_address_search( $type ) . apply_filters( 'usces_filter_addressform_zipcode', NULL, $type ) . apply_filters( 'usces_filter_after_zipcode', '100-1000', $applyform ) . '</td>
 			</tr>';
-//20131213_kitamura_start
-			if( count( $options['system']['target_market'] ) == 1 ){
-				$formtag .= '<input type="hidden" name="' .$type. '[country]" id="' .$type. '_country" value="' .$options['system']['target_market'][0]. '">';
-			}else{
+			if( 1 < $target_market_count ){
 				$formtag .= '<tr id="country_row">
 				<th scope="row">' . usces_get_essential_mark('country', $data) . __('Country', 'usces') . '</th>
 				<td colspan="2">' . uesces_get_target_market_form( $type, $values['country'] ) . apply_filters( 'usces_filter_after_country', NULL, $applyform ) . '</td>
 				</tr>';
+			}else{
+				$formtag .= '<input type="hidden" name="' .$type. '[country]" id="' .$type. '_country" value="' .$options['system']['target_market'][0]. '">';
 			}
-//20131213_kitamura_end
 			$formtag .= '<tr id="states_row">
 			<th scope="row">' . usces_get_essential_mark('states', $data).__('Province', 'usces').'</th>
 			<td colspan="2">' . usces_pref_select( $type, $values ) . apply_filters( 'usces_filter_after_states', NULL, $applyform ) . '</td>
@@ -3236,16 +3220,14 @@ function uesces_addressform( $type, $data, $out = 'return' ){
 			}
 			$formtag .= '</tr>';
 			$formtag .= usces_custom_field_input($data, $type, 'name_after', 'return');
-//20131213_kitamura_start
-			if( count( $options['system']['target_market'] ) == 1 ){
-				$formtag .= '<input type="hidden" name="' .$type. '[country]" id="' .$type. '_country" value="' .$options['system']['target_market'][0]. '">';
-			}else{
+			if( 1 < $target_market_count ){
 				$formtag .= '<tr id="country_row">
 				<th scope="row">' . usces_get_essential_mark('country', $data) . __('Country', 'usces') . '</th>
 				<td colspan="2">' . uesces_get_target_market_form( $type, $values['country'] ) . apply_filters( 'usces_filter_after_country', NULL, $applyform ) . '</td>
 				</tr>';
+			}else{
+				$formtag .= '<input type="hidden" name="' .$type. '[country]" id="' .$type. '_country" value="' .$options['system']['target_market'][0]. '">';
 			}
-//20131213_kitamura_end
 			$formtag .= '<tr id="states_row">
 			<th scope="row">' . usces_get_essential_mark('states', $data) . __('State', 'usces') . '</th>
 			<td colspan="2">' . usces_pref_select( $type, $values ) . apply_filters( 'usces_filter_after_states', NULL, $applyform ) . '</td>
@@ -3308,16 +3290,14 @@ function uesces_addressform( $type, $data, $out = 'return' ){
 			<th scope="row">' . usces_get_essential_mark('states', $data) . __('State', 'usces') . '</th>
 			<td colspan="2">' . usces_pref_select( $type, $values ) . apply_filters( 'usces_filter_after_states', NULL, $applyform ) . '</td>
 			</tr>';
-//20131213_kitamura_start
-			if( count( $options['system']['target_market'] ) == 1 ){
-				$formtag .= '<input type="hidden" name="' .$type. '[country]" id="' .$type. '_country" value="' .esc_attr($options['system']['target_market'][0]). '">';
-			}else{
+			if( 1 < $target_market_count ){
 				$formtag .= '<tr id="country_row">
 				<th scope="row">' . usces_get_essential_mark('country', $data) . __('Country', 'usces') . '</th>
 				<td colspan="2">' . uesces_get_target_market_form( $type, $values['country'] ) . apply_filters( 'usces_filter_after_country', NULL, $applyform ) . '</td>
 				</tr>';
+			}else{
+				$formtag .= '<input type="hidden" name="' .$type. '[country]" id="' .$type. '_country" value="' .esc_attr($options['system']['target_market'][0]). '">';
 			}
-//20131213_kitamura_end
 			$formtag .= '<tr id="zipcode_row">
 			<th scope="row">' . usces_get_essential_mark('zipcode', $data) . __('Zip', 'usces') . '</th>
 			<td colspan="2"><input name="' . $type . '[zipcode]" id="zipcode" type="text" value="' . esc_attr($values['zipcode']) . '" onKeyDown="if (event.keyCode == 13) {return false;}"  />' . apply_filters( 'usces_filter_after_zipcode', NULL, $applyform ) . '</td>
@@ -3346,15 +3326,18 @@ function uesces_addressform( $type, $data, $out = 'return' ){
 
 function usces_item_option_fileds( $post_id, $sku, $label=1, $out='echo' ){
 	$options = usces_get_opts($post_id, 'sort');
+	if( !$options || !is_array( $options ) ) {
+		return false;
+	}
 	if( 0 == count($options) )
 		return false;
-	
+
 	$sku_enc = urlencode($sku);
 	$html ='';
 	foreach( $options as $opt ){
 		$name = $opt['name'];
 		$opt_code = urlencode($name);
-		$html .= "\n" . '<div class="opt_field" id="opt_' . $post_id . '_' . $sku_enc . '_' . $opt_code . '">';
+		$html .= '<div class="opt_field" id="opt_' . $post_id . '_' . $sku_enc . '_' . $opt_code . '">';
 		if( $label ){
 			$html .= '<label for="itemOption[' . $post_id . '][' . $sku_enc . '][' . $opt_code . ']">' . esc_html($name) . '</label>';
 		}

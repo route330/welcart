@@ -161,7 +161,7 @@ function usces_item_uploadcsv() {
 	$sp = ",";
 
 	//log
-	if( ! ($fp_log = @fopen (USCES_PLUGIN_DIR.'/logs/itemcsv_log.txt', "w")) ) {
+	if( ! ($fpi = @fopen (USCES_PLUGIN_DIR.'/logs/itemcsv_log.txt', "w")) ) {
 		$res['status'] = 'error';
 		$res['message'] = __('The log file was not prepared for.', 'usces').esc_html($decode_filename);
 		echo $res['status'].' : '.$res['message'];
@@ -346,7 +346,7 @@ function usces_item_uploadcsv() {
 													'_itemCode', $data);
 							$db_res1 = $wpdb->get_results( $query, ARRAY_A );
 							if( 'upd' == $mode ) {
-								if( 1 < count($db_res1) ) {
+								if( $db_res1 && is_array( $db_res1 ) && 1 < count( $db_res1 ) ) {
 									$mes = "No.".$line_num."\t".__('This Item-Code has been duplicated.', 'usces');
 									$logtemp .= $mes.$yn;
 									$mestemp .= $mes.$br.$yn;
@@ -362,7 +362,7 @@ function usces_item_uploadcsv() {
 														WHERE post_id <> %d AND meta_key = %s AND meta_value = %s AND (post_status = 'pending' OR post_status = 'publish' OR post_status = 'draft' OR post_status = 'private' OR post_status = 'future')", 
 														$post_id, '_itemCode', $data);
 								$db_res2 = $wpdb->get_results( $query, ARRAY_A );
-								if( 0 < count($db_res2) ) {
+								if( $db_res2 && is_array( $db_res2 ) && 0 < count( $db_res2 ) ) {
 									$mes = "No.".$line_num."\t".__('This Item-Code has already been used.', 'usces');
 									$logtemp .= $mes.$yn;
 									$mestemp .= $mes.$br.$yn;
@@ -375,7 +375,7 @@ function usces_item_uploadcsv() {
 								}
 							} else if( 'add' == $mode ) {
 								if( $data != $pre_code ) {
-									if( 0 < count($db_res1) ) {
+									if( $db_res1 && is_array( $db_res1 ) && 0 < count( $db_res1 ) ) {
 										$mes = "No.".$line_num."\t".__('This Item-Code has already been used.', 'usces');
 										$logtemp .= $mes.$yn;
 										$mestemp .= $mes.$br.$yn;
@@ -782,7 +782,7 @@ function usces_item_uploadcsv() {
 					//delete metas of Item only
 					$meta_key_table = array( '_itemCode', '_itemName', '_itemRestriction', '_itemPointrate', '_itemGpNum1', '_itemGpDis1', '_itemGpNum2', '_itemGpDis2', '_itemGpNum3', '_itemGpDis3', '_itemShipping', '_itemDeliveryMethod', '_itemShippingCharge', '_itemIndividualSCharge', '_iopt_', '_isku_' );
 					$cfrows = ( $usces->options['system']['csv_encode_type'] == 0 ) ? explode( ';', trim(mb_convert_encoding($datas[USCES_COL_CUSTOM_FIELD], 'UTF-8', 'SJIS')) ) : explode(';', trim($datas[USCES_COL_CUSTOM_FIELD]));
-					if( !(1 === count($cfrows) && '' == reset($cfrows)) ) {
+					if( $cfrows && is_array( $cfrows ) && !(1 === count($cfrows) && '' == reset($cfrows)) ) {
 						foreach( $cfrows as $row ) {
 							$cf = explode( '=', $row );
 							if( !WCUtils::is_blank($cf[0]) ) {
@@ -823,33 +823,6 @@ function usces_item_uploadcsv() {
 						echo $mes.$br.$yn;
 						$pre_code = $item_code;
 						continue;
-					}
-					// delete relationships of category 
-					$query = $wpdb->prepare( "DELETE FROM {$wpdb->term_relationships} WHERE object_id = %d", $post_id );
-					$db_res = $wpdb->query( $query );
-					if( $db_res === false ) {
-						$err_num++;
-						$mes = "No.".$line_num."\t".__('Error : delete term_relationships(category)', 'usces');
-						$log .= $mes.$yn;
-						echo $mes.$br.$yn;
-						$pre_code = $item_code;
-						continue;
-					}
-					// delete relationships of tag 
-					$query = "SELECT term_taxonomy_id, COUNT(*) AS ct FROM {$wpdb->term_relationships} GROUP BY term_taxonomy_id";
-					$relation_data = $wpdb->get_results( $query, ARRAY_A );
-					foreach( (array)$relation_data as $relation_rows ) {
-						$term_taxonomy_ids['term_taxonomy_id'] = $relation_rows['term_taxonomy_id'];
-						$term_taxonomy_updatas['count'] = $relation_rows['ct'];
-						$db_res = $wpdb->update( $wpdb->term_taxonomy, $term_taxonomy_updatas, $term_taxonomy_ids );
-						if( $db_res === false ) {
-							$err_num++;
-							$mes = "No.".$line_num."\t".__('Error : delete term_relationships(tag)', 'usces');
-							$log .= $mes.$yn;
-							echo $mes.$br.$yn;
-							$pre_code = $item_code;
-							continue;
-						}
 					}
 				}
 
@@ -895,7 +868,7 @@ function usces_item_uploadcsv() {
 				$valstr .= '('.$post_id.", '_itemIndividualSCharge','".$datas[USCES_COL_ITEM_INDIVIDUALSCHARGE]."'),";
 
 				$cfrows = ( $usces->options['system']['csv_encode_type'] == 0 ) ? explode(';', trim(mb_convert_encoding($datas[USCES_COL_CUSTOM_FIELD], 'UTF-8', 'SJIS'))) : explode(';', trim($datas[USCES_COL_CUSTOM_FIELD]));
-				if( !(1 === count($cfrows) && '' == reset($cfrows)) ) {
+				if( $cfrows && is_array( $cfrows ) && !(1 === count($cfrows) && '' == reset($cfrows)) ) {
 					foreach( $cfrows as $row ) {
 						$cf = explode( '=', $row );
 						if( !WCUtils::is_blank($cf[0]) && !empty($cf[1]) && in_array( $cf[0], $item_custom_fields ) ) {
@@ -910,98 +883,16 @@ function usces_item_uploadcsv() {
 				//add term_relationships, edit term_taxonomy
 				//category
 				$categories = explode(';', $datas[USCES_COL_CATEGORY]);
-				foreach( (array)$categories as $category ) {
-					if( $category_format_slug ) {
-						$term_id = usces_get_cat_id( $category );
-					} else {
-						$term_id = $category;
-					}
-					$query = $wpdb->prepare("SELECT term_taxonomy_id FROM {$wpdb->term_taxonomy} 
-											WHERE term_id = %d", $term_id);
-					$term_taxonomy_id = $wpdb->get_var( $query );
-					if( $term_taxonomy_id == NULL ) {
-						continue;
-					}
-
-					$query = $wpdb->prepare("INSERT INTO {$wpdb->term_relationships} 
-									(object_id, term_taxonomy_id, term_order) VALUES 
-									(%d, %d, 0)", 
-									$post_id, $term_taxonomy_id
-							);
-					$db_res = $wpdb->query($query);
-					if( !$db_res ) {
-						continue;
-					}
-
-					$query = $wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->term_relationships} 
-											WHERE term_taxonomy_id = %d", $term_taxonomy_id);
-					$tct = $wpdb->get_var( $query );
-
-					$query = $wpdb->prepare("UPDATE {$wpdb->term_taxonomy} SET count = %d 
-									WHERE term_taxonomy_id = %d", 
-									$tct, $term_taxonomy_id
-							);
-					$db_res = $wpdb->query($query);
-				}
+				wp_set_post_categories( $post_id, $categories );
 
 				//tag
 				$tags = ( $usces->options['system']['csv_encode_type'] == 0 ) ? explode(';', trim(mb_convert_encoding($datas[USCES_COL_POST_TAG], 'UTF-8', 'SJIS'))) : explode(';', trim($datas[USCES_COL_POST_TAG]));
-				foreach( (array)$tags as $tag ) {
-					$tag = trim($tag, " \n\t\r\0\x0B,");
-					if( empty($tag) ) {
-						continue;
-					}
-
-					$query = $wpdb->prepare("SELECT term_id FROM {$wpdb->terms} WHERE name = %s", $tag);
-					$term_id = $wpdb->get_var( $query );
-					//new tag
-					if( empty($term_id) ) {
-						$query = $wpdb->prepare("INSERT INTO {$wpdb->terms} (name, slug, term_group) VALUES 
-												(%s, %s, 0)", $tag, urlencode($tag));
-						$db_res = $wpdb->query( $query );
-						if( !$db_res ) {
-							continue;
-						}
-						$term_id = $wpdb->insert_id;
-					}
-					$query = $wpdb->prepare("SELECT term_taxonomy_id FROM {$wpdb->term_taxonomy} 
-											WHERE term_id = %d", $term_id);
-					$term_taxonomy_id = $wpdb->get_var( $query );
-					if( !$term_taxonomy_id ) {
-						$query = $wpdb->prepare("INSERT INTO {$wpdb->term_taxonomy} 
-												(term_id, taxonomy, description, parent, count) VALUES 
-												(%d, %s, %s, 0, 0)", $term_id, 'post_tag', '');
-						$db_res = $wpdb->query( $query );
-						if( !$db_res ) {
-							continue;
-						}
-						$term_taxonomy_id = $wpdb->insert_id;
-					}
-					$query = $wpdb->prepare("INSERT INTO {$wpdb->term_relationships} 
-									(object_id, term_taxonomy_id, term_order) VALUES 
-									(%d, %d, 0)", 
-									$post_id, $term_taxonomy_id
-							);
-					$db_res = $wpdb->query($query);
-					if( !$db_res ) {
-						continue;
-					}
-
-					$query = $wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->term_relationships} 
-											WHERE term_taxonomy_id = %d", $term_taxonomy_id);
-					$tct = $wpdb->get_var( $query );
-
-					$query = $wpdb->prepare("UPDATE {$wpdb->term_taxonomy} SET count = %d 
-									WHERE term_taxonomy_id = %d", 
-									$tct, $term_taxonomy_id
-							);
-					$db_res = $wpdb->query($query);
-				}
+				wp_set_post_tags( $post_id, $tags );
 
 				/*////////////////////////////////////////*/
 				// Add Custom Field 
 				/*////////////////////////////////////////*/
-				if( !(1 === count($cfrows) && '' == reset($cfrows)) ) {
+				if( $cfrows && is_array( $cfrows ) && !(1 === count($cfrows) && '' == reset($cfrows)) ) {
 					$valstr = '';
 					foreach( $cfrows as $row ) {
 						$cf = explode( '=', $row );
@@ -1114,17 +1005,19 @@ function usces_item_uploadcsv() {
 		}
 	}
 
-	flock($fpi, LOCK_EX);
-	fputs($fpi, mb_convert_encoding($log, 'SJIS', 'UTF-8'));
-	flock($fpi, LOCK_UN);
-	fclose($fpi);
+	if( $fpi ) {
+		flock($fpi, LOCK_EX);
+		fputs($fpi, mb_convert_encoding($log, 'SJIS', 'UTF-8'));
+		flock($fpi, LOCK_UN);
+		fclose($fpi);
+	}
 
 	$res['status'] = 'success';
 	$res['message'] = sprintf(__('%2$s of %1$s lines registration completion, error on %3$s lines.', 'usces'), $total_num, $comp_num, $err_num);
 	/******************/
 	$finish = microtime(true);
 
-	if( $fp_log = @fopen( USCES_PLUGIN_DIR.'/logs/itemcsv_log.txt', "w" ) ) {
+	if( $fpi ) {
 		usces_log('ready     : '.round($readytime - $start, 4), 'itemcsv_log.txt');
 		usces_log('lineReady : '.round($linereadytime / $total_num, 4), 'itemcsv_log.txt');
 		usces_log('dataCheck : '.round($checktime / $total_num, 4), 'itemcsv_log.txt');
@@ -1339,7 +1232,7 @@ function usces_download_item_list() {
 
 			//Custom Fields
 			$icfield = '';
-			if( is_array($item_custom_fields) && 0 < count($item_custom_fields) ) {
+			if( $item_custom_fields && is_array($item_custom_fields) && 0 < count($item_custom_fields) ) {
 				foreach( $item_custom_fields as $key ) {
 					$values = get_post_meta( $post_id, $key, true );
 					if( is_array($values) ) {
@@ -1353,7 +1246,7 @@ function usces_download_item_list() {
 			}
 			$cfield = '';
 			$custom_fields = $usces->get_post_user_custom($post_id);
-			if( is_array($custom_fields) && 0 < count($custom_fields) ) {
+			if( $custom_fields && is_array($custom_fields) && 0 < count($custom_fields) ) {
 				foreach( $custom_fields as $cfkey => $cfvalues ) {
 					if( is_array($cfvalues) ) {
 						foreach( $cfvalues as $value ) {

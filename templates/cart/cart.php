@@ -22,12 +22,12 @@ $html .= '<div class="error_message">' . $this->error_message . '</div>
 <form action="' . USCES_CART_URL . '" method="post" onKeyDown="if (event.keyCode == 13) {return false;}">';
 
 if( usces_is_cart() ) {
-	
+
 	$html .= '<div id="cart">';
-	
+
 	$button = '<div class="upbutton">' . __('Press the `update` button when you change the amount of items.','usces') . '<input name="upButton" type="submit" value="' . __('Quantity renewal','usces') . '" onclick="return uscesCart.upCart()"  /></div>';
 	$html .= apply_filters('usces_filter_cart_upbutton', $button);
-	
+
 	$cart_table_head = '<table cellspacing="0" id="cart_table">
 		<thead>
 		<tr>
@@ -42,10 +42,10 @@ if( usces_is_cart() ) {
 		</tr>
 		</thead>
 		<tbody>';
-		
+
 	$html .= apply_filters( 'usces_filter_cart_table_head', $cart_table_head );
 	$html .= usces_get_cart_rows('return');
-		
+
 	$cart_table_footer = '</tbody>
 		<tfoot>
 		<tr>
@@ -67,13 +67,13 @@ if( usces_is_cart() ) {
 		$Business_pack_discount = '<div class="gp_exp"><img src="' . $gp_src . '" alt="' . __('Business package discount','usces') . '" /><br />' . __('The price with this mark applys to Business pack discount.','usces') . '</div>';
 		$html .= apply_filters('usces_filter_itemGpExp_cart_message', $Business_pack_discount);
 	}
-	$html .= "</div><!-- end of cart -->\n";
+	$html .= '</div><!-- end of cart -->';
 
 } else {
 	$html .= '<div class="no_cart">' . __('There are no items in your cart.','usces') . '</div>';
 }
 
-$html .= $content;
+//$html .= $content;
 
 $html .= '<div class="send">';
 $html .= usces_get_cart_button( 'return' );
@@ -85,6 +85,6 @@ $html .= '<div class="footer_explanation">';
 $footer = '';
 $html .= apply_filters('usces_filter_cart_page_footer', $footer);
 $html .= '</div>';
-	
+
 $html .= '</div>';
 ?>

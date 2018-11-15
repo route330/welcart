@@ -22,13 +22,9 @@ $dec_orderID_flag = isset($this->options['system']['dec_orderID_flag']) ? $this-
 $dec_orderID_prefix = isset($this->options['system']['dec_orderID_prefix']) ? $this->options['system']['dec_orderID_prefix'] : '';
 $dec_orderID_digit = isset($this->options['system']['dec_orderID_digit']) ? $this->options['system']['dec_orderID_digit'] : '';
 $subimage_rule = isset($this->options['system']['subimage_rule']) ? $this->options['system']['subimage_rule'] : 0;
-//20140107 kitamu_start 0000571
 $pdf_delivery = isset($this->options['system']['pdf_delivery']) ? $this->options['system']['pdf_delivery']	: 0;
-//20140107 kitamu_end
-//20140122 kitamu_start 0000526
 $member_pass_rule_min = isset($this->options['system']['member_pass_rule_min']) ? $this->options['system']['member_pass_rule_min']	: 6;
 $member_pass_rule_max = isset($this->options['system']['member_pass_rule_max']) && !empty( $this->options['system']['member_pass_rule_max'] ) ? $this->options['system']['member_pass_rule_max'] : '';
-//20140122 kitamu_end
 $csv_encode_type = isset( $this->options['system']['csv_encode_type'] ) ? $this->options['system']['csv_encode_type'] : 0;
 $csv_category_format = ( isset( $this->options['system']['csv_category_format'] ) ) ? $this->options['system']['csv_category_format'] : 0;
 $settlement_backup = ( isset($this->options['system']['settlement_backup']) ) ? $this->options['system']['settlement_backup'] : 0;
@@ -134,14 +130,12 @@ jQuery(function($){
 			$.ajax( s );
 			return false;
 		},
-//20140123 kitamu_start 0000526
 		error_bg_color : function(id) {
 			$(id).css({'background-color': '#FFA'}).click(function() {
 				$(id).css({'background-color': '#FFF'});
 			});
 
 		}
-//20140123 kitamu_end
 	};
 
 	$('form').submit(function() {
@@ -162,7 +156,6 @@ jQuery(function($){
 				$(this).css({'background-color': '#FFF'});
 			});
 		}
-//20140122_kitamu_start 0000526
 		if( !checkNum( $("#member_pass_rule_min").val() ) || $("#member_pass_rule_min").val() == false ){
 			error++;
 			operation.error_bg_color("#member_pass_rule_min");
@@ -176,7 +169,6 @@ jQuery(function($){
 			operation.error_bg_color("#member_pass_rule_min");
 			operation.error_bg_color("#member_pass_rule_max");
 		}
-//20140122 kitamu_end
 		var target = [];
 		$("#target_market option:selected").each(function() {
 			target.push($(this).val());
@@ -432,7 +424,6 @@ jQuery(document).ready(function($) {
 </table>
 <hr />
 
-<!--20140107 kitamu_start 0000571-->
 <table class="form_table">
 	<tr height="30">
 	    <th class="system_th" rowspan="2"><a style="cursor:pointer;" onclick="toggleVisibility('ex_pdf_delivery');"><?php _e('Described method of invoice', 'usces'); ?></a></th>
@@ -444,8 +435,6 @@ jQuery(document).ready(function($) {
 	</tr>
 </table>
 <hr />
-<!--20140107 kitamu_end-->
-<!--20140122 kitamu_start 0000526-->
 <table class="form_table">
 	<tr height="30">
 	    <th class="system_th"><a style="cursor:pointer;" onclick="toggleVisibility('ex_member_pass_rule');"><?php _e('Character limit for membership password', 'usces'); ?></a></th>
@@ -455,7 +444,6 @@ jQuery(document).ready(function($) {
 	</tr>
 </table>
 <hr />
-<!--20140122 kitamu_end-->
 <table class="form_table">
 	<tr height="30">
 	    <th class="system_th" rowspan="2"><a style="cursor:pointer;" onclick="toggleVisibility('ex_csv_encode_type');"><?php _e('Character code in the CSV file', 'usces'); ?></a></th>

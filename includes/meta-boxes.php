@@ -245,7 +245,7 @@ function usces_post_tags_meta_box($post, $box) {
 	$tax_name = esc_attr(substr($box['id'], 8));
 	$taxonomy = get_taxonomy($tax_name);
 	$helps      = isset( $taxonomy->helps      ) ? esc_attr( $taxonomy->helps ) : esc_attr__('Separate tags with commas');
-	$help_hint  = isset( $taxonomy->help_hint  ) ? $taxonomy->help_hint         : __('Add new tag');
+	$help_hint  = isset( $taxonomy->help_hint  ) ? $taxonomy->help_hint         : __('Add new tag', 'usces' );
 	$help_nojs  = isset( $taxonomy->help_nojs  ) ? $taxonomy->help_nojs         : __('Add or remove tags');
 	$help_cloud = isset( $taxonomy->help_cloud ) ? $taxonomy->help_cloud        : __('Choose from the most used tags');
 
@@ -298,7 +298,7 @@ function usces_post_categories_meta_box( $post, $box ) {
 	<div id="taxonomy-<?php echo $taxonomy; ?>" class="categorydiv">
 		<ul id="<?php echo $taxonomy; ?>-tabs" class="category-tabs">
 			<li class="tabs"><a href="#<?php echo $taxonomy; ?>-all" tabindex="3"><?php _e( 'Item Category', 'usces' ); ?></a></li>
-			<li class="hide-if-no-js"><a href="#<?php echo $taxonomy; ?>-pop" tabindex="3"><?php _e( 'Most Used' ); ?></a></li>
+			<li class="hide-if-no-js"><a href="#<?php echo $taxonomy; ?>-pop" tabindex="3"><?php _e( 'Most Used', 'usces' ); ?></a></li>
 		</ul>
 
 		<div id="<?php echo $taxonomy; ?>-all" class="tabs-panel">
@@ -328,7 +328,7 @@ function usces_post_categories_meta_box( $post, $box ) {
 	<div id="taxonomy-<?php echo $taxonomy; ?>" class="categorydiv">
 		<ul id="<?php echo $taxonomy; ?>-tabs" class="category-tabs">
 			<li class="tabs"><a href="#<?php echo $taxonomy; ?>-all" tabindex="3"><?php echo $tax->labels->all_items; ?></a></li>
-			<li class="hide-if-no-js"><a href="#<?php echo $taxonomy; ?>-pop" tabindex="3"><?php _e( 'Most Used' ); ?></a></li>
+			<li class="hide-if-no-js"><a href="#<?php echo $taxonomy; ?>-pop" tabindex="3"><?php _e( 'Most Used', 'usces' ); ?></a></li>
 		</ul>
 
 		<div id="<?php echo $taxonomy; ?>-all" class="tabs-panel">
@@ -389,7 +389,7 @@ function usces_post_categories_meta_box( $post, $box ) {
 function usces_post_excerpt_meta_box($post) {
 ?>
 <label class="screen-reader-text" for="excerpt"><?php _e('Excerpt') ?></label><textarea rows="1" cols="40" name="excerpt" tabindex="6" id="excerpt"><?php echo $post->post_excerpt ?></textarea>
-<p><?php _e('Excerpts are optional hand-crafted summaries of your content that can be used in your theme. <a href="http://codex.wordpress.org/Excerpt" target="_blank">Learn more about manual excerpts.</a>'); ?></p>
+<p><?php echo sprintf( __( 'Excerpts are optional hand-crafted summaries of your content that can be used in your theme. <a href="%s">Learn more about manual excerpts</a>.', 'usces' ), 'https://codex.wordpress.org/Excerpt' ); ?></p>
 <?php
 }
 
@@ -414,8 +414,9 @@ function usces_post_trackback_meta_box($post) {
 	}
 
 ?>
-<p><label for="trackback_url"><?php _e('Send trackbacks to:'); ?></label> <?php echo $form_trackback; ?><br /> (<?php _e('Separate multiple URLs with spaces'); ?>)</p>
-<p><?php _e('Trackbacks are a way to notify legacy blog systems that you&#8217;ve linked to them. If you link other WordPress sites they&#8217;ll be notified automatically using <a href="http://codex.wordpress.org/Introduction_to_Blogging#Managing_Comments" target="_blank">pingbacks</a>, no other action necessary.'); ?></p>
+<p><label for="trackback_url"><?php _e('Send trackbacks to:'); ?></label><?php echo $form_trackback; ?></p>
+<p id="trackback-url-desc" class="howto"><?php _e('Separate multiple URLs with spaces'); ?></p>
+<p><?php echo sprintf( __( 'Trackbacks are a way to notify legacy blog systems that you&#8217;ve linked to them. If you link other WordPress sites, they&#8217;ll be notified automatically using <a href="%s">pingbacks</a>, no other action necessary.', 'usces' ), 'https://codex.wordpress.org/Introduction_to_Blogging#Managing_Comments' ); ?></p>
 <?php
 if ( ! empty($pings) )
 	echo $pings;
@@ -438,7 +439,7 @@ $metadata = has_meta($post->ID);
 list_meta($metadata);
 meta_form(); ?>
 </div>
-<p><?php _e('Custom fields can be used to add extra metadata to a post that you can <a href="http://codex.wordpress.org/Using_Custom_Fields" target="_blank">use in your theme</a>.'); ?></p>
+<p><?php echo sprintf( __( 'Custom fields can be used to add extra metadata to a post that you can <a href="%s">use in your theme</a>.', 'usces' ), 'https://codex.wordpress.org/Using_Custom_Fields' ); ?></p>
 <?php
 }
 
@@ -454,11 +455,11 @@ function usces_post_comment_status_meta_box($post) {
 ?>
 <input name="advanced_view" type="hidden" value="1" />
 <p class="meta-options">
-	<label for="comment_status" class="selectit"><input name="comment_status" type="checkbox" id="comment_status" value="open" <?php checked($post->comment_status, 'open'); ?> /> <?php _e( 'Allow comments.' ) ?></label><br />
+	<label for="comment_status" class="selectit"><input name="comment_status" type="checkbox" id="comment_status" value="open" <?php checked($post->comment_status, 'open'); ?> /> <?php _e( 'Allow comments.', 'usces' ) ?></label><br />
 	<label for="ping_status" class="selectit"><input name="ping_status" type="checkbox" id="ping_status" value="open" <?php checked($post->ping_status, 'open'); ?> /> <?php
 		printf(
 			/* translators: %s: Codex URL */
-			__( 'Allow <a href="%s">trackbacks and pingbacks</a> on this page.' ),
+			__( 'Allow <a href="%s">trackbacks and pingbacks</a> on this page.', 'usces' ),
 			__( 'https://codex.wordpress.org/Introduction_to_Blogging#Managing_Comments' ) );
 		?></label>
 	<?php
@@ -606,7 +607,8 @@ function usces_page_attributes_meta_box($post) {
 <?php
 		} // end empty pages check
 	} // end hierarchical check.
-	if ( 'page' == $post->post_type && 0 != count( get_page_templates() ) ) {
+	$page_count = count( get_page_templates() );
+	if ( 'page' == $post->post_type && 0 != $page_count ) {
 		$template = !empty($post->page_template) ? $post->page_template : false;
 		?>
 <p><strong><?php _e('Template') ?></strong></p>
@@ -695,7 +697,7 @@ if ( !empty($_GET['action']) && 'edit' == $_GET['action'] && current_user_can('m
 function usces_link_categories_meta_box($link) { ?>
 <ul id="category-tabs" class="category-tabs">
 	<li class="tabs"><a href="#categories-all"><?php _e( 'All Categories' ); ?></a></li>
-	<li class="hide-if-no-js"><a href="#categories-pop"><?php _e( 'Most Used' ); ?></a></li>
+	<li class="hide-if-no-js"><a href="#categories-pop"><?php _e( 'Most Used', 'usces' ); ?></a></li>
 </ul>
 
 <div id="categories-all" class="tabs-panel">

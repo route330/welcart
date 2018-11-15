@@ -63,7 +63,8 @@ function usces_add_opt( $post_id, $newvalue, $check = true ) {
 			$meta_num = count($metas);
 			$unique = true;
 			$sortnull = true;
-			foreach( $metas as $meta ){
+			$sort = array();
+			foreach( (array)$metas as $meta ){
 				$values = unserialize($meta['meta_value']);
 				if( $values['name'] == $newvalue['name'] )
 					$unique = false;
@@ -80,7 +81,7 @@ function usces_add_opt( $post_id, $newvalue, $check = true ) {
 			if( $meta_num !== count($unique_sort) || $meta_num !== $next_number || !$sortnull){
 				//To repair the sort data
 				$i = 0;
-				foreach( $metas as $rows ){
+				foreach( (array)$metas as $rows ){
 					$values = unserialize($rows['meta_value']);
 					$values['sort'] = $i;
 					$serialized_values = serialize($values);
@@ -109,7 +110,8 @@ function usces_add_sku( $post_id, $newvalue, $check = true ) {
 			$meta_num = count($metas);
 			$unique = true;
 			$sortnull = true;
-			foreach( $metas as $rows ){
+			$sort = array();
+			foreach( (array)$metas as $rows ){
 				$values = unserialize($rows['meta_value']);
 				if( $values['code'] == $newvalue['code'] )
 					$unique = false;
@@ -126,7 +128,7 @@ function usces_add_sku( $post_id, $newvalue, $check = true ) {
 			if( $meta_num != count($unique_sort) || $meta_num != $next_number || !$sortnull){
 				//To repair the sort data
 				$i = 0;
-				foreach( $metas as $rows ){
+				foreach( (array)$metas as $rows ){
 					$values = unserialize($rows['meta_value']);
 					$values['sort'] = $i;
 					$serialized_values = serialize($values);
@@ -327,7 +329,8 @@ function _list_item_sku_meta_row( $sku ) {
 	$skugptekiyo = $sku['gp'];
 	$id = (int)$sku['meta_id'];
 	$zaikoselectarray = get_option('usces_zaiko_status');
-	$sort = (int) $sku['sort'];
+	$zaikoselect_count = ( $zaikoselectarray && is_array( $zaikoselectarray ) ) ? count( $zaikoselectarray ) : 0;
+	$sort = (int)$sku['sort'];
 
 	ob_start();
 	?>
@@ -342,7 +345,7 @@ function _list_item_sku_meta_row( $sku ) {
 				<td class='item-sku-zaiko'>
 					<select id='itemsku[<?php echo $id; ?>][zaiko]' name='itemsku[<?php echo $id; ?>][zaiko]' class='skuzaiko metaboxfield'>
 					<?php 
-					for ( $i=0; $i<count($zaikoselectarray); $i++ ) {
+					for ( $i=0; $i<$zaikoselect_count; $i++ ) {
 						$selected = ( $i == $zaiko ) ? " selected='selected'" : '';
 					?>
 						<option value='<?php echo $i; ?>'<?php echo $selected; ?>><?php echo $zaikoselectarray[$i]; ?></option>
@@ -2113,7 +2116,8 @@ function usces_order_recalculation( $order_id, $mem_id, $post_ids, $skus, $price
 	$price = explode("#usces#", $prices);
 	$quant = explode("#usces#", $quants);
 	$cart = array();
-	for( $i = 0; $i < count($post_id); $i++ ) {
+	$post_id_count = ( is_array( $post_id ) ) ? count( $post_id ) : 0;
+	for( $i = 0; $i < $post_id_count; $i++ ) {
 		if( $post_id[$i] )
 			$cart[] = array( "post_id"=>$post_id[$i], "price"=>$price[$i], "quantity"=>$quant[$i] );
 	}

@@ -315,7 +315,7 @@ class REMISE_SETTLEMENT
 		$continuation_table = $wpdb->prefix.'usces_continuation';
 		$query = $wpdb->prepare( "SELECT * FROM {$continuation_table} WHERE `con_member_id` = %d AND `con_status` = 'continuation' ORDER BY `con_price` DESC", $member_id );
 		$continue_order = $wpdb->get_results( $query, ARRAY_A );
-		if( 0 < count( $continue_order ) ) {
+		if( $continue_order && 0 < count( $continue_order ) ) {
 			$continue = $continue_order[0]['con_order_id'];
 		}
 		return $continue;

@@ -16,12 +16,12 @@ get_header();
 
 <h1 class="cart_page_title"><?php _e('Confirmation', 'usces'); ?></h1>
 <div class="entry">
-		
+
 <div id="info-confirm">
 	<div class="confiem_notice">
 	<?php _e('Please do not change product addition and amount of it with the other window with displaying this page.','usces'); ?>
 	</div>
-	
+
 	<div class="usccart_navi">
 		<ol class="ucart">
 		<li class="ucart usccart"><?php _e('1.Cart','usces'); ?></li>
@@ -175,7 +175,7 @@ get_header();
 		</div><!-- end of entry -->
 	</div><!-- end of post -->
 <?php else: ?>
-<p><?php _e('Sorry, no posts matched your criteria.'); ?></p>
+<p><?php _e('Sorry, no posts matched your criteria.', 'usces'); ?></p>
 <?php endif; ?>
 </div><!-- end of catbox -->
 </div><!-- end of content -->

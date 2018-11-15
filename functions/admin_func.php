@@ -310,4 +310,13 @@ function usces_get_admin_script_message() {
 	$mes_str = rtrim( $mes_str, "," );
 	return $mes_str;
 }
-?>
+
+function usces_admin_orderlist_show_wc_trans_id() {
+
+	$list_option = get_option( 'usces_orderlist_option' );
+	$wc_trans_id = ( isset( $list_option['view_column']['wc_trans_id'] ) ) ? $list_option['view_column']['wc_trans_id'] : 0;
+	if( empty( $wc_trans_id ) ) {
+		$list_option['view_column']['wc_trans_id'] = 1;
+		update_option( 'usces_orderlist_option', $list_option );
+	}
+}

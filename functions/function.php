@@ -11,7 +11,7 @@ function usces_ajax_send_mail() {
 			'from_address' => $usces->options['sender_mail'],
 			'return_path' => $usces->options['sender_mail'],
 			'subject' => trim(urldecode($_POST['subject'])),
-			'message' => trim(urldecode($_POST['message']))
+			'message' => trim($_POST['message'])
 			);
 	
 	$order_para = apply_filters( 'usces_ajax_send_mail_para_to_customer', $order_para);
@@ -41,7 +41,7 @@ function usces_ajax_send_mail() {
 				'from_address' => $usces->options['sender_mail'], 
 				'return_path' => $usces->options['sender_mail'],
 				'subject' => trim(urldecode($_POST['subject'])) . ' to ' . sprintf(_x('%s', 'honorific', 'usces'), trim(urldecode($_POST['name']))),
-				'message' => trim(urldecode($_POST['message']))
+				'message' => trim($_POST['message'])
 				);
 		
 		$bcc_para = apply_filters( 'usces_ajax_send_mail_para_to_manager', $bcc_para);
@@ -109,9 +109,7 @@ function usces_order_confirm_message($order_id) {
 
 		$msg_body .= uesces_get_mail_addressform( 'admin_mail_customer', $customer, $order_id );
 		$msg_body .= __('Order number','usces') . " : " . usces_get_deco_order_id( $order_id ) . "\r\n";
-//20131129_kitamu_start
 		$msg_body .= __( 'order date','usces' ) . " : " . $data['order_date'] . "\r\n";
-//20131129_kitamu end
 	}
 	
 	
@@ -120,16 +118,11 @@ function usces_order_confirm_message($order_id) {
 		$post_id = $cart_row['post_id'];
 		$sku = urldecode($cart_row['sku']);
 		$quantity = $cart_row['quantity'];
-		$options = $cart_row['options'];
+		$options = ( !empty( $cart_row['options'] ) ) ? $cart_row['options'] : array();
 		$itemCode = $usces->getItemCode($post_id);
 		$itemName = $usces->getItemName($post_id);
 		$cartItemName = $usces->getCartItemName_byOrder($cart_row);
 		$skuPrice = $cart_row['price'];
-		if (!empty($options)) {
-		} else { 
-			$optstr =  '';
-			$options =  array();
-		}
         $args = compact('cart', 'cart_row', 'post_id', 'sku' );
         
 		$meisai .= usces_mail_line( 2, $data['order_email'] );//--------------------
@@ -340,16 +333,11 @@ function usces_send_ordermail($order_id) {
 		$post_id = $cart_row['post_id'];
 		$sku = urldecode($cart_row['sku']);
 		$quantity = $cart_row['quantity'];
-		$options = $cart_row['options'];
+		$options = ( !empty( $cart_row['options'] ) ) ? $cart_row['options'] : array();
 		$itemCode = $usces->getItemCode($post_id);
 		$itemName = $usces->getItemName($post_id);
 		$cartItemName = $usces->getCartItemName($post_id, $sku);
 		$skuPrice = $cart_row['price'];
-		if (!empty($options)) {
-		} else { 
-			$optstr =  '';
-			$options =  array();
-		}
         $args = compact('cart', 'cart_row', 'post_id', 'sku' );
 		
 		$meisai .= usces_mail_line( 2, $entry['customer']['mailaddress1'] );//--------------------
@@ -1652,23 +1640,25 @@ function usces_delete_orderdata() {
 function usces_update_serialized_cart(){
 	global $wpdb, $usces;
 	if(!isset($_REQUEST['order_id']) || WCUtils::is_blank($_REQUEST['order_id']) ) return 0;
-	
+
 	$order_table_name = $wpdb->prefix . "usces_order";
 	$ID = $_REQUEST['order_id'];
 	$usces->cart->crear_cart();
 	$usces->cart->upCart();
 	$cart = $usces->cart->get_cart();
-	$idx = count($cart)-1;
-	$post_id = $cart[$idx]['post_id'];
-	$sku = $cart[$idx]['sku'];
-	$sku_code = esc_attr(urldecode($sku));
-	$cartItemName = $usces->getCartItemName($post_id, $sku_code);
-	$skuPrice = $cart[$idx]['price'];
+	if( $cart && is_array( $cart ) && 0 < count( $cart ) ) {
+		$idx = count($cart)-1;
+		$post_id = $cart[$idx]['post_id'];
+		$sku = $cart[$idx]['sku'];
+		$sku_code = esc_attr(urldecode($sku));
+		$cartItemName = $usces->getCartItemName($post_id, $sku_code);
+		$skuPrice = $cart[$idx]['price'];
 
-	$query = $wpdb->prepare("UPDATE $order_table_name SET `order_cart`=%s WHERE ID = %d", serialize($cart), $ID);
-	$res = $wpdb->query( $query );
-	
-	$usces->cart->crear_cart();	
+		$query = $wpdb->prepare("UPDATE $order_table_name SET `order_cart`=%s WHERE ID = %d", serialize($cart), $ID);
+		$res = $wpdb->query( $query );
+
+		$usces->cart->crear_cart();
+	}
 }
 
 function usces_delete_serialized_cart(){
@@ -3019,7 +3009,8 @@ function usces_setup_cod_ajax(){
 		
 		unset($usces->options['cod_amounts'], $usces->options['cod_fees']);
 		if( isset($_POST['cod_amounts']) ){
-			for($i=0; $i<count((array)$_POST['cod_amounts']); $i++){
+			$cod_amounts_count = ( is_array( $_POST['cod_amounts'] ) ) ? count( $_POST['cod_amounts'] ) : 0;
+			for($i=0; $i<$cod_amounts_count; $i++){
 				$usces->options['cod_amounts'][$i] = (int)$_POST['cod_amounts'][$i];
 				$usces->options['cod_fees'][$i] = (int)$_POST['cod_fees'][$i];
 				if( 0 === (int)$_POST['cod_amounts'][$i] || (0 === (int)$_POST['cod_fees'][$i] && '0' !== $_POST['cod_fees'][$i]) )
@@ -3267,7 +3258,8 @@ function usces_trackPageview_ordercompletion($push){
 		$total_price = $usces->get_total_price( $cart ) + $data['order_discount'] - $data['order_usedpoint'];
 		if( $total_price < 0 ) $total_price = 0;
 		$push[] = "'_addTrans', '" . $order_id . "', '" . get_option('blogname') . "', '" . $total_price . "', '" . $data['order_tax'] . "', '" . $data['order_shipping_charge'] . "', '" . $data['order_address1'].$data['order_address2'] . "', '" . $data['order_pref'] . "', '" . get_locale() . "'";
-		for($i=0; $i<count($cart); $i++) { 
+		$cart_count = ( $cart && is_array( $cart ) ) ? count( $cart ) : 0;
+		for($i=0; $i<$cart_count; $i++) { 
 			$cart_row = $cart[$i];
 			$post_id = $cart_row['post_id'];
 			$sku = urldecode($cart_row['sku']);
@@ -3581,11 +3573,11 @@ function uesces_get_mail_addressform( $type, $data, $order_id, $out = 'return' )
 		break;
 	}
 	$pref = ( $values['pref'] == __('-- Select --','usces') || $values['pref'] == '-- Select --' ) ? '' : $values['pref'];
-	
+	$target_market_count = ( isset( $options['system']['target_market'] ) && is_array( $options['system']['target_market'] ) ) ? count( $options['system']['target_market'] ) : 1;
+
 	switch ($applyform){
 	case 'JP': 
 		$formtag .= usces_mail_custom_field_info( $mode, 'name_pre', $order_id );
-		//20131129_kitamu_start
 		if( $type == 'order_mail_customer' or $type == 'admin_mail_customer' ){
 			$usces_order_table = $wpdb->prefix . "usces_order";
 			$order_data = $wpdb->get_results( $wpdb->prepare("SELECT mem_id,order_email FROM $usces_order_table WHERE ID = %d LIMIT 1", $order_id ) );	
@@ -3595,17 +3587,14 @@ function uesces_get_mail_addressform( $type, $data, $order_id, $out = 'return' )
 			$formtag .= ( !empty( $mem_id ) ) ? __( 'membership number', 'usces' ) . " : " . $mem_id . "\r\n" : '';
 			$formtag .= ( !empty( $order_email ) ) ? __( 'e-mail adress', 'usces' ) . " : " . $order_email . "\r\n" : '';
 		}
-		//20131129_kitamu_end
 		$formtag .= $name_label . " : " . sprintf(_x('%s', 'honorific', 'usces'), ($values['name1'] . ' ' . $values['name2'])) . "\r\n";
 		if( !empty($values['name3']) || !empty($values['name4']) ) {
 			$formtag .= __('furigana','usces') . " : " . $values['name3'] . ' ' . $values['name4'] . "\r\n";
 		}
 		$formtag .= usces_mail_custom_field_info( $mode, 'name_after', $order_id );
-		//20131213_kitamu_start
-		if( count( $options['system']['target_market'] ) != 1 ){
+		if( 1 < $target_market_count ){
 			$formtag .= __('Country','usces') . " : " . $usces_settings['country'][$values['country']] . "\r\n";
 		}
-		//20131213_kitamu_end
 		$formtag .= __('Zip/Postal Code','usces') . " : " . $values['zipcode'] . "\r\n";
 		$formtag .= __('Address','usces') . " : " . $pref . $values['address1'] . $values['address2'] . " " . $values['address3'] . "\r\n";
 		$formtag .= __('Phone number','usces') . " : " . $values['tel'] . "\r\n";
@@ -3615,7 +3604,6 @@ function uesces_get_mail_addressform( $type, $data, $order_id, $out = 'return' )
 		
 	case 'CN':
 		$formtag .= usces_mail_custom_field_info( $mode, 'name_pre', $order_id );
-		//20131129_kitamu_start
 		if( $type == 'order_mail_customer' or $type == 'admin_mail_customer' ){
 			$usces_order_table = $wpdb->prefix . "usces_order";
 			$order_data = $wpdb->get_results( $wpdb->prepare("SELECT mem_id,order_email FROM $usces_order_table WHERE ID = %d LIMIT 1", $order_id ) );
@@ -3625,14 +3613,11 @@ function uesces_get_mail_addressform( $type, $data, $order_id, $out = 'return' )
 			$formtag .= ( !empty( $mem_id ) ) ? __( 'membership number', 'usces' ) . " : " . $mem_id . "\r\n" : '';
 			$formtag .= ( !empty( $order_email ) ) ? __( 'e-mail adress', 'usces' ) . " : " . $order_email . "\r\n" : '';
 		}
-		//20131129_kitamu_end
 		$formtag .= $name_label . " : " . sprintf(_x('%s', 'honorific', 'usces'), ($values['name1'] . ' ' . $values['name2'])) . "\r\n";
 		$formtag .= usces_mail_custom_field_info( $mode, 'name_after', $order_id );
-		//20131213_kitamu_start
-		if( count( $options['system']['target_market'] ) != 1 ){
+		if( 1 < $target_market_count ){
 			$formtag .= __('Country','usces') . " : " . $usces_settings['country'][$values['country']] . "\r\n";
 		}
-		//20131213_kitamu_end
 		$formtag .= __('State','usces') . " : " . $pref . "\r\n";
 		$formtag .= __('City','usces') . " : " . $values['address1'] . "\r\n";
 		$formtag .= __('Address','usces') . " : " . $values['address2'] . " " . $values['address3'] . "\r\n";
@@ -3645,7 +3630,6 @@ function uesces_get_mail_addressform( $type, $data, $order_id, $out = 'return' )
 	case 'US':
 	default:
 		$formtag .= usces_mail_custom_field_info( $mode, 'name_pre', $order_id );
-		//20131129_kitamu_start
 		if( $type == 'order_mail_customer' or $type == 'admin_mail_customer' ){
 			$usces_order_table = $wpdb->prefix . "usces_order";
 			$order_data = $wpdb->get_results( $wpdb->prepare("SELECT mem_id,order_email FROM $usces_order_table WHERE ID = %d LIMIT 1", $order_id ) );
@@ -3655,18 +3639,14 @@ function uesces_get_mail_addressform( $type, $data, $order_id, $out = 'return' )
 			$formtag .= ( !empty( $mem_id ) ) ? __( 'membership number', 'usces' ) . " : " . $mem_id . "\r\n" : '';
 			$formtag .= ( !empty( $order_email ) ) ? __( 'e-mail adress', 'usces' ) . " : " . $order_email . "\r\n" : '';
 		}
-		//20131129_kitamu_end
 		$formtag .= $name_label . " : " . sprintf(_x('%s', 'honorific', 'usces'), ($values['name2'] . ' ' . $values['name1'])) . "\r\n";
 		$formtag .= usces_mail_custom_field_info( $mode, 'name_after', $order_id );
 		$formtag .= __('Address','usces') . " : " . $values['address2'] . " " . $values['address3'] . "\r\n";
 		$formtag .= __('City','usces') . " : " . $values['address1'] . "\r\n";
 		$formtag .= __('State','usces') . " : " . $pref . "\r\n";
-
-		//20131213_kitamu_start
-		if( count( $options['system']['target_market'] ) != 1 ){
+		if( 1 < $target_market_count ){
 			$formtag .= __('Country','usces') . " : " . $usces_settings['country'][$values['country']] . "\r\n";
 		}
-		//20131213_kitamu_end
 		$formtag .= __('Zip/Postal Code','usces') . " : " . $values['zipcode'] . "\r\n";
 		$formtag .= __('Phone number','usces') . " : " . $values['tel'] . "\r\n";
 		$formtag .= __('FAX number','usces') . " : " . $values['fax'] . "\r\n";
@@ -3964,7 +3944,10 @@ function usces_get_member_regmode(){
 function uesces_get_error_settlement( $out = '' ) {
 	$res = '';
 	$res = apply_filters( 'usces_filter_get_error_settlement', $res );
-	
+	if( empty( $res ) ) {
+		$res = __( 'Sorry, If you have any questions, please contact the administrator of the site.', 'usces' );
+	}
+
 	if($out == 'return'){
 		return $res;
 	}else{
@@ -4086,7 +4069,7 @@ function usces_paypal_doecp( &$results ) {
 				'&L_PAYMENTREQUEST_0_AMT'.$i.'='.usces_crform($cart_row['price'], false, false, 'return', false).
 				'&L_PAYMENTREQUEST_0_NUMBER'.$i.'='.urlencode($usces->getItemCode($cart_row['post_id'])).' '.$cart_row['sku'].
 				'&L_PAYMENTREQUEST_0_QTY'.$i.'='.$cart_row['quantity'];
-			$options = $cart_row['options'];
+			$options = ( !empty( $cart_row['options'] ) ) ? $cart_row['options'] : array();
 			if( is_array($options) && count($options) > 0 ) {
 				$optstr = '';
 				foreach( $options as $key => $value ) {
@@ -4275,7 +4258,8 @@ function usces_get_send_out_date(){
 	$shipping_indication = apply_filters('usces_filter_shipping_indication', $usces->options['usces_shipping_indication']);
 	$shipping = 0;
 	$indication_flag = true;
-	for($i = 0; $i < count($cart); $i++) {
+	$cart_count = ( $cart && is_array( $cart ) ) ? count( $cart ) : 0;
+	for($i = 0; $i < $cart_count; $i++) {
 		$cart_row = $cart[$i];
 		$post_id = $cart_row['post_id'];
 		$itemShipping = (int)$usces->getItemShipping($post_id);

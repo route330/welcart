@@ -3,8 +3,8 @@
 class Welcart_Recent_Posts extends WP_Widget {
 
 	function __construct() {
-		$widget_ops = array('classname' => 'usces_recent_entries', 'description' => (__( "The most recent posts on your site").'（商品以外）') );
-		parent::__construct('usces-recent-posts', __('Welcart Recent Posts'), $widget_ops);
+		$widget_ops = array('classname' => 'usces_recent_entries', 'description' => (__( "Your site&#8217;s most recent posts.", 'usces').__( 'Non-item', 'usces' ) ) );
+		parent::__construct('usces-recent-posts', 'Welcart '.__('Recent Posts', 'usces'), $widget_ops);
 		$this->alt_option_name = 'usces_recent_entries';
 
 		add_action( 'save_post', array(&$this, 'flush_widget_cache') );
@@ -26,7 +26,7 @@ class Welcart_Recent_Posts extends WP_Widget {
 		ob_start();
 		extract($args);
 
-		$title = apply_filters('widget_title', empty($instance['title']) ? __('Recent Posts') : $instance['title'], $instance, $this->id_base);
+		$title = apply_filters('widget_title', empty($instance['title']) ? __('Recent Posts', 'usces') : $instance['title'], $instance, $this->id_base);
 		if ( !$number = (int) $instance['number'] )
 			$number = 10;
 		else if ( $number < 1 )
@@ -77,10 +77,10 @@ class Welcart_Recent_Posts extends WP_Widget {
 		if ( !isset($instance['number']) || !$number = (int) $instance['number'] )
 			$number = 5;
 ?>
-		<p><label for="<?php echo $this->get_field_id('title'); ?>"><?php _e('Title:'); ?></label>
+		<p><label for="<?php echo $this->get_field_id('title'); ?>"><?php _e('Title:', 'usces'); ?></label>
 		<input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo $title; ?>" /></p>
 
-		<p><label for="<?php echo $this->get_field_id('number'); ?>"><?php _e('Number of posts to show:'); ?></label>
+		<p><label for="<?php echo $this->get_field_id('number'); ?>"><?php _e('Number of posts to show:', 'usces'); ?></label>
 		<input id="<?php echo $this->get_field_id('number'); ?>" name="<?php echo $this->get_field_name('number'); ?>" type="text" value="<?php echo $number; ?>" size="3" /></p>
 <?php
 	}

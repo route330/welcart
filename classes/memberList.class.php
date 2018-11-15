@@ -411,7 +411,7 @@ class WlcMemberList
 
 		$rows = $wpdb->get_results($query, ARRAY_A);
 
-		$this->selectedRow = count($rows);
+		$this->selectedRow = ( $rows && is_array( $rows ) ) ? count( $rows ) : 0;
 		if($this->pageLimit == 'on') {
 			$this->rows = array_slice($rows, $this->startRow, $this->maxRow);
 			$this->currentPageIds = array();
@@ -601,7 +601,8 @@ class WlcMemberList
 		$this->lastPage = ceil($this->selectedRow / $this->maxRow);
 		$this->previousPage = ($this->currentPage - 1 == 0) ? 1 : $this->currentPage - 1;
 		$this->nextPage = ($this->currentPage + 1 > $this->lastPage) ? $this->lastPage : $this->currentPage + 1;
-		
+		$box = array();
+
 		for($i=0; $i<$this->naviMaxButton; $i++){
 			if($i > $this->lastPage-1) break;
 			if($this->lastPage <= $this->naviMaxButton) {
@@ -629,7 +630,8 @@ class WlcMemberList
 			$html .= '<li class="navigationStr"><a href="' . site_url() . '/wp-admin/admin.php?page=usces_memberlist&changePage=' . $this->previousPage . '">prev&lt;</a></li>'."\n";
 		}
 		if($this->selectedRow > 0) {
-			for($i=0; $i<count($box); $i++){
+			$box_count = count( $box );
+			for($i=0; $i<$box_count; $i++){
 				if($box[$i] == $this->currentPage){
 					$html .= '<li class="navigationButtonSelected"><span>' . $box[$i] . '</span></li>'."\n";
 				}else{

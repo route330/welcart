@@ -218,7 +218,8 @@ class USCES_GANBARE_TENCHO
 			$order_condition = unserialize($data['order_condition']);
 			$tax_div = ( 'include' == $order_condition['tax_mode'] ) ? '税込' : '税別';
 
-			for($i = 0; $i < count($cart); $i++) {
+			$cart_count = ( $cart && is_array( $cart ) ) ? count( $cart ) : 0;
+			for($i = 0; $i < $cart_count; $i++) {
 				$cart_row = $cart[$i];
 				$group_id = $cart_row['group_id'];
 				if( 2 == $delivery['delivery_flag'] && !empty($data['mem_id']) && isset($orderdestination[$group_id]) && function_exists('msa_get_destination') ){

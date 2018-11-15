@@ -149,9 +149,9 @@ class usces_cart {
 	function num_row() {
 		if( !isset($_SESSION['usces_cart']) )
 			return false;
-			
-		$num = count($_SESSION['usces_cart']);
-		
+
+		$num = ( is_array( $_SESSION['usces_cart'] ) ) ? count( $_SESSION['usces_cart'] ) : 0;
+
 		if( $num > 0 ) {
 			return $num;
 		} else {
@@ -583,4 +583,3 @@ class usces_cart {
 		}
 	}
 }
-?>

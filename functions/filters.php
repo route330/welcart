@@ -440,7 +440,8 @@ function usces_Universal_trackPageview(){
 							revenue: '". $total_price ."',
 							shipping: '". $data['order_shipping_charge'] ."',
 							tax: '". $data['order_tax'] ."' }";
-				for( $i=0; $i<count($cart); $i++ ){
+				$cart_count = ( $cart && is_array( $cart ) ) ? count( $cart ) : 0;
+				for( $i=0; $i<$cart_count; $i++ ){
 					$cart_row = $cart[$i];
 					$post_id  = $cart_row['post_id'];
 					$sku = urldecode($cart_row['sku']);
@@ -660,7 +661,8 @@ function usces_Universal_trackPageview_by_Yoast($push){
 								shipping: '". $data['order_shipping_charge'] ."',
 								tax: '". $data['order_tax'] ."'
 							}";
-				for( $i=0; $i<count($cart); $i++ ){
+				$cart_count = ( $cart && is_array( $cart ) ) ? count( $cart ) : 0;
+				for( $i=0; $i<$cart_count; $i++ ){
 					$cart_row = $cart[$i];
 					$post_id  = $cart_row['post_id'];
 					$sku = urldecode($cart_row['sku']);
@@ -784,7 +786,8 @@ function usces_Classic_trackPageview_by_Yoast($push){
 				if( $total_price < 0 ) $total_price = 0;
 
 				$push[] = "'_addTrans', '" . $order_id . "', '" . esc_js(get_option('blogname')) . "', '" . $total_price . "', '" . $data['order_tax'] . "', '" . $data['order_shipping_charge'] . "', '" . esc_js($data['order_address1'].$data['order_address2']) . "', '" . esc_js($data['order_pref']) . "', '" . get_locale() . "'";
-				for($i=0; $i<count($cart); $i++) { 
+				$cart_count = ( $cart && is_array( $cart ) ) ? count( $cart ) : 0;
+				for($i=0; $i<$cart_count; $i++) { 
 					$cart_row = $cart[$i];
 					$post_id = $cart_row['post_id'];
 					$sku = urldecode($cart_row['sku']);

@@ -49,11 +49,11 @@ jQuery(function($){
 			var essential = ($("input#newcsodessential").attr("checked")) ? '1' : '0';
 			var mes = '';
 			if( '' == key || !checkCode( key ) ) 
-				mes += '<p>フィールドキーは半角英数（-_を含む）で入力して下さい。</p>';
+				mes += '<p><?php _e( "Please enter the field key with one-byte alphanumeric characters (including -_).", "usces" ); ?></p>';
 			if( '' == name ) 
-				mes += '<p>フィールド名の値を入力してください。</p>';
+				mes += '<p><?php _e( "Please enter the value of the field name.", "usces" ); ?></p>';
 			if( 2 != means && '' == value ) 
-				mes += '<p>セレクト値を入力してください。</p>';
+				mes += '<p><?php _e( "Please enter the selection values.", "usces" ); ?></p>';
 			if( '' != mes ) {
 				mes = '<div class="error">'+mes+'</div>';
 				$("#ajax-response-csod").html(mes);
@@ -71,7 +71,7 @@ jQuery(function($){
 				var list = strs[0];
 				var dupkey = strs[1];
 				if( 0 < dupkey ) {
-					$("#ajax-response-csod").html('<div class="error"><p>同じフィールドキーが存在します。</p></div>');
+					$("#ajax-response-csod").html('<div class="error"><p><?php _e( "The same field key exists.", "usces" ); ?></p></div>');
 				}else{
 					if(list.length > 1) $("table#csod-list-table").removeAttr("style");
 					$("tbody#csod-list").html(list);
@@ -99,9 +99,9 @@ jQuery(function($){
 			var essential = ($(':input[name="csod['+key+'][essential]"]').attr("checked")) ? '1' : '0';
 			var mes = '';
 			if( '' == name ) 
-				mes += '<p>フィールド名の値を入力してください。</p>';
+				mes += '<p><?php _e( "Please enter the value of the field name.", "usces" ); ?></p>';
 			if( 2 != means && '' == value ) 
-				mes += '<p>セレクト値を入力してください。</p>';
+				mes += '<p><?php _e( "Please enter the selection values.", "usces" ); ?></p>';
 			if( '' != mes ) {
 				mes = '<div class="error">'+mes+'</div>';
 				$("#ajax-response-csod").html(mes);
@@ -159,11 +159,11 @@ jQuery(function($){
 			var position = $("#newcscsposition").val();
 			var mes = '';
 			if( '' == key || !checkCode( key ) ) 
-				mes += '<p>フィールドキーは半角英数（-_を含む）で入力して下さい。</p>';
+				mes += '<p><?php _e( "Please enter the field key with one-byte alphanumeric characters (including -_).", "usces" ); ?></p>';
 			if( '' == name ) 
-				mes += '<p>フィールド名の値を入力してください。</p>';
+				mes += '<p><?php _e( "Please enter the value of the field name.", "usces" ); ?></p>';
 			if( 2 != means && '' == value ) 
-				mes += '<p>セレクト値を入力してください。</p>';
+				mes += '<p><?php _e( "Please enter the selection values.", "usces" ); ?></p>';
 			if( '' != mes ) {
 				mes = '<div class="error">'+mes+'</div>';
 				$("#ajax-response-cscs").html(mes);
@@ -181,7 +181,7 @@ jQuery(function($){
 				var list = strs[0];
 				var dupkey = strs[1];
 				if( 0 < dupkey ) {
-					$("#ajax-response-cscs").html('<div class="error"><p>同じフィールドキーが存在します。</p></div>');
+					$("#ajax-response-cscs").html('<div class="error"><p><?php _e( "The same field key exists.", "usces" ); ?></p></div>');
 				}else{
 					if(list.length > 1) $("table#cscs-list-table").removeAttr("style");
 					$("tbody#cscs-list").html(list);
@@ -210,9 +210,9 @@ jQuery(function($){
 			var position = $(':input[name="cscs['+key+'][position]"]').val();
 			var mes = '';
 			if( '' == name ) 
-				mes += '<p>フィールド名の値を入力してください。</p>';
+				mes += '<p><?php _e( "Please enter the value of the field name.", "usces" ); ?></p>';
 			if( 2 != means && '' == value ) 
-				mes += '<p>セレクト値を入力してください。</p>';
+				mes += '<p><?php _e( "Please enter the selection values.", "usces" ); ?></p>';
 			if( '' != mes ) {
 				mes = '<div class="error">'+mes+'</div>';
 				$("#ajax-response-cscs").html(mes);
@@ -270,11 +270,11 @@ jQuery(function($){
 			var position = $("#newcsdeposition").val();
 			var mes = '';
 			if( '' == key || !checkCode( key ) ) 
-				mes += '<p>フィールドキーは半角英数（-_を含む）で入力して下さい。</p>';
+				mes += '<p><?php _e( "Please enter the field key with one-byte alphanumeric characters (including -_).", "usces" ); ?></p>';
 			if( '' == name ) 
-				mes += '<p>フィールド名の値を入力してください。</p>';
+				mes += '<p><?php _e( "Please enter the value of the field name.", "usces" ); ?></p>';
 			if( 2 != means && '' == value ) 
-				mes += '<p>セレクト値を入力してください。</p>';
+				mes += '<p><?php _e( "Please enter the selection values.", "usces" ); ?></p>';
 			if( '' != mes ) {
 				mes = '<div class="error">'+mes+'</div>';
 				$("#ajax-response-csde").html(mes);
@@ -292,7 +292,7 @@ jQuery(function($){
 				var list = strs[0];
 				var dupkey = strs[1];
 				if( 0 < dupkey ) {
-					$("#ajax-response-csde").html('<div class="error"><p>同じフィールドキーが存在します。</p></div>');
+					$("#ajax-response-csde").html('<div class="error"><p><?php _e( "The same field key exists.", "usces" ); ?></p></div>');
 				}else{
 					if(list.length > 1) $("table#csde-list-table").removeAttr("style");
 					$("tbody#csde-list").html(list);
@@ -321,9 +321,9 @@ jQuery(function($){
 			var position = $(':input[name="csde['+key+'][position]"]').val();
 			var mes = '';
 			if( '' == name ) 
-				mes += '<p>フィールド名の値を入力してください。</p>';
+				mes += '<p><?php _e( "Please enter the value of the field name.", "usces" ); ?></p>';
 			if( 2 != means && '' == value ) 
-				mes += '<p>セレクト値を入力してください。</p>';
+				mes += '<p><?php _e( "Please enter the selection values.", "usces" ); ?></p>';
 			if( '' != mes ) {
 				mes = '<div class="error">'+mes+'</div>';
 				$("#ajax-response-csde").html(mes);

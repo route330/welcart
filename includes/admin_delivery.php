@@ -4,9 +4,9 @@ $shipping_charge = isset($this->options['shipping_charge']) ? $this->options['sh
 $target_market = ( isset($this->options['system']['target_market']) && !empty($this->options['system']['target_market']) ) ? $this->options['system']['target_market'] : usces_get_local_target_market();
 foreach((array)$target_market as $tm) {
 	$prefs[$tm] = get_usces_states($tm);
-	
+
 	array_shift($prefs[$tm]);
-	
+
 }
 $shipping_charge = apply_filters( 'usces_filter_admin_shipping_charge', $shipping_charge, $target_market, $prefs );
 $delivery_time_limit['hour'] = isset($this->options['delivery_time_limit']['hour']) ? $this->options['delivery_time_limit']['hour'] : '00';
@@ -35,7 +35,8 @@ jQuery(function($){
 
 	var delivery_method = [];
 <?php
-	for($i=0; $i<count((array)$delivery_method); $i++){ 
+	$delivery_method_count = ( is_array( $delivery_method ) ) ? count( $delivery_method ) : 0;
+	for($i=0; $i<$delivery_method_count; $i++){ 
 		$delivery_method[$i]['time'] = usces_change_line_break( $delivery_method[$i]['time'] );
 		$lines = explode("\n", $delivery_method[$i]['time']);
 ?>
@@ -45,9 +46,12 @@ jQuery(function($){
 	delivery_method[<?php echo $i; ?>]['charge'] = <?php echo (int)$delivery_method[$i]['charge']; ?>;
 	delivery_method[<?php echo $i; ?>]['days'] = <?php echo (int)$delivery_method[$i]['days']; ?>;
 	sttr = '';
-	<?php foreach((array)$lines as $line){ 	if(trim($line) != ''){ ?>
+	<?php foreach((array)$lines as $line){
+			if(trim($line) != ''){ ?>
 	sttr += "<?php echo trim($line); ?>\n";
-	<?php } } ?>
+	<?php	}
+		}
+	?>
 	delivery_method[<?php echo $i; ?>]['time'] = sttr;
 	delivery_method[<?php echo $i; ?>]['nocod'] = "<?php echo $delivery_method[$i]['nocod']; ?>";
 	delivery_method[<?php echo $i; ?>]['intl'] = "<?php echo (!empty($delivery_method[$i]['intl'])) ? $delivery_method[$i]['intl'] : '0'; ?>";
@@ -57,42 +61,54 @@ jQuery(function($){
 
 <?php foreach((array)$target_market as $tm){ ?>
 	pref["<?php echo $tm; ?>"] = [];
-<?php foreach((array)$prefs[$tm] as $pref){ ?>
+	<?php foreach((array)$prefs[$tm] as $pref){ ?>
 	pref["<?php echo $tm; ?>"].push("<?php echo $pref; ?>");
-<?php }} ?>
+	<?php }
+	}
+?>
 	var shipping_charge = [];
-<?php for($i=0; $i<count((array)$shipping_charge); $i++){ ?>
+<?php
+	$shipping_charge_count = ( is_array( $shipping_charge ) ) ? count( $shipping_charge ) : 0;
+	for($i=0; $i<$shipping_charge_count; $i++){ ?>
 	shipping_charge[<?php echo $i; ?>] = [];
 	shipping_charge[<?php echo $i; ?>]["id"] = <?php echo (int)$shipping_charge[$i]['id']; ?>;
 	shipping_charge[<?php echo $i; ?>]["name"] = "<?php echo $shipping_charge[$i]['name']; ?>";
-<?php foreach((array)$target_market as $tm) { ?>
+	<?php foreach((array)$target_market as $tm) { ?>
 	shipping_charge[<?php echo $i; ?>]["<?php echo $tm; ?>"] = [];
 
 <?php $target_prefs = apply_filters( 'usces_filter_admin_shipping_prefs', $prefs, $shipping_charge[$i], $target_market ); ?>
 
 
-	<?php foreach( (array)$target_prefs[$tm] as $pref ) { ?>
-		<?php if( isset($shipping_charge[$i][$tm][$pref]) ) : ?>
+		<?php foreach( (array)$target_prefs[$tm] as $pref ) { ?>
+			<?php if( isset($shipping_charge[$i][$tm][$pref]) ) : ?>
 	shipping_charge[<?php echo $i; ?>]["<?php echo $tm; ?>"]["<?php echo $pref; ?>"] = "<?php echo (float)$shipping_charge[$i][$tm][$pref]; ?>";
-		<?php else : ?>
+			<?php else : ?>
 	shipping_charge[<?php echo $i; ?>]["<?php echo $tm; ?>"]["<?php echo $pref; ?>"] = "0";
-		<?php endif; ?>
-<?php }}} ?>
-
+			<?php endif; ?>
+		<?php }
+		}
+	}
+?>
 	var delivery_days = [];
-<?php for($i=0; $i<count((array)$delivery_days); $i++){ ?>
+<?php
+
+	$delivery_days_count = ( is_array( $delivery_days ) ) ? count( $delivery_days ) : 0;
+	for($i=0; $i<$delivery_days_count; $i++){ ?>
 	delivery_days[<?php echo $i; ?>] = [];
 	delivery_days[<?php echo $i; ?>]["id"] = <?php echo (int)$delivery_days[$i]['id']; ?>;
 	delivery_days[<?php echo $i; ?>]["name"] = "<?php echo $delivery_days[$i]['name']; ?>";
-<?php foreach((array)$target_market as $tm) { ?>
+	<?php foreach((array)$target_market as $tm) { ?>
 	delivery_days[<?php echo $i; ?>]["<?php echo $tm; ?>"] = [];
-	<?php foreach( (array)$prefs[$tm] as $pref ) { ?>
-		<?php if( isset($delivery_days[$i][$tm][$pref]) ) : ?>
+		<?php foreach( (array)$prefs[$tm] as $pref ) { ?>
+			<?php if( isset($delivery_days[$i][$tm][$pref]) ) : ?>
 	delivery_days[<?php echo $i; ?>]["<?php echo $tm; ?>"]["<?php echo $pref; ?>"] = "<?php echo (int)$delivery_days[$i][$tm][$pref]; ?>";
-		<?php else : ?>
+			<?php else : ?>
 	delivery_days[<?php echo $i; ?>]["<?php echo $tm; ?>"]["<?php echo $pref; ?>"] = "0";
-		<?php endif; ?>
-<?php }}} ?>
+			<?php endif; ?>
+		<?php }
+		}
+	}
+?>
 
 	var selected_method = 0;
 	function get_delivery_method_charge(selected){
@@ -108,13 +124,13 @@ jQuery(function($){
 			return delivery_method[index]['charge'];
 		}
 	}
-	
+
 	$("#delivery_method_charge").click(function () {
 		if(shipping_charge.length == 0){
 			alert('<?php _e('Please set the shipping price', 'usces'); ?>');
 		}
 	});
-	
+
 	function get_delivery_method_days(selected){
 		var index = 0;
 		for(var i=0; i<delivery_method.length; i++){
@@ -128,13 +144,13 @@ jQuery(function($){
 			return delivery_method[index]['days'];
 		}
 	}
-	
+
 	$("#delivery_method_days").click(function () {
 		if(delivery_days.length == 0){
 			alert('<?php _e('Please set the delivery days', 'usces'); ?>');
 		}
 	});
-	
+
 	$("#new_delivery_method_action").click(function () {
 		if(delivery_method.length === 0) return false;
 		$("#delivery_method_name").html('<input name="delivery_method_name" type="text" value="" />');
@@ -142,24 +158,24 @@ jQuery(function($){
 		$("#delivery_method_time").val('');
 		$("#delivery_method_button").html('<input name="cancel_delivery_method" id="cancel_delivery_method" type="button" class="button" value="<?php _e('Cancel', 'usces'); ?>" onclick="operation.disp_delivery_method(0);" /><input name="add_delivery_method" id="add_delivery_method" type="button" class="button" value="<?php _e('Add', 'usces'); ?>" onclick="operation.add_delivery_method();" />');
 		$("#delivery_method_nocod").html('<input name="delivery_method_nocod" type="checkbox" value="1" />');
-		$("#delivery_method_intl").html('<input name="delivery_method_intl" id="delivery_method_intl_0" type="radio" value="0" checked /><label for="delivery_method_intl_0"><?php _e('Domestic Shipment', 'usces'); ?></label>　<input name="delivery_method_intl" id="delivery_method_intl_1" type="radio" value="1" /><label for="delivery_method_intl_1"><?php _e('International Shipment', 'usces'); ?></label>');
+		$("#delivery_method_intl").html('<input name="delivery_method_intl" id="delivery_method_intl_0" type="radio" value="0" checked /><label for="delivery_method_intl_0"><?php _e('Domestic Shipment', 'usces'); ?></label>&nbsp;&nbsp;&nbsp;<input name="delivery_method_intl" id="delivery_method_intl_1" type="radio" value="1" /><label for="delivery_method_intl_1"><?php _e('International Shipment', 'usces'); ?></label>');
 		$("input[name='delivery_method_name']").focus().select();
 		operation.make_delivery_method_charge(-1);
 		operation.make_delivery_method_days(-1);
 	});
-	
+
 	$("#moveup_action").click(function () {
 		var id = $("#delivery_method_name_select option:selected").val()-0;
 		operation.moveup_delivery_method(id);
 		operation.disp_delivery_method(id);
 	});
-	
+
 	$("#movedown_action").click(function () {
 		var id = $("#delivery_method_name_select option:selected").val()-0;
 		operation.movedown_delivery_method(id);
 		operation.disp_delivery_method(id);
 	});
-	
+
 	$("#new_shipping_charge_action").click(function () {
 		var valuehtml = '';
 		for( var j = 0; j < target_market.length; j++ ) {
@@ -186,7 +202,7 @@ jQuery(function($){
 			}
 		}
 	});
-	
+
 	$("#new_delivery_days_action").click(function () {
 		var valuehtml = '';
 		for( var j = 0; j < target_market.length; j++ ) {
@@ -213,7 +229,7 @@ jQuery(function($){
 			}
 		}
 	});
-	
+
 	operation = {
 		disp_delivery_method :function (id){
 			selected_method = id;
@@ -234,7 +250,7 @@ jQuery(function($){
 				$("#delivery_method_time").val('');
 				$("#delivery_method_button").html('<input name="add_delivery_method" id="add_delivery_method" type="button" class="button" value="<?php _e('Add', 'usces'); ?>" onclick="operation.add_delivery_method();" />');
 				$("#delivery_method_nocod").html('<input name="delivery_method_nocod" type="checkbox" value="1" />');
-				$("#delivery_method_intl").html('<input name="delivery_method_intl" id="delivery_method_intl_0" type="radio" value="0" checked /><label for="delivery_method_intl_0"><?php _e('Domestic Shipment', 'usces'); ?></label>　<input name="delivery_method_intl" id="delivery_method_intl_1" type="radio" value="1" /><label for="delivery_method_intl_1"><?php _e('International Shipment', 'usces'); ?></label>');
+				$("#delivery_method_intl").html('<input name="delivery_method_intl" id="delivery_method_intl_0" type="radio" value="0" checked /><label for="delivery_method_intl_0"><?php _e('Domestic Shipment', 'usces'); ?></label>&nbsp;&nbsp;&nbsp;<input name="delivery_method_intl" id="delivery_method_intl_1" type="radio" value="1" /><label for="delivery_method_intl_1"><?php _e('International Shipment', 'usces'); ?></label>');
 				operation.make_delivery_method_charge(-1);
 				operation.make_delivery_method_days(-1);
 			}else{
@@ -255,12 +271,12 @@ jQuery(function($){
 				$("#delivery_method_nocod").html('<input name="delivery_method_nocod" type="checkbox" value="1"'+checked_nocod+' />');
 				var checked_intl_0 = (delivery_method[selected]['intl'] == '0') ? ' checked' : '';
 				var checked_intl_1 = (delivery_method[selected]['intl'] == '1') ? ' checked' : '';
-				$("#delivery_method_intl").html('<input name="delivery_method_intl" id="delivery_method_intl_0" type="radio" value="0"'+checked_intl_0+' /><label for="delivery_method_intl_0"><?php _e('Domestic Shipment', 'usces'); ?></label>　<input name="delivery_method_intl" id="delivery_method_intl_1" type="radio" value="1"'+checked_intl_1+' /><label for="delivery_method_intl_1"><?php _e('International Shipment', 'usces'); ?></label>');
+				$("#delivery_method_intl").html('<input name="delivery_method_intl" id="delivery_method_intl_0" type="radio" value="0"'+checked_intl_0+' /><label for="delivery_method_intl_0"><?php _e('Domestic Shipment', 'usces'); ?></label>&nbsp;&nbsp;&nbsp;<input name="delivery_method_intl" id="delivery_method_intl_1" type="radio" value="1"'+checked_intl_1+' /><label for="delivery_method_intl_1"><?php _e('International Shipment', 'usces'); ?></label>');
 				operation.make_delivery_method_charge(get_delivery_method_charge(selected_method));
 				operation.make_delivery_method_days(get_delivery_method_days(selected_method));
 			}
 		},
-		
+
 		add_delivery_method : function() {
 			if($("input[name='delivery_method_name']").val() == "") return;
 			
@@ -298,10 +314,10 @@ jQuery(function($){
 			$.ajax( s );
 			return false;
 		},
-		
+
 		update_delivery_method : function() {
 			if($("input[name='delivery_method_name']").val() == "") return;
-			
+
 			$("#delivery_method_loading").html('<img src="<?php echo USCES_PLUGIN_URL; ?>/images/loading-publish.gif" />');
 			var id = $("#delivery_method_name_select option:selected").val();
 			var name = encodeURIComponent($("input[name='delivery_method_name']").val());
@@ -310,7 +326,7 @@ jQuery(function($){
 			var days = $("#delivery_method_days option:selected").val();
 			var nocod = ($(':input[name=delivery_method_nocod]').attr('checked')) ? '1' : '0';
 			var intl = $(':radio[name=delivery_method_intl]:checked').val();
-			
+
 			var s = operation.settings;
 			s.data = "action=shop_options_ajax&mode=update_delivery_method&name=" + name + "&id=" + id + "&time=" + time + "&charge=" + charge + "&days=" + days + "&nocod=" + nocod + "&intl=" + intl;
 			s.success = function(data, dataType){
@@ -339,14 +355,14 @@ jQuery(function($){
 			$.ajax( s );
 			return false;
 		},
-		
+
 		delete_delivery_method : function() {
 			var delname = $("#delivery_method_name_select option:selected").html();
 			if(!confirm(<?php _e("'Are you sure of deleting the delivery method ' + delname + ' ?'", 'usces'); ?>)) return false;
-			
+
 			$("#delivery_method_loading").html('<img src="<?php echo USCES_PLUGIN_URL; ?>/images/loading-publish.gif" />');
 			var id = $("#delivery_method_name_select option:selected").val();
-			
+
 			var s = operation.settings;
 			s.data = "action=shop_options_ajax&mode=delete_delivery_method&id=" + id;
 			s.success = function(data, dataType){
@@ -1065,28 +1081,28 @@ jQuery(document).ready(function($){
 <div class="inside">
 <table class="form_table" style="width:290px; margin-left:10px; float:left;">
 	<tr style="height:20px;">
-	    <th class="sec">&nbsp;</th>
-	    <td><a href="javascript:void(0);" id="new_delivery_method_action"><?php _e('New addition', 'usces'); ?></a></td>
+		<th class="sec">&nbsp;</th>
+		<td><a href="javascript:void(0);" id="new_delivery_method_action"><?php _e('New addition', 'usces'); ?></a></td>
 	</tr>
 	<tr style="height:40px;">
-	    <th><?php _e('Shipping name', 'usces'); ?></th>
-	    <td width="150" height="30" id="delivery_method_name"></td>
+		<th><?php _e('Shipping name', 'usces'); ?></th>
+		<td width="150" height="30" id="delivery_method_name"></td>
 	</tr>
 	<tr style="height:30px;">
-	    <th class="sec">&nbsp;</th>
-	    <td id="delivery_method_name2"></td>
+		<th class="sec">&nbsp;</th>
+		<td id="delivery_method_name2"></td>
 	</tr>
 	<tr style="height:30px;">
-	    <th class="sec" id="delivery_method_loading">&nbsp;</th>
-	    <td id="delivery_method_button"></td>
+		<th class="sec" id="delivery_method_loading">&nbsp;</th>
+		<td id="delivery_method_button"></td>
 	</tr>
 	<tr style="height:20px;">
-	    <th class="sec"></th>
-	    <td><a href="#" id="moveup_action"><?php _e('Raise the priority', 'usces'); ?></a></td>
+		<th class="sec"></th>
+		<td><a href="#" id="moveup_action"><?php _e('Raise the priority', 'usces'); ?></a></td>
 	</tr>
 	<tr style="height:20px;">
-	    <th class="sec"></th>
-	    <td><a href="#" id="movedown_action"><?php _e('Lower the priority', 'usces'); ?></a></td>
+		<th class="sec"></th>
+		<td><a href="#" id="movedown_action"><?php _e('Lower the priority', 'usces'); ?></a></td>
 	</tr>
 </table>
 
@@ -1097,32 +1113,19 @@ jQuery(document).ready(function($){
 	</tr>
 	<tr style="height:40px;">
 	    <th class="sec"><a style="cursor:pointer;" onclick="toggleVisibility('ex_shipping_setting10');"><?php _e('Possible Delivery Area', 'usces'); ?></a></th>
-<!--	    <td><input name="flights" type="radio" value="domestic" id="domestic_flights" /><label for="domestic_flights" style="margin-right:20px;"><?php _e('Domestic Shipment', 'usces'); ?></label><input name="flights" type="radio" value="internationa" id="internationa_flights" /><label for="internationa_flights"><?php _e('International Shipment', 'usces'); ?></label></td>-->
 		<td><div id="delivery_method_intl"></div></td>
 		<td><div id="ex_shipping_setting10" class="explanation"><?php _e('Choose possible delivery area for this shipment method.', 'usces'); ?></div></td>
 	</tr>
-<!--	<tr>
-	    <th class="sec"><a style="cursor:pointer;" onclick="toggleVisibility('ex_shipping_setting11');"><?php _e('Applied Module', 'usces'); ?></a></th>
-	    <td><select name="shipping_module">
-	    		<option value="none"><?php _e('No possible Module', 'usces'); ?></option>
-	    </select></td>
-		<td><div id="ex_shipping_setting11" class="explanation"><?php _e('When delivery module is chosen, the module overrules all rules including shipping fee.', 'usces'); ?></div></td>
-	</tr>-->
 	<tr style="height:40px;">
 	    <th class="sec"><a style="cursor:pointer;" onclick="toggleVisibility('ex_shipping_setting12');"><?php _e('Deliverly time', 'usces'); ?></a></th>
 	    <td><textarea name="delivery_method_time" id="delivery_method_time" style="height:100px;"></textarea></td>
-		<td><div id="ex_shipping_setting12" class="explanation"><?php _e("Input possible delivery hours. Leave it blank when the customer cannot choose delivery time. <br />example）<br />morning<br />12：00～14：00<br />14：00～16：00<br />16：00～18：00", 'usces'); ?></div></td>
+		<td><div id="ex_shipping_setting12" class="explanation"><?php _e("Input possible delivery hours. Leave it blank when the customer cannot choose delivery time. <br />example)<br />morning<br />12:00-14:00<br />14:00-16:00<br />16:00-18:00", 'usces'); ?></div></td>
 	</tr>
 	<tr style="height:40px;">
 	    <th class="sec"><a style="cursor:pointer;" onclick="toggleVisibility('ex_shipping_setting13');"><?php _e('Postage fixation', 'usces'); ?></a></th>
 	    <td id="delivery_method_charge_td"></td>
 		<td><div id="ex_shipping_setting13" class="explanation"><?php _e("It is fixed for above rate setting when I choose postage fixation. The postage set by an article is applied in the case of 'non-fixation'.", 'usces'); ?></div></td>
 	</tr>
-<!--	<tr style="height:40px;">
-	    <th class="sec"><a style="cursor:pointer;" onclick="toggleVisibility('ex_shipping_setting14');"><?php _e('Weight Added', 'usces'); ?></th>
-	    <td id="delivery_method_weight_td"></td>
-		<td><div id="ex_shipping_setting14" class="explanation"><?php _e("Add shipment fee by the total weight of merchandise.", 'usces'); ?></div></td>
-	</tr>-->
 	<tr style="height:40px;">
 		<th class="sec"><a style="cursor:pointer;" onclick="toggleVisibility('ex_shipping_setting15');"><?php _e('Delivery Days', 'usces'); ?></a></th>
 		<td id="delivery_method_days_td"></td>
@@ -1145,7 +1148,6 @@ jQuery(document).ready(function($){
 <div class="uscestabs" id="uscestabs_delivery">
 	<ul>
 		<li><a href="#delivery_page_setting_1"><?php _e('Shipping','usces'); ?></a></li>
-		<!--<li><a href="#delivery_page_setting_3"><?php _e('Weight Added','usces'); ?></a></li>-->
 		<li><a href="#delivery_page_setting_2"><?php _e('Delivery Days','usces'); ?></a></li>
 	</ul>
 
@@ -1227,8 +1229,6 @@ jQuery(document).ready(function($){
 		<td></td>
 	</tr>
 	<tr style="height:40px;">
-<!--		<th class="sec"></th>
-		<td></td>-->
 		<th class="sec"><a style="cursor:pointer;" onclick="toggleVisibility('ex_delivery_days_setting20');"><?php _e('Country', 'usces'); ?></a></th>
 		<td><label class="shipping_charge_label"></label><select name="delivery_days_country" id="delivery_days_country">
 				<?php usces_shipping_country_option( '' ); ?>
@@ -1249,53 +1249,6 @@ jQuery(document).ready(function($){
 </div>
 </div><!--postbox-->
 </div><!--delivery_page_setting_2-->
-<!--
-<div id="delivery_page_setting_3">
-<div class="postbox">
-<h3 class="hndle"><span><?php _e('Weight Added', 'usces'); ?></span><a style="cursor:pointer;" onclick="toggleVisibility('ex_shipping_weight');"> (<?php _e('explanation', 'usces'); ?>) </a></h3>
-<div class="inside">
-<table class="form_table" style="width:280px; margin-left:10px; float:left;">
-	<tr>
-		<th class="sec">&nbsp;</th>
-		<td><a href="javascript:void(0);" id="new_delivery_days_action"><?php _e('New addition', 'usces'); ?></a></td>
-	</tr>
-	<tr>
-		<th class="sec"><?php _e('Name of the Additional Fee', 'usces'); ?></th>
-		<td width="150" height="30" id="shipping_weight_name"></td>
-	</tr>
-	<tr>
-		<th class="sec">&nbsp;</th>
-		<td width="150" height="30" id="shipping_weight_name2"></td>
-	</tr>
-	<tr>
-		<th class="sec" id="shipping_weight_loading">&nbsp;</th>
-		<td id="shipping_weight_button"></td>
-	</tr>
-</table>
-<table class="form_table">
-	<tr>
-		<th class="sec"></th>
-		<td></td>
-	</tr>
-	<tr>
-		<th class="sec"><?php _e('Amount of the Additional Fee', 'usces'); ?></th>
-		<td><label class="delivery_days_label"><input name="allbutton_shipping_weight" type="button" class="allbutton" onclick="operation.allShippingWeight();" value="<?php _e('same as', 'usces'); ?>"  /></label><input name="all_shipping_weight" id="all_shipping_weight" type="text" class='days_text' /><?php usces_crcode(); ?></td>
-	</tr>
-	<tr>
-		<th class="sec"></th>
-		<td></td>
-	</tr>
-	<tr>
-		<th class="sec"></th>
-		<td><div id="shipping_weight_value"></div></td>
-	</tr>
-</table>
-<hr size="1" color="#CCCCCC" />
-<div id="ex_shipping_weight" class="explanation"><?php _e('Calculate the shipping fee based on the total weight of the merchandises.', 'usces'); ?></div>
-</div>
-</div>
-</div>
--->
 
 </div><!--tabs-->
 

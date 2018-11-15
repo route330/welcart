@@ -109,7 +109,8 @@ function usces_pdf_out($pdf, $data){
 	
 	$fontsizes = array( 'item_name'=>8, 'item_name_receipt'=>8, 'quantity'=>7, 'unit'=>7, 'unitprice'=>7, 'row_price'=>7 );
 
-	for ( $index = 0; $index < count($cart); $index++ ) {
+	$cart_count = ( $cart && is_array( $cart ) ) ? count( $cart ) : 0;
+	for ( $index = 0; $index < $cart_count; $index++ ) {
 		 $cart_row = $cart[$index];
 		if ( $onep < $next_y ) {//ページが変わるときの処理
 
@@ -129,7 +130,7 @@ function usces_pdf_out($pdf, $data){
 		$sku = urldecode($cart_row['sku']);
 		$cartItemName = $usces->getCartItemName_byOrder($cart_row);
 		$optstr =  '';
-		if( is_array($cart_row['options']) && count($cart_row['options']) > 0 ){
+		if( isset( $cart_row['options'] ) && is_array( $cart_row['options'] ) && count( $cart_row['options'] ) > 0 ){
 			foreach($cart_row['options'] as $key => $value){
 				if( !empty($key) ) {
 					$key = urldecode($key);
@@ -1106,4 +1107,3 @@ function usces_get_pdf_company( $order_id, $type ) {
 	}
 	return $company;
 }
-?>

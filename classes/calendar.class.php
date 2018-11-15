@@ -11,6 +11,8 @@ class calendarData {
 
 	function __construct() {
 		$this->_row = 0;
+		$this->_date = array();
+		$this->_datetext = array();
 	}
 
 	function setToday($year, $month, $day) {
@@ -96,7 +98,6 @@ class calendarData {
 			}
 		}
 
-		$this->_row = count($this->_date);
+		$this->_row = ( is_array( $this->_date ) ) ? count( $this->_date ) : 0;
 	}
 }
-?>

@@ -2875,7 +2875,7 @@ jQuery.event.add( window, 'load', function() {
 			foreach( $prm_array as $index => $element ) {
 				if( is_array($element) ) {
 					$acts = explode('_', $index, 3);
-					if( 2 < count($acts) && 'history' == $acts[0] && 'action' == $acts[1] ) {
+					if( is_array( $acts ) && 2 < count($acts) && 'history' == $acts[0] && 'action' == $acts[1] ) {
 						$xml .= '<history action="'.$acts[2].'">';
 						$xml .= $this->assoc2xml($element);
 						$xml .= '</history>';

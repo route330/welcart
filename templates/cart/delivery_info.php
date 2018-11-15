@@ -6,7 +6,7 @@ usces_get_carts();
 $html = '';
 
 $html .= '<div id="delivery-info">
-	
+
 	<div class="usccart_navi">
 	<ol class="ucart">
 	<li class="ucart usccart">' . __('1.Cart','usces') . '</li>
@@ -20,7 +20,7 @@ $html .= '<div class="header_explanation">';
 $header = '';
 $html .= apply_filters('usces_filter_delivery_page_header', $header);
 $html .= '</div>';
-	
+
 $html .= '<div class="error_message">' . $this->error_message . '</div>';
 
 $html .= '<form action="' . USCES_CART_URL . '" method="post">';
@@ -50,24 +50,24 @@ $html .= uesces_addressform( 'delivery', $usces_entries );
 $html .= '</table>';
 $html .= '<table class="customer_form" id="time">';
 $cart_delivery_field = '<tr>
-		<th scope="row">'.__('shipping option', 'usces').'</th>
-		<td colspan="2">' . usces_the_delivery_method( $usces_entries['order']['delivery_method'], 'return' ) . '</td>
-		</tr>
-		<tr>
-		<th scope="row">'.__('Delivery date', 'usces').'</th>
-		<td colspan="2">' . usces_the_delivery_date( $usces_entries['order']['delivery_date'], 'return' ) . '</td>
-		</tr>
-		<tr>
-		<th scope="row">'.__('Delivery Time', 'usces').'</th>
-		<td colspan="2">' . usces_the_delivery_time( $usces_entries['order']['delivery_time'], 'return' ) . '</td>
-		</tr>';
+	<th scope="row">'.__('shipping option', 'usces').'</th>
+	<td colspan="2">' . usces_the_delivery_method( $usces_entries['order']['delivery_method'], 'return' ) . '</td>
+	</tr>
+	<tr>
+	<th scope="row">'.__('Delivery date', 'usces').'</th>
+	<td colspan="2">' . usces_the_delivery_date( $usces_entries['order']['delivery_date'], 'return' ) . '</td>
+	</tr>
+	<tr>
+	<th scope="row">'.__('Delivery Time', 'usces').'</th>
+	<td colspan="2">' . usces_the_delivery_time( $usces_entries['order']['delivery_time'], 'return' ) . '</td>
+	</tr>';
 $cart_delivery_field .= '<tr>
 	<th scope="row"><em>' . __('*', 'usces') . '</em>'.__('payment method', 'usces').'</th>
 	<td colspan="2">' . usces_the_payment_method( $usces_entries['order']['payment_name'], 'return' ) . '</td>
 	</tr>';
 $html .= apply_filters( 'usces_filter_cart_delivery_field', $cart_delivery_field, $usces_entries );
 $html .= '</table>';
-	
+
 require( USCES_PLUGIN_DIR . "/includes/delivery_secure_form.php");
 $meta = usces_has_custom_field_meta('order');
 if(!empty($meta) and is_array($meta)) {
@@ -88,7 +88,7 @@ $html .= '<table class="customer_form" id="notes_table">
 	</tr>
 	</table>
 
-	<div class="send"><input name="offer[cus_id]" type="hidden" value="" />		
+	<div class="send"><input name="offer[cus_id]" type="hidden" value="" />
 	<input name="backCustomer" type="submit" class="back_to_customer_button" value="'.__('Back', 'usces').'"' . apply_filters('usces_filter_deliveryinfo_prebutton', NULL) . ' />&nbsp;&nbsp;
 	<input name="confirm" type="submit" class="to_confirm_button" value="'.__(' Next ', 'usces').'"' . apply_filters('usces_filter_deliveryinfo_nextbutton', NULL) . ' /></div>
 	</form>';

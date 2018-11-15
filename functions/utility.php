@@ -1422,7 +1422,8 @@ function usces_download_product_list() {
 		$order_id = $array['ID'];
 		$query = $wpdb->prepare("SELECT * FROM $tableName2 WHERE order_id = %d", $order_id);
 		$cart = $wpdb->get_results( $query, ARRAY_A );
-		for($i = 0; $i < count($cart); $i++) {
+		$cart_count = ( $cart && is_array( $cart ) ) ? count( $cart ) : 0;
+		for($i = 0; $i < $cart_count; $i++) {
 			$cart_row = $cart[$i];
 			$line .= $tr_h;
 			$line .= $td_h1.$order_id.$td_f;
@@ -1456,7 +1457,7 @@ function usces_download_product_list() {
 				$query = $wpdb->prepare("SELECT * FROM $tableName3 WHERE cart_id = %d AND meta_type = %s ORDER BY cartmeta_id", $cart_row['cart_id'], 'option' );
 				$options = $wpdb->get_results( $query, ARRAY_A );
 				$optstr = '';
-				if(is_array($options) && count($options) > 0) {
+				if( $options && is_array($options) && count($options) > 0) {
 					foreach((array)$options as $key => $value) {
 						if(!empty($value['meta_key'])) {
 							$meta_value = maybe_unserialize($value['meta_value']);

@@ -7,10 +7,11 @@ function usces_add_system_option( $option_name, $newvalue ){
 	$newvalue = $usces->stripslashes_deep_post($newvalue);
 	$option_value = get_option($option_name);
 
-	if( !empty($option_value) ){
+	if( !empty($option_value) && is_array( $option_value ) ){
 		$option_num = count($option_value);
 		$unique = true;
 		$sortnull = true;
+		$sort = array();
 		foreach( (array)$option_value as $value ){
 			if( $value['name'] == $newvalue['name'] )
 				$unique = false;
@@ -330,11 +331,8 @@ function add_payment_method() {
 		if( USCES_JP ) {
 			$newvalue['explanation'] .= "
 <!-- PayPal Logo --><div class=\"paypal-logo-box\">
-<div class=\"paypal-logo\"><a href=\"#\" onclick=\"javascript:window.open('https://www.paypal.com/jp/webapps/mpp/logo/about','olcwhatispaypal','toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, width=900, height=700');\"><img src=\"https://www.paypalobjects.com/digitalassets/c/website/marketing/apac/jp/developer/AM_190_65.png\" border=\"0\" alt=\"ペイパル - あなたのカード情報、守ります。｜Mastercard,VISA,American Express,JCB\"></a></div>
-<div class=\"paypal-message\">ペイパルは、インターネット上の便利な【デジタルおさいふ】です。<br />
-ペイパルにクレジットカード情報を登録しておけば、IDとパスワードだけで決済完了。<br />
-お店に大切なカード情報を知らせることなく、より安全に支払いができます。<br />
-ペイパルアカウントの開設は、決済方法でPayPalを選択して必要事項を入力するだけなのでかんたんです。</div>
+<div class=\"paypal-logo\"><a href=\"#\" onclick=\"javascript:window.open('https://www.paypal.com/jp/webapps/mpp/logo/about','olcwhatispaypal','toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, width=900, height=700');\"><img src=\"https://www.paypalobjects.com/digitalassets/c/website/marketing/apac/jp/developer/319x110_b.png\" border=\"0\" alt=\"ペイパル｜カード情報も、口座番号も、ペイパルが守ります。｜VISA, Mastercard, JCB, American Express, Union Pay, 銀行\"></a></div>
+<div class=\"paypal-message\">ペイパルアカウントにクレジットカード、デビットカードを登録するか、銀行の口座振替設定を行うだけで、IDとパスワードのみでの取引が可能に。お支払い情報をお店側に伝えることなく安全にご利用いただけます。新規登録も無料。<br />クレジットカード・デビットカードはご購入画面から、銀行口座はペイパルのホームページから設定できます。</div>
 </div><!-- PayPal Logo -->";
 		} else {
 			$newvalue['explanation'] .= "
@@ -399,7 +397,8 @@ function sort_payment_method(){
 
 function add_delivery_method() {
 	$options = get_option('usces');
-	$name = trim($_POST['name']);
+	$name = trim( wp_unslash( $_POST['name'] ) );
+	$ids = array();
 	foreach((array)$options['delivery_method'] as $deli){
 		$ids[] = (int)$deli['id'];
 	}
@@ -409,7 +408,7 @@ function add_delivery_method() {
 	}else{
 		$newid = 0;
 	}
-	$index = isset($options['delivery_method']) ? count($options['delivery_method']) : 0;
+	$index = ( isset( $options['delivery_method'] ) && is_array( $options['delivery_method'] ) ) ? count( $options['delivery_method'] ) : 0;
 	$options['delivery_method'][$index]['id'] = $newid;
 	$options['delivery_method'][$index]['name'] = $name;
 	$options['delivery_method'][$index]['time'] = str_replace("\r\n", "\n", $_POST['time']);
@@ -426,10 +425,12 @@ function add_delivery_method() {
 
 function update_delivery_method() {
 	$options = get_option('usces');
-	$name = trim($_POST['name']);
+	$name = trim( wp_unslash( $_POST['name'] ) );
 	$id = (int)$_POST['id'];
 	$charge = (int)$_POST['charge'];
-	for($i=0; $i<count($options['delivery_method']); $i++){
+	$index = 0;
+	$ct = ( isset( $options['delivery_method'] ) && is_array( $options['delivery_method'] ) ) ? count( $options['delivery_method'] ) : 0;
+	for($i=0; $i<$ct; $i++){
 		if($options['delivery_method'][$i]['id'] === $id){
 			$index = $i;
 		}
@@ -450,7 +451,9 @@ function update_delivery_method() {
 function delete_delivery_method() {
 	$options = get_option('usces');
 	$id = (int)$_POST['id'];
-	for($i=0; $i<count($options['delivery_method']); $i++){
+	$index = 0;
+	$ct = ( isset( $options['delivery_method'] ) && is_array( $options['delivery_method'] ) ) ? count( $options['delivery_method'] ) : 0;
+	for($i=0; $i<$ct; $i++){
 		if($options['delivery_method'][$i]['id'] === $id){
 			$index = $i;
 		}
@@ -465,7 +468,8 @@ function delete_delivery_method() {
 function moveup_delivery_method() {
 	$options = get_option('usces');
 	$selected_id = (int)$_POST['id'];
-	$ct = count($options['delivery_method']);
+	$index = 0;
+	$ct = ( isset( $options['delivery_method'] ) && is_array( $options['delivery_method'] ) ) ? count( $options['delivery_method'] ) : 0;
 	for($i=0; $i<$ct; $i++){
 		if($options['delivery_method'][$i]['id'] === $selected_id){
 			$index = $i;
@@ -517,7 +521,8 @@ function moveup_delivery_method() {
 function movedown_delivery_method() {
 	$options = get_option('usces');
 	$selected_id = (int)$_POST['id'];
-	$ct = count($options['delivery_method']);
+	$index = 0;
+	$ct = ( isset( $options['delivery_method'] ) && is_array( $options['delivery_method'] ) ) ? count( $options['delivery_method'] ) : 0;
 	for($i=0; $i<$ct; $i++){
 		if($options['delivery_method'][$i]['id'] === $selected_id){
 			$index = $i;
@@ -571,6 +576,7 @@ function add_shipping_charge() {
 
 	$options = get_option('usces');
 	$name = trim($_POST['name']);
+	$ids = array();
 	foreach((array)$options['shipping_charge'] as $charge){
 		$ids[] = (int)$charge['id'];
 	}
@@ -580,16 +586,17 @@ function add_shipping_charge() {
 	}else{
 		$newid = 0;
 	}
-	$index = isset($options['shipping_charge']) ? count($options['shipping_charge']) : 0;
+	$index = ( isset( $options['shipping_charge'] ) && is_array( $options['shipping_charge'] ) ) ? count( $options['shipping_charge'] ) : 0;
 	$target_market = ( isset($options['system']['target_market']) && !empty($options['system']['target_market']) ) ? $options['system']['target_market'] : usces_get_local_target_market();
 	foreach( (array)$target_market as $tm ) {
 		$prefs = get_usces_states($tm);
 		array_shift($prefs);
-		$value = $_POST['value_'.$tm];
+		$value = wp_unslash( $_POST['value_'.$tm] );
 
-        $options['shipping_charge'][$index]['id'] = $newid;
-        $options['shipping_charge'][$index]['name'] = $name;
-		for( $i = 0; $i < count($prefs); $i++ ) {
+		$options['shipping_charge'][$index]['id'] = $newid;
+		$options['shipping_charge'][$index]['name'] = $name;
+		$prefs_count = count( $prefs );
+		for( $i = 0; $i < $prefs_count; $i++ ) {
 			$options['shipping_charge'][$index][$tm][$prefs[$i]] = (float)$value[$i];
 		}
 	}
@@ -605,8 +612,10 @@ function update_shipping_charge() {
 	$options = get_option('usces');
 	$name = trim($_POST['name']);
 	$id = (int)$_POST['id'];
+	$index = 0;
 
-	for($i=0; $i<count($options['shipping_charge']); $i++){
+	$shipping_charge_count = ( isset( $options['shipping_charge'] ) && is_array( $options['shipping_charge'] ) ) ? count( $options['shipping_charge'] ) : 0;
+	for($i=0; $i<$shipping_charge_count; $i++){
 		if($options['shipping_charge'][$i]['id'] === $id){
 			$index = $i;
 		}
@@ -617,7 +626,8 @@ function update_shipping_charge() {
 		$prefs = get_usces_states($tm);
 		array_shift($prefs);
 		$value = $_POST['value_'.$tm];
-		for( $i = 0; $i < count($prefs); $i++ ) {
+		$prefs_count = count( $prefs );
+		for( $i = 0; $i < $prefs_count; $i++ ) {
 			$options['shipping_charge'][$index][$tm][$prefs[$i]] = (float)$value[$i];
 		}
 	}
@@ -632,14 +642,17 @@ function update_shipping_charge() {
 function delete_shipping_charge() {
 	$options = get_option('usces');
 	$id = (int)$_POST['id'];
-	for($i=0; $i<count($options['shipping_charge']); $i++){
+	$index = 0;
+
+	$shipping_charge_count = ( isset( $options['shipping_charge'] ) && is_array( $options['shipping_charge'] ) ) ? count( $options['shipping_charge'] ) : 0;
+	for($i=0; $i<$shipping_charge_count; $i++){
 		if($options['shipping_charge'][$i]['id'] === $id){
 			$index = $i;
 		}
 	}
 	array_splice($options['shipping_charge'], $index, 1);
 	update_option('usces', $options);
-	
+
 	$res = $id . '#usces#0';
 	return $res;
 }
@@ -649,6 +662,7 @@ function add_delivery_days() {
 
 	$options = get_option('usces');
 	$name = trim($_POST['name']);
+	$ids = array();
 	foreach((array)$options['delivery_days'] as $charge){
 		$ids[] = (int)$charge['id'];
 	}
@@ -658,7 +672,7 @@ function add_delivery_days() {
 	}else{
 		$newid = 0;
 	}
-	$index = isset($options['delivery_days']) ? count($options['delivery_days']) : 0;
+	$index = ( isset( $options['delivery_days'] ) && is_array( $options['delivery_days'] ) ) ? count( $options['delivery_days'] ) : 0;
 	$target_market = ( isset($options['system']['target_market']) && !empty($options['system']['target_market']) ) ? $options['system']['target_market'] : usces_get_local_target_market();
 	foreach( (array)$target_market as $tm ) {
 		$prefs = get_usces_states($tm);
@@ -667,7 +681,8 @@ function add_delivery_days() {
 
         $options['delivery_days'][$index]['id'] = $newid;
         $options['delivery_days'][$index]['name'] = $name;
-		for( $i = 0; $i < count($prefs); $i++ ) {
+		$prefs_count = count( $prefs );
+		for( $i = 0; $i < $prefs_count; $i++ ) {
 			$options['delivery_days'][$index][$tm][$prefs[$i]] = (int)$value[$i];
 		}
 	}
@@ -683,8 +698,10 @@ function update_delivery_days() {
 	$options = get_option('usces');
 	$name = trim($_POST['name']);
 	$id = (int)$_POST['id'];
+	$index = 0;
 
-	for($i=0; $i<count($options['delivery_days']); $i++){
+	$delivery_days_count = ( isset( $options['delivery_days'] ) && is_array( $options['delivery_days'] ) ) ? count( $options['delivery_days'] ) : 0;
+	for($i=0; $i<$delivery_days_count; $i++){
 		if($options['delivery_days'][$i]['id'] === $id){
 			$index = $i;
 		}
@@ -695,7 +712,8 @@ function update_delivery_days() {
 		$prefs = get_usces_states($tm);
 		array_shift($prefs);
 		$value = $_POST['value_'.$tm];
-		for( $i = 0; $i < count($prefs); $i++ ) {
+		$prefs_count = count( $prefs );
+		for( $i = 0; $i < $prefs_count; $i++ ) {
 			$options['delivery_days'][$index][$tm][$prefs[$i]] = (int)$value[$i];
 		}
 	}
@@ -708,7 +726,9 @@ function update_delivery_days() {
 function delete_delivery_days() {
 	$options = get_option('usces');
 	$id = (int)$_POST['id'];
-	for($i=0; $i<count($options['delivery_days']); $i++){
+	$index = 0;
+	$delivery_days_count = ( isset( $options['delivery_days'] ) && is_array( $options['delivery_days'] ) ) ? count( $options['delivery_days'] ) : 0;
+	for($i=0; $i<$delivery_days_count; $i++){
 		if($options['delivery_days'][$i]['id'] === $id){
 			$index = $i;
 		}
@@ -725,9 +745,10 @@ function shop_options_ajax()
 {
 	global $usces;
 
-	if( $_POST['action'] != 'shop_options_ajax' ) die(0);
-	
-	switch ($_POST['mode']) {
+	if( isset( $_POST['action'] ) && wp_unslash( $_POST['action'] ) != 'shop_options_ajax' ) die(0);
+
+	$mode = ( isset( $_POST['mode'] ) ) ? wp_unslash( $_POST['mode'] ) : '';
+	switch ( $mode ) {
 		case 'add_delivery_method':
 			$res = add_delivery_method();
 			break;
@@ -765,5 +786,3 @@ function shop_options_ajax()
 
 	die( $res );
 }
-
-?>
