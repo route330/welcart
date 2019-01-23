@@ -642,19 +642,10 @@ function usces_have_zaiko_anyone( $post_id = NULL ){
 	$itemOrderAcceptable = $usces->getItemOrderAcceptable( $post_id );
 	$skus = $usces->get_skus($post_id);
 	$status = false;
-	if( $itemOrderAcceptable != 1 ) {
-		foreach($skus as $sku){
-			if( (WCUtils::is_blank($sku['stocknum']) || 0 < (int)$sku['stocknum']) && 2 > (int)$sku['stock']) {
-				$status = true;
-				break;
-			}
-		}
-	} else {
-		foreach( $skus as $sku ) {
-			if( 2 > (int)$sku['stock'] ) {
-				$status = true;
-				break;
-			}
+	foreach($skus as $sku){
+		if( $usces->is_item_zaiko( $post_id, $sku['code'] ) ) {
+			$status = true;
+			break;
 		}
 	}
 	return apply_filters( 'usces_have_zaiko_anyone', $status, $post_id, $skus );
@@ -2049,109 +2040,82 @@ function usces_settle_info_field( $order_id, $type='nl', $out='echo' ){
 			continue;
 		}
 
-		switch($acting){
-			case 'jpayment_conv':
-				switch($key) {
-				case 'rst':
-					switch($value) {
-					case '1':
-						$value = 'OK'; break;
-					case '2':
-						$value = 'NG'; break;
-					}
-					break;
-				case 'ap':
-					switch($value) {
-					case 'CPL_PRE':
-						$value = 'コンビニペーパーレス決済識別コード'; break;
-					case 'CPL':
-						$value = '入金確定'; break;
-					case 'CVS_CAN':
-						$value = '入金取消'; break;
-					}
-					break;
-				case 'cv':
-					$value = esc_html(usces_get_conv_name($value));
-					break;
-				case 'mf':
-				case 'nk':
-				case 'nkd':
-				case 'bank':
-				case 'exp':
-					continue;
-					break;
+		if( 'jpayment_conv' == $acting ) {
+			if( 'rst' == $key ) {
+				if( '1' == $value ) {
+					$value = 'OK';
+				} elseif( '2' == $value ) {
+					$value = 'NG';
 				}
-				break;
+			} elseif( 'ap' == $key ) {
+				if( 'CPL_PRE' == $value ) {
+					$value = 'コンビニペーパーレス決済識別コード';
+				} elseif( 'CPL' == $value ) {
+					$value = '入金確定';
+				} elseif( 'CVS_CAN' == $value ) {
+					$value = '入金取消';
+				}
+			} elseif( 'cv' == $key ) {
+				$value = esc_html(usces_get_conv_name($value));
+			} else {
+				continue;
+			}
 
-			case 'jpayment_bank':
-				switch($key) {
-				case 'rst':
-					switch($value) {
-					case '1':
-						$value = 'OK'; break;
-					case '2':
-						$value = 'NG'; break;
-					}
-					break;
-				case 'ap':
-					switch($value) {
-					case 'BANK':
-						$value = '受付完了'; break;
-					case 'BAN_SAL':
-						$value = '入金完了'; break;
-					}
-					break;
-				case 'mf':
-					switch($value) {
-					case '1':
-						$value = 'マッチ'; break;
-					case '2':
-						$value = '過少'; break;
-					case '3':
-						$value = '過剰'; break;
-					}
-					break;
-				case 'nkd':
-					$value = substr($value, 0, 4).'年'.substr($value, 4, 2).'月'.substr($value, 6, 2).'日';
-					break;
-				case 'exp':
-					$value = substr($value, 0, 4).'年'.substr($value, 4, 2).'月'.substr($value, 6, 2).'日';
-					break;
-				case 'cv':
-				case 'no':
-				case 'cu':
-					continue;
-					break;
+		} elseif( 'jpayment_bank' == $acting ) {
+			if( 'rst' == $key ) {
+				if( '1' == $value ) {
+					$value = 'OK';
+				} elseif( '2' == $value ) {
+					$value = 'NG';
 				}
-				break;
+			} elseif( 'ap' == $key ) {
+				if( 'BANK' == $value ) {
+					$value = '受付完了';
+				} elseif( 'BAN_SAL' == $value ) {
+					$value = '入金完了';
+				}
+			} elseif( 'mf' == $key ) {
+				if( '1' == $value ) {
+					$value = 'マッチ';
+				} elseif( '2' == $value ) {
+					$value = '過少';
+				} elseif( '3' == $value ) {
+					$value = '過剰';
+				}
+			} elseif( 'nkd' == $key ) {
+				$value = substr( $value, 0, 4 ).'年'.substr( $value, 4, 2 ).'月'.substr( $value, 6, 2 ).'日';
+			} elseif( 'exp' == $key ) {
+				$value = substr( $value, 0, 4 ).'年'.substr( $value, 4, 2 ).'月'.substr( $value, 6, 2 ).'日';
+			} else {
+				continue;
+			}
 
-			case 'veritrans_conv':
-				if( 'cvsType' == $key ) {
-					switch( $value ) {
-					case 'sej':
-						$value = 'セブン－イレブン';
-						break;
-					case 'econ-lw':
-						$value = 'ローソン';
-						break;
-					case 'econ-fm':
-						$value = 'ファミリーマート';
-						break;
-					case 'econ-mini':
-						$value = 'ミニストップ';
-						break;
-					case 'econ-other':
-						$value = 'セイコーマート';
-						break;
-					case 'econ-sn':
-						$value = 'サンクス';
-						break;
-					case 'econ-ck':
-						$value = 'サークルK';
-						break;
-					}
+		} elseif( 'veritrans_conv' == $acting ) {
+			if( 'cvsType' == $key ) {
+				switch( $value ) {
+				case 'sej':
+					$value = 'セブン－イレブン';
+					break;
+				case 'econ-lw':
+					$value = 'ローソン';
+					break;
+				case 'econ-fm':
+					$value = 'ファミリーマート';
+					break;
+				case 'econ-mini':
+					$value = 'ミニストップ';
+					break;
+				case 'econ-other':
+					$value = 'セイコーマート';
+					break;
+				case 'econ-sn':
+					$value = 'サンクス';
+					break;
+				case 'econ-ck':
+					$value = 'サークルK';
+					break;
 				}
-				break;
+			}
 		}
 		$value = apply_filters( 'usces_filter_settle_info_field_value', $value, $key, $acting );
 		switch($type){

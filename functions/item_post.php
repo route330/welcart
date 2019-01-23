@@ -2118,8 +2118,9 @@ function usces_order_recalculation( $order_id, $mem_id, $post_ids, $skus, $price
 	$cart = array();
 	$post_id_count = ( is_array( $post_id ) ) ? count( $post_id ) : 0;
 	for( $i = 0; $i < $post_id_count; $i++ ) {
-		if( $post_id[$i] )
-			$cart[] = array( "post_id"=>$post_id[$i], "price"=>$price[$i], "quantity"=>$quant[$i] );
+		if( $post_id[$i] ) {
+			$cart[] = array( "post_id"=>$post_id[$i], "price"=>(float)$price[$i], "quantity"=>(float)$quant[$i] );
+		}
 	}
 
 	$total_items_price = 0;
@@ -2128,46 +2129,57 @@ function usces_order_recalculation( $order_id, $mem_id, $post_ids, $skus, $price
 	}
 	$meminfo = $usces->get_member_info( $mem_id );
 
-	//$discount = 0;
-	if( empty( $discount ) || 'NaN' == $discount ) {
+	//if( empty( $discount ) || 'NaN' == $discount ) {
 		$discount = 0;
-	}
-	if( 0 !== $discount ) {
+	//}
+	//if( 0 !== $discount ) {
 		if( $condition['display_mode'] == 'Promotionsale' ) {
 			if( $condition['campaign_privilege'] == 'discount' ) {
 				if ( 0 === (int)$condition['campaign_category'] ) {
-					$discount = sprintf('%.3f', $total_items_price * $condition['privilege_discount'] / 100 );
+					$discount = (float)sprintf('%.3f', $total_items_price * (float)$condition['privilege_discount'] / 100 );
 				} else {
 					foreach( $cart as $cart_row ) {
 						if( in_category( (int)$condition['campaign_category'], $cart_row['post_id']) ) {
-							$discount = sprintf('%.3f', $discount + ($cart_row['price'] * $cart_row['quantity'] * $condition['privilege_discount'] / 100) );
+							$discount += (float)sprintf('%.3f', $cart_row['price'] * $cart_row['quantity'] * (float)$condition['privilege_discount'] / 100 );
 						}
 					}
 				}
 			}
 		}
-		if( 0 < $discount ) $discount = ceil($discount * -1);
-	}
+		if( 0 != $discount ) {
+			$decimal = $usces->get_currency_decimal();
+			if( 0 == $decimal ) {
+				$discount = ceil( $discount );
+			} else {
+				$decipad = (int)str_pad( '1', $decimal+1, '0', STR_PAD_RIGHT );
+				$discount = ceil( $discount * $decipad ) / $decipad;
+			}
+			$discount = $discount * -1;
+		}
+	//}
 
 	$point = 0;
+	if( empty( $use_point ) || 'NaN' == $use_point ) {
+		$use_point = 0;
+	}
 	if( 'activate' == $usces->options['membersystem_state'] && 'activate' == $usces->options['membersystem_point'] && !empty($meminfo['ID']) ) {
 		if( $condition['display_mode'] == 'Promotionsale' ) {
 			if( $condition['campaign_privilege'] == 'discount' ) {
 				foreach( $cart as $cart_row ) {
 					$cats = $usces->get_post_term_ids( $cart_row['post_id'], 'category' );
 					if( !in_array( $condition['campaign_category'], $cats ) ) {
-						$rate = get_post_meta( $cart_row['post_id'], '_itemPointrate', true );
+						$rate = (float)get_post_meta( $cart_row['post_id'], '_itemPointrate', true );
 						$price = $cart_row['price'] * $cart_row['quantity'];
-						$point = sprintf('%.3f', $point + ($price * $rate / 100) );
+						$point = (float)sprintf('%.3f', $point + ($price * $rate / 100) );
 					}
 				}
 			} elseif( $condition['campaign_privilege'] == 'point' ) {
 				foreach( $cart as $cart_row ) {
-					$rate = get_post_meta( $cart_row['post_id'], '_itemPointrate', true );
+					$rate = (float)get_post_meta( $cart_row['post_id'], '_itemPointrate', true );
 					$price = $cart_row['price'] * $cart_row['quantity'];
 					$cats = $usces->get_post_term_ids( $cart_row['post_id'], 'category' );
 					if( in_array( $condition['campaign_category'], $cats ) ) {
-						$point = sprintf('%.3f', $point + ($price * $rate / 100 * $condition['privilege_point']) );
+						$point = sprintf('%.3f', $point + ($price * $rate / 100 * (float)$condition['privilege_point']) );
 					}else{
 						$point = sprintf('%.3f', $point + ($price * $rate / 100) );
 					}
@@ -2175,24 +2187,23 @@ function usces_order_recalculation( $order_id, $mem_id, $post_ids, $skus, $price
 			}
 		} else {
 			foreach( $cart as $cart_row ) {
-				$rate = get_post_meta( $cart_row['post_id'], '_itemPointrate', true );
+				$rate = (float)get_post_meta( $cart_row['post_id'], '_itemPointrate', true );
 				$price = $cart_row['price'] * $cart_row['quantity'];
 				$point = sprintf('%.3f', $point + ($price * $rate / 100) );
 			}
 		}
-	}
 
-	if( 0 < $use_point ) {
-	
-		$point = sprintf('%.3f', $point - ( $point * $use_point / $total_items_price ) );
-		$point = ceil( $point );
-		if( 0 > $point )
-			$point = 0;
-			
-	}else{
-		
-		if( 0 < $point ) $point = ceil( $point );
-			
+		if( 0 < $use_point ) {
+			$point = (float)sprintf('%.3f', $point - ( $point * (int)$use_point / $total_items_price ) );
+			$point = ceil( $point );
+			if( 0 > $point ) {
+				$point = 0;
+			}
+		}else{
+			if( 0 < $point ) {
+				$point = ceil( $point );
+			}
+		}
 	}
 	$discount = apply_filters('usces_filter_order_discount_recalculation', $discount, $cart);
 	$point = apply_filters( 'usces_filter_set_point_recalculation', $point, $condition, $cart, $meminfo, $use_point );
@@ -2206,5 +2217,3 @@ function usces_order_recalculation( $order_id, $mem_id, $post_ids, $skus, $price
 
 	return $res."#usces#".$discount."#usces#".usces_crform( $tax, false, false, 'return', false )."#usces#".$point."#usces#".usces_crform( $total_full_price, false, false, 'return', false );
 }
-
-?>

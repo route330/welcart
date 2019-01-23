@@ -72,7 +72,7 @@ jQuery(document).ready(function($) {
 		<li><a href="#uscestabs_remise"><?php _e('Remise Japanese Settlement','usces'); ?></a></li>
 	<?php endif; ?>
 	<?php if( in_array( 'jpayment', (array)$settlement_selected ) ): ?>
-		<li><a href="#uscestabs_jpayment">Cloud Payment</a></li>
+		<li><a href="#uscestabs_jpayment">ROBOT PAYMENT</a></li>
 	<?php endif; ?>
 	<?php if( in_array( 'paypal_ec', (array)$settlement_selected ) ): ?>
 		<li><a href="#uscestabs_paypal_ec">PayPal(EC)</a></li>
@@ -81,13 +81,13 @@ jQuery(document).ready(function($) {
 		<li><a href="#uscestabs_paypal_wpp">PayPal(WPP)</a></li>
 	<?php endif; ?>
 	<?php if( in_array( 'sbps', (array)$settlement_selected ) ): ?>
-		<li><a href="#uscestabs_sbps">ソフトバンク・ペイメント</a></li>
+		<li><a href="#uscestabs_sbps">SBペイメントサービス</a></li>
 	<?php endif; ?>
 	<?php if( in_array( 'telecom', (array)$settlement_selected ) ): ?>
 		<li><a href="#uscestabs_telecom">テレコムクレジット</a></li>
 	<?php endif; ?>
 	<?php if( in_array( 'digitalcheck', (array)$settlement_selected ) ): ?>
-		<li><a href="#uscestabs_digitalcheck">ペイデザイン</a></li>
+		<li><a href="#uscestabs_digitalcheck">メタップスペイメント</a></li>
 	<?php endif; ?>
 	<?php if( in_array( 'mizuho', (array)$settlement_selected ) ): ?>
 		<li><a href="#uscestabs_mizuho">みずほファクター</a></li>
@@ -289,7 +289,7 @@ jQuery(document).ready(function($) {
 
 	<?php if( in_array( 'jpayment', (array)$settlement_selected ) ): ?>
 	<div id="uscestabs_jpayment">
-	<div class="settlement_service"><span class="service_title"><?php _e('Cloud Payment', 'usces'); ?></span></div>
+	<div class="settlement_service"><span class="service_title">ROBOT PAYMENT</span></div>
 
 	<?php if( isset($_POST['acting']) && 'jpayment' == $_POST['acting'] ){ ?>
 		<?php if( '' != $mes ){ ?>
@@ -303,7 +303,7 @@ jQuery(document).ready(function($) {
 			<tr>
 				<th><a style="cursor:pointer;" onclick="toggleVisibility('ex_aid_jpayment');"><?php _e('店舗ID', 'usces'); ?></a></th>
 				<td><input name="aid" type="text" id="aid_jpayment" value="<?php echo esc_html(isset($opts['jpayment']['aid']) ? $opts['jpayment']['aid'] : ''); ?>" size="20" maxlength="6" /></td>
-				<td><div id="ex_aid_jpayment" class="explanation"><?php _e('契約時に Cloud Payment から発行される店舗ID（半角数字）', 'usces'); ?></div></td>
+				<td><div id="ex_aid_jpayment" class="explanation"><?php _e('契約時に ROBOT PAYMENT から発行される店舗ID（半角数字）', 'usces'); ?></div></td>
 			</tr>
 		</table>
 		<table class="settle_table">
@@ -366,12 +366,12 @@ jQuery(document).ready(function($) {
 		</table>
 		<input name="send_url" type="hidden" value="https://credit.j-payment.co.jp/gateway/payform.aspx" />
 		<input name="acting" type="hidden" value="jpayment" />
-		<input name="usces_option_update" type="submit" class="button button-primary" value="Cloud Payment の設定を更新する" />
+		<input name="usces_option_update" type="submit" class="button button-primary" value="ROBOT PAYMENT の設定を更新する" />
 		<?php wp_nonce_field( 'admin_settlement', 'wc_nonce' ); ?>
 	</form>
 	<div class="settle_exp">
-		<p><strong><?php _e('Cloud Payment', 'usces'); ?></strong></p>
-		<a href="https://www.cloudpayment.co.jp/" target="_blank">Cloud Payment の詳細はこちら 》</a>
+		<p><strong>ROBOT PAYMENT</strong></p>
+		<a href="https://www.robotpayment.co.jp/" target="_blank">ROBOT PAYMENT の詳細はこちら 》</a>
 		<p>　</p>
 		<p>この決済は「外部リンク型」の決済システムです。</p>
 		<p>「外部リンク型」とは、決済会社のページへ遷移してカード情報を入力する決済システムです。</p>
@@ -564,7 +564,7 @@ Tel：0120-271-888 または 03-6739-7360（携帯電話と海外からはこち
 
 	<?php if( in_array( 'sbps', (array)$settlement_selected ) ): ?>
 	<div id="uscestabs_sbps">
-	<div class="settlement_service"><span class="service_title">ソフトバンク・ペイメント・サービス</span></div>
+	<div class="settlement_service"><span class="service_title">SBペイメントサービス</span></div>
 
 	<?php if( isset($_POST['acting']) && 'sbps' == $_POST['acting'] ){ ?>
 		<?php if( '' != $mes ){ ?>
@@ -578,17 +578,17 @@ Tel：0120-271-888 または 03-6739-7360（携帯電話と海外からはこち
 			<tr>
 				<th><a style="cursor:pointer;" onclick="toggleVisibility('ex_merchant_id_sbps');">マーチャントID</a></th>
 				<td colspan="6"><input name="merchant_id" type="text" id="merchant_id_sbps" value="<?php echo esc_html(isset($opts['sbps']['merchant_id']) ? $opts['sbps']['merchant_id'] : ''); ?>" size="20" maxlength="5" /></td>
-				<td><div id="ex_merchant_id_sbps" class="explanation"><?php _e('契約時にソフトバンク・ペイメント・サービスから発行されるマーチャントID（半角数字）', 'usces'); ?></div></td>
+				<td><div id="ex_merchant_id_sbps" class="explanation"><?php _e('契約時にSBペイメントサービスから発行されるマーチャントID（半角数字）', 'usces'); ?></div></td>
 			</tr>
 			<tr>
 				<th><a style="cursor:pointer;" onclick="toggleVisibility('ex_service_id_sbps');">サービスID</a></th>
 				<td colspan="6"><input name="service_id" type="text" id="service_id_sbps" value="<?php echo esc_html(isset($opts['sbps']['service_id']) ? $opts['sbps']['service_id'] : ''); ?>" size="20" maxlength="3" /></td>
-				<td><div id="ex_service_id_sbps" class="explanation"><?php _e('契約時にソフトバンク・ペイメント・サービスから発行されるサービスID（半角数字）', 'usces'); ?></div></td>
+				<td><div id="ex_service_id_sbps" class="explanation"><?php _e('契約時にSBペイメントサービスから発行されるサービスID（半角数字）', 'usces'); ?></div></td>
 			</tr>
 			<tr>
 				<th><a style="cursor:pointer;" onclick="toggleVisibility('ex_hash_key_sbps');">Hash KEY</a></th>
 				<td colspan="6"><input name="hash_key" type="text" id="hash_key_sbps" value="<?php echo esc_html(isset($opts['sbps']['hash_key']) ? $opts['sbps']['hash_key'] : ''); ?>" size="50" maxlength="40" /></td>
-				<td><div id="ex_hash_key_sbps" class="explanation"><?php _e('契約時にソフトバンク・ペイメント・サービスから発行される Hash KEY（半角英数）', 'usces'); ?></div></td>
+				<td><div id="ex_hash_key_sbps" class="explanation"><?php _e('契約時にSBペイメントサービスから発行される Hash KEY（半角英数）', 'usces'); ?></div></td>
 			</tr>
 			<tr>
 				<th><a style="cursor:pointer;" onclick="toggleVisibility('ex_ope_sbps');"><?php _e('Operation Environment', 'usces'); ?></a></th>
@@ -622,7 +622,7 @@ Tel：0120-271-888 または 03-6739-7360（携帯電話と海外からはこち
 				<th><a style="cursor:pointer;" onclick="toggleVisibility('ex_continuation_sbps');">簡易継続課金</a></th>
 				<td><input name="continuation" type="radio" id="continuation_sbps_1" value="on"<?php if( isset($opts['sbps']['continuation']) && $opts['sbps']['continuation'] == 'on' ) echo ' checked="checked"'; ?> /></td><td><label for="continuation_sbps_1">利用する</label></td>
 				<td><input name="continuation" type="radio" id="continuation_sbps_2" value="off"<?php if( isset($opts['sbps']['continuation']) && $opts['sbps']['continuation'] == 'off' ) echo ' checked="checked"'; ?> /></td><td><label for="continuation_sbps_2">利用しない</label></td>
-				<td><div id="ex_continuation_sbps" class="explanation"><?php _e('定期的に発生する月会費などの煩わしい課金処理を完全に自動化することができる機能です。<br />詳しくはソフトバンク・ペイメント・サービスにお問合せください。', 'usces'); ?></div></td>
+				<td><div id="ex_continuation_sbps" class="explanation"><?php _e('定期的に発生する月会費などの煩わしい課金処理を完全に自動化することができる機能です。<br />詳しくはSBペイメントサービスにお問合せください。', 'usces'); ?></div></td>
 			</tr>
 -->			<?php endif; ?>
 		</table>
@@ -644,31 +644,31 @@ Tel：0120-271-888 または 03-6739-7360（携帯電話と海外からはこち
 		</table>
 		<table class="settle_table">
 			<tr>
-				<th>Yahoo!ウォレット決済</th>
+				<th>Yahoo! ウォレット決済</th>
 				<td><input name="wallet_yahoowallet" type="radio" id="wallet_yahoowallet_sbps_1" value="on"<?php if( isset($opts['sbps']['wallet_yahoowallet']) && $opts['sbps']['wallet_activate'] == 'on' ) echo ' checked="checked"'; ?> /></td><td><label for="wallet_yahoowallet_sbps_1">利用する</label></td>
 				<td><input name="wallet_yahoowallet" type="radio" id="wallet_yahoowallet_sbps_2" value="off"<?php if( isset($opts['sbps']['wallet_yahoowallet']) && $opts['sbps']['wallet_activate'] == 'off' ) echo ' checked="checked"'; ?> /></td><td><label for="wallet_yahoowallet_sbps_2">利用しない</label></td>
 				<td></td>
 			</tr>
 			<tr>
-				<th>楽天あんしん決済</th>
+				<th>楽天ペイ（オンライン決済）</th>
 				<td><input name="wallet_rakuten" type="radio" id="wallet_rakuten_sbps_1" value="on"<?php if( isset($opts['sbps']['wallet_rakuten']) && $opts['sbps']['wallet_rakuten'] == 'on' ) echo ' checked="checked"'; ?> /></td><td><label for="wallet_rakuten_sbps_1">利用する</label></td>
 				<td><input name="wallet_rakuten" type="radio" id="wallet_rakuten_sbps_2" value="off"<?php if( isset($opts['sbps']['wallet_rakuten']) && $opts['sbps']['wallet_rakuten'] == 'off' ) echo ' checked="checked"'; ?> /></td><td><label for="wallet_rakuten_sbps_2">利用しない</label></td>
 				<td></td>
 			</tr>
 			<tr>
-				<th>PayPal</th>
+				<th>ペイパル決済</th>
 				<td><input name="wallet_paypal" type="radio" id="wallet_paypal_sbps_1" value="on"<?php if( isset($opts['sbps']['wallet_paypal']) && $opts['sbps']['wallet_paypal'] == 'on' ) echo ' checked="checked"'; ?> /></td><td><label for="wallet_paypal_sbps_1">利用する</label></td>
 				<td><input name="wallet_paypal" type="radio" id="wallet_paypal_sbps_2" value="off"<?php if( isset($opts['sbps']['wallet_paypal']) && $opts['sbps']['wallet_paypal'] == 'off' ) echo ' checked="checked"'; ?> /></td><td><label for="wallet_paypal_sbps_2">利用しない</label></td>
 				<td></td>
 			</tr>
 			<tr>
-				<th>ネットマイル</th>
+				<th>ネットマイル決済</th>
 				<td><input name="wallet_netmile" type="radio" id="wallet_netmile_sbps_1" value="on"<?php if( isset($opts['sbps']['wallet_netmile']) && $opts['sbps']['wallet_netmile'] == 'on' ) echo ' checked="checked"'; ?> /></td><td><label for="wallet_netmile_sbps_1">利用する</label></td>
 				<td><input name="wallet_netmile" type="radio" id="wallet_netmile_sbps_2" value="off"<?php if( isset($opts['sbps']['wallet_netmile']) && $opts['sbps']['wallet_netmile'] == 'off' ) echo ' checked="checked"'; ?> /></td><td><label for="wallet_netmile_sbps_2">利用しない</label></td>
 				<td></td>
 			</tr>
 			<tr>
-				<th>Alipay国際決済</th>
+				<th>Alipay 国際決済</th>
 				<td><input name="wallet_alipay" type="radio" id="wallet_alipay_sbps_1" value="on"<?php if( isset($opts['sbps']['wallet_alipay']) && $opts['sbps']['wallet_alipay'] == 'on' ) echo ' checked="checked"'; ?> /></td><td><label for="wallet_alipay_sbps_1">利用する</label></td>
 				<td><input name="wallet_alipay" type="radio" id="wallet_alipay_sbps_2" value="off"<?php if( isset($opts['sbps']['wallet_alipay']) && $opts['sbps']['wallet_alipay'] == 'off' ) echo ' checked="checked"'; ?> /></td><td><label for="wallet_alipay_sbps_2">利用しない</label></td>
 				<td></td>
@@ -676,19 +676,13 @@ Tel：0120-271-888 または 03-6739-7360（携帯電話と海外からはこち
 		</table>
 		<table class="settle_table">
 			<tr>
-				<th>ドコモ ケータイ払い</th>
+				<th>ドコモ払い</th>
 				<td><input name="mobile_docomo" type="radio" id="mobile_docomo_sbps_1" value="on"<?php if( isset($opts['sbps']['mobile_docomo']) && $opts['sbps']['mobile_docomo'] == 'on' ) echo ' checked="checked"'; ?> /></td><td><label for="mobile_docomo_sbps_1">利用する</label></td>
 				<td><input name="mobile_docomo" type="radio" id="mobile_docomo_sbps_2" value="off"<?php if( isset($opts['sbps']['mobile_docomo']) && $opts['sbps']['mobile_docomo'] == 'off' ) echo ' checked="checked"'; ?> /></td><td><label for="mobile_docomo_sbps_2">利用しない</label></td>
 				<td></td>
 			</tr>
 			<tr>
-				<th><a style="cursor:pointer;" onclick="toggleVisibility('ex_mobile_softbank_sbps');">S!まとめて支払い</a></th>
-				<td><input name="mobile_softbank" type="radio" id="mobile_softbank_sbps_1" value="on"<?php if( isset($opts['sbps']['mobile_softbank']) && $opts['sbps']['mobile_softbank'] == 'on' ) echo ' checked="checked"'; ?> /></td><td><label for="mobile_softbank_sbps_1">利用する</label></td>
-				<td><input name="mobile_softbank" type="radio" id="mobile_softbank_sbps_2" value="off"<?php if( isset($opts['sbps']['mobile_softbank']) && $opts['sbps']['mobile_softbank'] == 'off' ) echo ' checked="checked"'; ?> /></td><td><label for="mobile_softbank_sbps_2">利用しない</label></td>
-				<td><div id="ex_mobile_softbank_sbps" class="explanation">Softbank携帯端末（3G対応携帯端末）にて決済を行うサービスです。</div></td>
-			</tr>
-			<tr>
-				<th>auかんたん決済</th>
+				<th>au かんたん決済</th>
 				<td><input name="mobile_auone" type="radio" id="mobile_auone_sbps_1" value="on"<?php if( isset($opts['sbps']['mobile_auone']) && $opts['sbps']['mobile_auone'] == 'on' ) echo ' checked="checked"'; ?> /></td><td><label for="mobile_auone_sbps_1">利用する</label></td>
 				<td><input name="mobile_auone" type="radio" id="mobile_auone_sbps_2" value="off"<?php if( isset($opts['sbps']['mobile_auone']) && $opts['sbps']['mobile_auone'] == 'off' ) echo ' checked="checked"'; ?> /></td><td><label for="mobile_auone_sbps_2">利用しない</label></td>
 				<td></td>
@@ -709,12 +703,12 @@ Tel：0120-271-888 または 03-6739-7360（携帯電話と海外からはこち
 		<input name="send_url_check" type="hidden" value="https://stbfep.sps-system.com/Extra/BuyRequestAction.do" />
 		<input name="send_url_test" type="hidden" value="https://stbfep.sps-system.com/f01/FepBuyInfoReceive.do" />
 		<input name="acting" type="hidden" value="sbps" />
-		<input name="usces_option_update" type="submit" class="button button-primary" value="ソフトバンク・ペイメントの設定を更新する" />
+		<input name="usces_option_update" type="submit" class="button button-primary" value="SBペイメントサービスの設定を更新する" />
 		<?php wp_nonce_field( 'admin_settlement', 'wc_nonce' ); ?>
 	</form>
 	<div class="settle_exp">
-		<p><strong>ソフトバンク・ペイメント・サービス</strong></p>
-		<a href="http://www.welcart.com/wc-settlement/sbps_guide/" target="_blank">ソフトバンク・ペイメント・サービスの詳細はこちら 》</a>
+		<p><strong>SBペイメントサービス</strong></p>
+		<a href="https://www.welcart.com/wc-settlement/sbps_guide/" target="_blank">SBペイメントサービスの詳細はこちら 》</a>
 		<p>　</p>
 		<p>この決済は「外部リンク型」の決済システムです。</p>
 		<p>「外部リンク型」とは、決済会社のページへ遷移してカード情報を入力する決済システムです。</p>
@@ -787,7 +781,7 @@ Tel：0120-271-888 または 03-6739-7360（携帯電話と海外からはこち
 
 	<?php if( in_array( 'digitalcheck', (array)$settlement_selected ) ): ?>
 	<div id="uscestabs_digitalcheck">
-	<div class="settlement_service"><span class="service_title">ペイデザイン</span></div>
+	<div class="settlement_service"><span class="service_title">メタップスペイメント</span></div>
 	<?php if( isset($_POST['acting']) && 'digitalcheck' == $_POST['acting'] ){ ?>
 		<?php if( '' != $mes ){ ?>
 		<div class="error_message"><?php echo $mes; ?></div>
@@ -806,12 +800,12 @@ Tel：0120-271-888 または 03-6739-7360（携帯電話と海外からはこち
 			<tr>
 				<th><a style="cursor:pointer;" onclick="toggleVisibility('ex_card_ip_digitalcheck');">加盟店コード</a></th>
 				<td colspan="4"><input name="card_ip" type="text" id="card_ip_digitalcheck" value="<?php echo esc_html(isset($opts['digitalcheck']['card_ip']) ? $opts['digitalcheck']['card_ip'] : ''); ?>" size="20" maxlength="10" /></td>
-				<td><div id="ex_card_ip_digitalcheck" class="explanation"><?php _e('契約時にペイデザインから発行される加盟店コード（半角英数字）。', 'usces'); ?></div></td>
+				<td><div id="ex_card_ip_digitalcheck" class="explanation"><?php _e('契約時にメタップスペイメントから発行される加盟店コード（半角英数字）。', 'usces'); ?></div></td>
 			</tr>
 			<tr>
 				<th><a style="cursor:pointer;" onclick="toggleVisibility('ex_card_pass_digitalcheck');">加盟店パスワード</a></th>
 				<td colspan="4"><input name="card_pass" type="text" id="card_pass_digitalcheck" value="<?php echo esc_html(isset($opts['digitalcheck']['card_pass']) ? $opts['digitalcheck']['card_pass'] : ''); ?>" size="20" maxlength="10" /></td>
-				<td><div id="ex_card_pass_digitalcheck" class="explanation"><?php _e('契約時にペイデザインから発行される加盟店パスワード（半角英数字）。<br />ユーザID決済をご利用の場合は、必須となります。', 'usces'); ?></div></td>
+				<td><div id="ex_card_pass_digitalcheck" class="explanation"><?php _e('契約時にメタップスペイメントから発行される加盟店パスワード（半角英数字）。<br />ユーザID決済をご利用の場合は、必須となります。', 'usces'); ?></div></td>
 			</tr>
 			<tr>
 				<th><a style="cursor:pointer;" onclick="toggleVisibility('ex_card_kakutei');">決済自動確定</a></th>
@@ -836,7 +830,7 @@ Tel：0120-271-888 または 03-6739-7360（携帯電話と海外からはこち
 			<tr>
 				<th><a style="cursor:pointer;" onclick="toggleVisibility('ex_conv_ip_digitalcheck');">加盟店コード</a></th>
 				<td colspan="4"><input name="conv_ip" type="text" id="conv_ip_digitalcheck" value="<?php echo esc_html(isset($opts['digitalcheck']['conv_ip']) ? $opts['digitalcheck']['conv_ip'] : ''); ?>" size="20" maxlength="10" /></td>
-				<td><div id="ex_conv_ip_digitalcheck" class="explanation"><?php _e('契約時にペイデザインから発行される加盟店コード（半角英数字）', 'usces'); ?></div></td>
+				<td><div id="ex_conv_ip_digitalcheck" class="explanation"><?php _e('契約時にメタップスペイメントから発行される加盟店コード（半角英数字）', 'usces'); ?></div></td>
 			</tr>
 			<tr>
 				<th rowspan="4"><a style="cursor:pointer;" onclick="toggleVisibility('ex_conv_store_digitalcheck');">利用コンビニ</a></th>
@@ -872,12 +866,12 @@ Tel：0120-271-888 または 03-6739-7360（携帯電話と海外からはこち
 			</tr>
 		</table>
 		<input name="acting" type="hidden" value="digitalcheck" />
-		<input name="usces_option_update" type="submit" class="button button-primary" value="ペイデザインの設定を更新する" />
+		<input name="usces_option_update" type="submit" class="button button-primary" value="メタップスペイメントの設定を更新する" />
 		<?php wp_nonce_field( 'admin_settlement', 'wc_nonce' ); ?>
 	</form>
 	<div class="settle_exp">
-		<p><strong>ペイデザイン株式会社</strong></p>
-		<a href="http://www.paydesign.co.jp/" target="_blank">ペイデザインの詳細はこちら 》</a>
+		<p><strong>株式会社メタップスペイメント</strong></p>
+		<a href="https://www.metaps-payment.com/" target="_blank">メタップスペイメントの詳細はこちら 》</a>
 		<p>　</p>
 		<p>この決済は「外部リンク型」の決済システムです。</p>
 		<p>「外部リンク型」とは、決済会社のページへ遷移してカード情報を入力する決済システムです。</p>

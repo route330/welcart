@@ -520,6 +520,8 @@ jQuery(document).ready( function($) {
 		case 'usces_continue':
 			$acting_flg = '';
 			$dialog_title = '';
+			$order_id = '';
+			$order_data = array();
 
 			//受注編集画面・継続課金会員詳細画面
 			if( 'usces_orderlist' == $admin_page && ( isset($_GET['order_action']) && ( 'edit' == $_GET['order_action'] || 'editpost' == $_GET['order_action'] || 'newpost' == $_GET['order_action'] ) ) || 
@@ -538,7 +540,7 @@ jQuery(document).ready( function($) {
 					}
 				}
 			}
-			$augs = compact( 'order_id', 'acting_flg', 'admin_page', 'order_data' );
+			$args = compact( 'order_id', 'acting_flg', 'admin_page', 'order_data' );
 
 			if( in_array( $acting_flg, $this->pay_method ) ):
 ?>
@@ -837,7 +839,7 @@ jQuery(document).ready( function($) {
 			<?php endif; ?>
 		},
 		close: function() {
-			<?php do_action( 'usces_action_welcartpay_settlement_dialog_close', $augs ); ?>
+			<?php do_action( 'usces_action_welcartpay_settlement_dialog_close', $args ); ?>
 		}
 	});
 
@@ -3808,7 +3810,8 @@ src="<?php esc_html_e( $acting_opts['api_token'] ); ?>?k_TokenNinsyoCode=<?php e
 			return;
 		}
 
-		$name = usces_localized_name( $order_data['order_name1'], $order_data['order_name2'], 'return' );
+		$member_info = $usces->get_member_info( $member_id );
+		$name = usces_localized_name( $member_info['mem_name1'], $member_info['mem_name2'], 'return' );
 		$acting_data = usces_unserialize( $usces->get_order_meta_value( 'acting_welcart_card', $order_id ) );
 
 		$payment = $usces->getPayments( $order_data['order_payment_name'] );
@@ -4235,7 +4238,8 @@ src="<?php esc_html_e( $acting_opts['api_token'] ); ?>?k_TokenNinsyoCode=<?php e
 
 		if( 'on' == $acting_opts['auto_settlement_mail'] ) {
 			$subject = __('Announcement of automatic continuing charging process','usces');
-			$name = usces_localized_name( $order_data['order_name1'], $order_data['order_name2'], 'return' );
+			$member_info = $usces->get_member_info( $member_id );
+			$name = usces_localized_name( $member_info['mem_name1'], $member_info['mem_name2'], 'return' );
 			$mail_data = $usces->options['mail_data'];
 			$mail_header = __('We will report automated accounting process was carried out as follows.','usces')."\r\n\r\n";
 			$mail_footer = __('If you have any questions, please contact us.','usces')."\r\n\r\n".$mail_data['footer']['thankyou'];
@@ -4246,7 +4250,7 @@ src="<?php esc_html_e( $acting_opts['api_token'] ); ?>?k_TokenNinsyoCode=<?php e
 			}
 			$to_customer = array(
 				'to_name' => sprintf( _x('%s','honorific','usces'), $name ),
-				'to_address' => $order_data['order_email'],
+				'to_address' => $member_info['mem_email'],
 				'from_name' => get_option( 'blogname' ),
 				'from_address' => $usces->options['sender_mail'],
 				'return_path' => $usces->options['sender_mail'],
@@ -4275,7 +4279,8 @@ src="<?php esc_html_e( $acting_opts['api_token'] ); ?>?k_TokenNinsyoCode=<?php e
 
 		if( 'on' == $acting_opts['auto_settlement_mail'] ) {
 			$subject = __('Announcement of automatic continuing charging process','usces');
-			$name = usces_localized_name( $order_data['order_name1'], $order_data['order_name2'], 'return' );
+			$member_info = $usces->get_member_info( $member_id );
+			$name = usces_localized_name( $member_info['mem_name1'], $member_info['mem_name2'], 'return' );
 			$mail_data = $usces->options['mail_data'];
 			$mail_header = __('We will reported that an error occurred in automated accounting process.','usces')."\r\n\r\n";
 			$mail_footer = __('If you have any questions, please contact us.','usces')."\r\n\r\n".$mail_data['footer']['thankyou'];
@@ -4286,7 +4291,7 @@ src="<?php esc_html_e( $acting_opts['api_token'] ); ?>?k_TokenNinsyoCode=<?php e
 			}
 			$to_customer = array(
 				'to_name' => sprintf( _x('%s','honorific','usces'), $name ),
-				'to_address' => $order_data['order_email'],
+				'to_address' => $member_info['mem_email'],
 				'from_name' => get_option( 'blogname' ),
 				'from_address' => $usces->options['sender_mail'],
 				'return_path' => $usces->options['sender_mail'],
@@ -4307,8 +4312,10 @@ src="<?php esc_html_e( $acting_opts['api_token'] ); ?>?k_TokenNinsyoCode=<?php e
 	* @return string $message
 	***********************************************/
 	public function auto_settlement_message( $member_id, $order_id, $order_data, $response_data, $continue_data ) {
+		global $usces;
 
-		$name = usces_localized_name( $order_data['order_name1'], $order_data['order_name2'], 'return' );
+		$member_info = $usces->get_member_info( $member_id );
+		$name = usces_localized_name( $member_info['mem_name1'], $member_info['mem_name2'], 'return' );
 		$contracted_date = ( isset($continue_data['contractedday']) ) ? $continue_data['contractedday'] : '';
 		$charged_date = ( isset($continue_data['chargedday']) ) ? $continue_data['chargedday'] : '';
 
@@ -4686,7 +4693,7 @@ src="<?php esc_html_e( $acting_opts['api_token'] ); ?>?k_TokenNinsyoCode=<?php e
 
 		$latest_log = array();
 		$latest_status = array( '1Auth', '1Capture', '1Gathering', '1Delete', '2Add', '2Chg', '2Del', '5Auth', '5Gathering', '5Capture', '5Delete', 'receipted' );
-		$primarily_status = array( '1Auth', '1Capture', '1Gathering', '2Add', '5Auth', '5Gathering', '5Capture', 'receipted' );//取消以外
+		$primarily_status = array( '1Auth', '1Gathering', '2Add', '5Auth', '5Gathering', '5Capture', 'receipted' );//取消以外
 		$reauth_status = array( '1ReAuth' );//再オーソリ
 		$log_data = $this->get_acting_history_log( $log_key );
 		if( $log_data ) {
