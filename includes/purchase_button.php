@@ -772,7 +772,7 @@ if( 'acting' != substr($payments['settlement'], 0, 6) || 0 == $usces_entries['or
 			$html .= '</form>';
 			break;
 
-		case 'acting_digitalcheck_card'://カード決済(ペイデザイン)
+		case 'acting_digitalcheck_card'://カード決済(メタップスペイメント)
 			$acting_opts = $usces->options['acting_settings']['digitalcheck'];
 			$sid = uniqid();
 			$usces->save_order_acting_data($sid);
@@ -839,7 +839,7 @@ if( 'acting' != substr($payments['settlement'], 0, 6) || 0 == $usces_entries['or
 			$html = apply_filters('usces_filter_confirm_inform_back', $html);
 			$html .= '</form>'."\n";
 			break;
-		case 'acting_digitalcheck_conv'://コンビニ決済(ペイデザイン)
+		case 'acting_digitalcheck_conv'://コンビニ決済(メタップスペイメント)
 			$acting_opts = $usces->options['acting_settings']['digitalcheck'];
 			$sid = uniqid();
 			$usces->save_order_acting_data($sid);

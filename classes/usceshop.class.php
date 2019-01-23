@@ -202,7 +202,7 @@ class usc_e_shop
 					if( $acting[1] == 'paypal' ) {
 						$settlement_selected[] = $acting[1].'_'.$acting[2];
 					} else {
-						$settlement_selected[] = $acting[1];
+						$settlement_selected[] = apply_filters( 'usces_filter_acting_payment_slug', $acting[1], $acting );
 					}
 				}
 			}
@@ -1129,7 +1129,7 @@ class usc_e_shop
 								if( !empty($acting[1]) && $acting[1] == 'paypal' ) {
 									$acting_payments[] = $acting[1].'_'.$acting[2];
 								} else {
-									$acting_payments[] = $acting[1];
+									$acting_payments[] = apply_filters( 'usces_filter_acting_payment_slug', $acting[1], $acting );
 								}
 							}
 						}
@@ -1253,17 +1253,17 @@ class usc_e_shop
 						$this->action_message = __('options are updated','usces');
 						$options['acting_settings']['jpayment']['activate'] = 'on';
 						if( 'on' == $options['acting_settings']['jpayment']['card_activate'] ){
-							$this->payment_structure['acting_jpayment_card'] = 'カード決済（Cloud Payment）';
+							$this->payment_structure['acting_jpayment_card'] = 'カード決済（ROBOT PAYMENT）';
 						}else{
 							unset($this->payment_structure['acting_jpayment_card']);
 						}
 						if( 'on' == $options['acting_settings']['jpayment']['conv_activate'] ){
-							$this->payment_structure['acting_jpayment_conv'] = 'コンビニ決済（Cloud Payment）';
+							$this->payment_structure['acting_jpayment_conv'] = 'コンビニ決済（ROBOT PAYMENT）';
 						}else{
 							unset($this->payment_structure['acting_jpayment_conv']);
 						}
 						if( 'on' == $options['acting_settings']['jpayment']['bank_activate'] ){
-							$this->payment_structure['acting_jpayment_bank'] = 'バンクチェック決済（Cloud Payment）';
+							$this->payment_structure['acting_jpayment_bank'] = 'バンクチェック決済（ROBOT PAYMENT）';
 						}else{
 							unset($this->payment_structure['acting_jpayment_bank']);
 						}
@@ -1448,17 +1448,17 @@ class usc_e_shop
 							$options['acting_settings']['sbps']['send_url'] = 'https://fep.sps-system.com/f01/FepBuyInfoReceive.do';
 						}
 						if( 'on' == $options['acting_settings']['sbps']['card_activate'] ){
-							$this->payment_structure['acting_sbps_card'] = 'カード決済（ソフトバンク・ペイメント）';
+							$this->payment_structure['acting_sbps_card'] = 'カード決済（SBペイメントサービス）';
 						}else{
 							unset($this->payment_structure['acting_sbps_card']);
 						}
 						if( 'on' == $options['acting_settings']['sbps']['conv_activate'] ){
-							$this->payment_structure['acting_sbps_conv'] = 'コンビニ決済（ソフトバンク・ペイメント）';
+							$this->payment_structure['acting_sbps_conv'] = 'コンビニ決済（SBペイメントサービス）';
 						}else{
 							unset($this->payment_structure['acting_sbps_conv']);
 						}
 						if( 'on' == $options['acting_settings']['sbps']['payeasy_activate'] ){
-							$this->payment_structure['acting_sbps_payeasy'] = 'ペイジー決済（ソフトバンク・ペイメント）';
+							$this->payment_structure['acting_sbps_payeasy'] = 'ペイジー決済（SBペイメントサービス）';
 						}else{
 							unset($this->payment_structure['acting_sbps_payeasy']);
 						}
@@ -1472,7 +1472,7 @@ class usc_e_shop
 							$options['acting_settings']['sbps']['wallet_activate'] = 'off';
 						}
 						if( 'on' == $options['acting_settings']['sbps']['wallet_activate'] ){
-							$this->payment_structure['acting_sbps_wallet'] = 'ウォレット決済（ソフトバンク・ペイメント）';
+							$this->payment_structure['acting_sbps_wallet'] = 'ウォレット決済（SBペイメントサービス）';
 						}else{
 							unset($this->payment_structure['acting_sbps_wallet']);
 						}
@@ -1486,7 +1486,7 @@ class usc_e_shop
 							$options['acting_settings']['sbps']['mobile_activate'] = 'off';
 						}
 						if( 'on' == $options['acting_settings']['sbps']['mobile_activate'] ){
-							$this->payment_structure['acting_sbps_mobile'] = '携帯キャリア決済（ソフトバンク・ペイメント）';
+							$this->payment_structure['acting_sbps_mobile'] = 'キャリア決済（SBペイメントサービス）';
 						}else{
 							unset($this->payment_structure['acting_sbps_mobile']);
 						}
@@ -1602,13 +1602,13 @@ class usc_e_shop
 							} else {
 								$options['acting_settings']['digitalcheck']['send_url_user_id'] = "";
 							}
-							$this->payment_structure['acting_digitalcheck_card'] = 'カード決済（ペイデザイン）';
+							$this->payment_structure['acting_digitalcheck_card'] = 'カード決済（メタップスペイメント）';
 						}else{
 							unset($this->payment_structure['acting_digitalcheck_card']);
 						}
 						if( 'on' == $options['acting_settings']['digitalcheck']['conv_activate'] ){
 							$options['acting_settings']['digitalcheck']['send_url_conv'] = "https://www.paydesign.jp/settle/settle3/bp3.dll";
-							$this->payment_structure['acting_digitalcheck_conv'] = 'コンビニ決済（ペイデザイン）';
+							$this->payment_structure['acting_digitalcheck_conv'] = 'コンビニ決済（メタップスペイメント）';
 						}else{
 							unset($this->payment_structure['acting_digitalcheck_conv']);
 						}
@@ -3269,6 +3269,12 @@ class usc_e_shop
 			header('location: ' . get_option('home'));
 			exit;
 		}
+		
+		$nonce = isset( $_REQUEST['wc_nonce'] ) ? $_REQUEST['wc_nonce'] : '';
+		$noncekey = 'post_member' . $this->get_uscesid(false);
+		if( !wp_verify_nonce( $nonce, $noncekey ) )
+			die('Security check2');
+
 		$this->cart->entry();
 		if(empty($_POST['member_regmode']) or $_POST['member_regmode'] != 'editmemberfromcart') $_POST['member_regmode'] = 'newmemberfromcart';
 
@@ -3503,10 +3509,8 @@ class usc_e_shop
 	}
 	
 	function regmember(){
-		global $usces;
-
 		$nonce = isset( $_REQUEST['wc_nonce'] ) ? $_REQUEST['wc_nonce'] : '';
-		$noncekey = 'post_member' . $usces->get_uscesid(false);
+		$noncekey = 'post_member' . $this->get_uscesid(false);
 		if( !wp_verify_nonce( $nonce, $noncekey ) )
 			die('Security check2');
 			
@@ -3526,10 +3530,8 @@ class usc_e_shop
 	}
 	
 	function editmember(){
-		global $usces;
-
 		$nonce = isset( $_REQUEST['wc_nonce'] ) ? $_REQUEST['wc_nonce'] : '';
-		$noncekey = 'post_member' . $usces->get_uscesid(false);
+		$noncekey = 'post_member' . $this->get_uscesid(false);
 		if( !wp_verify_nonce( $nonce, $noncekey ) )
 			die('Security check3');
 			
@@ -3549,10 +3551,8 @@ class usc_e_shop
 	}
 	
 	function deletemember(){
-		global $usces;
-
 		$nonce = isset( $_REQUEST['wc_nonce'] ) ? $_REQUEST['wc_nonce'] : '';
-		$noncekey = 'post_member' . $usces->get_uscesid(false);
+		$noncekey = 'post_member' . $this->get_uscesid(false);
 		if( !wp_verify_nonce( $nonce, $noncekey ) )
 			die('Security check4');
 			
@@ -4355,13 +4355,14 @@ class usc_e_shop
 	function member_login() {
 		global $wpdb;
 		$_POST = $this->stripslashes_deep_post($_POST);
+
 		$cookie = $this->get_cookie();
 		$metatable_name = $wpdb->prefix . "usces_member_meta";
 		$member_table = $wpdb->prefix . "usces_member";
 		
 		if ( isset($cookie['rme']) && $cookie['rme'] == 'forever' && !isset($_POST['rememberme']) && !isset($_POST['loginmail'])) {
+
 			$_forever = isset($cookie['name']) ? $cookie['name'] : '';
-			
 			if( $_forever ){
 				$query = $wpdb->prepare("SELECT member_id FROM $metatable_name WHERE meta_value = %s AND meta_key = %s", 
 										$_forever, '_forever');
@@ -4419,6 +4420,17 @@ class usc_e_shop
 		} else if ( !isset($_POST['loginmail']) ){
 			return 'login';
 		} else {
+
+			if ( isset($_POST['loginmail']) ){
+				$nonce = isset( $_REQUEST['wel_nonce'] ) ? $_REQUEST['wel_nonce'] : '';
+				if( !$nonce ){
+					$nonce = isset( $_REQUEST['wc_nonce'] ) ? $_REQUEST['wc_nonce'] : '';
+				}
+				$noncekey = 'post_member' . $this->get_uscesid(false);
+				if( !wp_verify_nonce( $nonce, $noncekey ) )
+					die('Security check4');
+			}
+
 			$email = isset($_POST['loginmail']) ? trim($_POST['loginmail']) : '';
 			//$pass = isset($_POST['loginpass']) ? usces_get_hash(trim($_POST['loginpass'])) : '';
 			$salt = usces_get_salt( $email );
@@ -4787,6 +4799,7 @@ class usc_e_shop
 		$post_id = $ids[0];
 		$skus = array_keys($_POST['inCart'][$post_id]);
 		$sku = $skus[0];
+		$sku_code = urldecode($sku);
 		$quant = isset($_POST['quant'][$post_id][$sku]) ? (int)$_POST['quant'][$post_id][$sku] : 1;
 		$stock = $this->getItemZaikoNum($post_id, $sku);
 		$zaiko_id = (int)$this->getItemZaikoStatusId($post_id, $sku);
@@ -4799,7 +4812,7 @@ class usc_e_shop
 			$mes[$post_id][$sku] = sprintf(__("This article is limited by %d at a time.", 'usces'), $itemRestriction) . "<br />";
 		}else if( $itemOrderAcceptable != 1 && $quant > (int)$stock && !WCUtils::is_blank($stock) ){
 			$mes[$post_id][$sku] = __('Sorry, stock is insufficient.', 'usces') . ' ' . __('Current stock', 'usces') . $stock . "<br />";
-		}else if( $itemOrderAcceptable != 1 && 1 < $zaiko_id ){
+		}else if( $itemOrderAcceptable != 1 && !$this->is_item_zaiko( $post_id, $sku_code ) ){
 			$mes[$post_id][$sku] = __('Sorry, this item is sold out.', 'usces') . "<br />";
 		}
 
@@ -4890,7 +4903,7 @@ class usc_e_shop
 
 			if( 1 > (int)$quant ){
 				$mes .= sprintf(__("Enter the correct amount for the No.%d item.", 'usces'), ($i+1)) . "<br />";
-			}else if( 1 < $zaiko_id || ( $itemOrderAcceptable != 1 && WCUtils::is_zero($stock) ) || 'publish' != $post_status ){
+			}else if( !$this->is_item_zaiko( $post_id, $sku_code ) || ( $itemOrderAcceptable != 1 && WCUtils::is_zero($stock) ) || 'publish' != $post_status ){
 				$mes .= sprintf(__('Sorry, No.%d item is sold out.', 'usces'), ($i+1)) . "<br />";
 			}else if( $quant > (int)$itemRestriction && !WCUtils::is_blank($itemRestriction) && !WCUtils::is_zero($itemRestriction) ){
 				$mes .= sprintf(__('This article is limited by %1$d at a time for the No.%2$d item.', 'usces'), $itemRestriction, ($i+1)) . "<br />";
@@ -4904,6 +4917,7 @@ class usc_e_shop
 
 	function member_check() {
 		$mes = '';
+		$usces_member_old = $_SESSION['usces_member'];
 		foreach ( $_POST['member'] as $key => $vlue ) {
 			if( 'password1' !== $key && 'password2' !== $key ){
 				$_SESSION['usces_member'][$key] = trim($vlue);
@@ -4959,6 +4973,11 @@ class usc_e_shop
 				$mes .= __('Please accept the membership agreement.', 'usces') . "<br />";
 			}
 		}
+		
+		if ( $_POST['member_regmode'] == 'editmemberform' && '' != $mes ) {
+			$_SESSION['usces_member'] = $usces_member_old;
+		}
+
 		$mes = apply_filters('usces_filter_member_check', $mes);
 
 		return $mes;
@@ -5146,7 +5165,7 @@ class usc_e_shop
 				$usces_entries = $this->cart->get_entry();
 				$materials = array(
 					'total_items_price' => $usces_entries['order']['total_items_price'],
-					'discount' => $usces_entries['order']['discount'],
+					'discount' => ( isset($usces_entries['order']['discount']) ) ? $usces_entries['order']['discount'] : 0,
 					'shipping_charge' => $usces_entries['order']['shipping_charge'],
 					'cod_fee' => $usces_entries['order']['cod_fee'],
 					'use_point' => ( isset($usces_entries['order']['use_point']) ) ? $usces_entries['order']['use_point'] : 0,
@@ -5966,7 +5985,7 @@ class usc_e_shop
 			$pos = strpos( $this->options['acting_settings']['digitalcheck']['send_url_card'], 'paydesign' );
 			if( $pos === false ) {
 				$this->options['acting_settings']['digitalcheck']['send_url_card'] = "https://www.paydesign.jp/settle/settle3/bp3.dll";
-				$this->payment_structure['acting_digitalcheck_card'] = 'カード決済（ペイデザイン）';
+				$this->payment_structure['acting_digitalcheck_card'] = 'カード決済（メタップスペイメント）';
 				$update_acting_settings_paydesign = true;
 			}
 			if( isset($this->options['acting_settings']['digitalcheck']['card_user_id']) and 'on' == $this->options['acting_settings']['digitalcheck']['card_user_id'] ) {
@@ -5981,7 +6000,7 @@ class usc_e_shop
 			$pos = strpos( $this->options['acting_settings']['digitalcheck']['send_url_conv'], 'paydesign' );
 			if( $pos === false ) {
 				$this->options['acting_settings']['digitalcheck']['send_url_conv'] = "https://www.paydesign.jp/settle/settle3/bp3.dll";
-				$this->payment_structure['acting_digitalcheck_conv'] = 'コンビニ決済（ペイデザイン）';
+				$this->payment_structure['acting_digitalcheck_conv'] = 'コンビニ決済（メタップスペイメント）';
 				$update_acting_settings_paydesign = true;
 			}
 		}
@@ -6185,6 +6204,7 @@ class usc_e_shop
 	
 	function getItemDiscount($post_id, $skukey = '') {
 		$display_mode = $this->options['display_mode'];
+		$decimal = $this->get_currency_decimal();
 		$array = array();
 		$skus = $this->get_skus($post_id, 'code');
 		foreach((array)$skus as $key => $sku){
@@ -6192,7 +6212,7 @@ class usc_e_shop
 			if ( $display_mode == 'Promotionsale' ) {
 				if ( $this->options['campaign_privilege'] == 'discount' ){
 					if( 0 === (int)$this->options['campaign_category'] || in_category((int)$this->options['campaign_category'], $post_id) ){
-						$discount = $price * $this->options['privilege_discount'] / 100;
+						$discount = (float)sprintf( '%.3f', $price * $this->options['privilege_discount'] / 100 );
 					}else{
 						$discount = 0;
 					}
@@ -6200,8 +6220,15 @@ class usc_e_shop
 					$discount = 0;
 				}
 			}
-	
-			$discount = apply_filters( 'usces_filter_getItemDiscount', ceil($discount), $price, $post_id, $sku, $display_mode );
+			if( 0 != $discount ) {
+				if( 0 == $decimal ) {
+					$discount = ceil( $discount );
+				} else {
+					$decipad = (int)str_pad( '1', $decimal+1, '0', STR_PAD_RIGHT );
+					$discount = ceil( $discount * $decipad ) / $decipad;
+				}
+			}
+			$discount = apply_filters( 'usces_filter_getItemDiscount', $discount, $price, $post_id, $sku, $display_mode );
 			$array[$key] = $discount;
 		}
 		if(!$array) return false;
@@ -7178,9 +7205,9 @@ class usc_e_shop
 
 	}
 	
-	function is_item_zaiko( $post_id, $sku ){
-		$status_num = (int)$this->getItemZaikoStatusId($post_id, $sku);
-		$zaiko_num = $this->getItemZaikoNum($post_id, $sku);
+	function is_item_zaiko( $post_id, $sku_code ){
+		$status_num = (int)$this->getItemZaikoStatusId($post_id, $sku_code);
+		$zaiko_num = $this->getItemZaikoNum($post_id, $sku_code);
 		$itemOrderAcceptable = $this->getItemOrderAcceptable( $post_id );
 
 		if( $itemOrderAcceptable != 1 ) {
@@ -7203,7 +7230,7 @@ class usc_e_shop
 			}
 		}
 	
-		return apply_filters( 'usces_is_item_zaiko', $res, $post_id, $sku, $status_num, $zaiko_num );
+		return apply_filters( 'usces_is_item_zaiko', $res, $post_id, $sku_code, $status_num, $zaiko_num );
 
 	}
 
@@ -7217,8 +7244,8 @@ class usc_e_shop
 		if( !empty($cart) ) {
 			$cart_count = ( is_array( $cart ) ) ? count( $cart ) : 0;
 			for($i=0; $i<$cart_count; $i++) { 
-				$quantity = $cart[$i]['quantity'];
-				$skuPrice = $cart[$i]['price'];
+				$quantity = (float)$cart[$i]['quantity'];
+				$skuPrice = (float)$cart[$i]['price'];
 				
 				$total_price += ($skuPrice * $quantity);
 			}
@@ -7235,7 +7262,7 @@ class usc_e_shop
 		if( !empty($cart) ) {
 			$cart_count = ( is_array( $cart ) ) ? count( $cart ) : 0;
 			for($i=0; $i<$cart_count; $i++) { 
-				$total_quantity += $cart[$i]['quantity'];
+				$total_quantity += (float)$cart[$i]['quantity'];
 			}
 		}
 		return $total_quantity;
@@ -7257,28 +7284,28 @@ class usc_e_shop
 				foreach ( $cart as $rows ) {
 					$cats = $this->get_post_term_ids($rows['post_id'], 'category');
 					if ( !in_array($this->options['campaign_category'], $cats) ){
-						$rate = get_post_meta($rows['post_id'], '_itemPointrate', true);
-						$price = $rows['price'] * $rows['quantity'];
-						$point = sprintf('%.3f', $point + ($price * $rate / 100) );
+						$rate = (float)get_post_meta($rows['post_id'], '_itemPointrate', true);
+						$price = (float)$rows['price'] * (float)$rows['quantity'];
+						$point = (float)sprintf('%.3f', $point + ($price * $rate / 100) );
 					}
 				}
 			} elseif ( $this->options['campaign_privilege'] == 'point' ) {
 				foreach ( $cart as $rows ) {
-					$rate = get_post_meta($rows['post_id'], '_itemPointrate', true);
-					$price = $rows['price'] * $rows['quantity'];
+					$rate = (float)get_post_meta($rows['post_id'], '_itemPointrate', true);
+					$price = (float)$rows['price'] * (float)$rows['quantity'];
 					$cats = $this->get_post_term_ids($rows['post_id'], 'category');
 					if ( in_array($this->options['campaign_category'], $cats) ){
-						$point = sprintf('%.3f', $point + ($price * $rate / 100 * $this->options['privilege_point']) );
+						$point = (float)sprintf('%.3f', $point + ($price * $rate / 100 * (float)$this->options['privilege_point']) );
 					}else{
-						$point = sprintf('%.3f', $point + ($price * $rate / 100) );
+						$point = (float)sprintf('%.3f', $point + ($price * $rate / 100) );
 					}
 				}
 			}
 		} else {
 			foreach ( $cart as $rows ) {
-				$rate = get_post_meta($rows['post_id'], '_itemPointrate', true);
-				$price = $rows['price'] * $rows['quantity'];
-				$point = sprintf('%.3f', $point + ($price * $rate / 100) );
+				$rate = (float)get_post_meta($rows['post_id'], '_itemPointrate', true);
+				$price = (float)$rows['price'] * (float)$rows['quantity'];
+				$point = (float)sprintf('%.3f', $point + ($price * $rate / 100) );
 			}
 		}
 
@@ -7286,16 +7313,15 @@ class usc_e_shop
 		$entry = $this->cart->get_entry();
 		$use_point = isset( $entry['order']['usedpoint'] ) ? (int)$entry['order']['usedpoint'] : 0;
 		if( 0 < $use_point ) {
-		
-			$point = sprintf('%.3f', $point - ( $point * $use_point / $total ) );
+			$point = (float)sprintf('%.3f', $point - ( $point * $use_point / $total ) );
 			$point = ceil( $point );
-			if( 0 > $point )
+			if( 0 > $point ) {
 				$point = 0;
-				
+			}
 		}else{
-		
-			if( 0 < $point ) $point = ceil( $point );
-			
+			if( 0 < $point ) {
+				$point = ceil( $point );
+			}
 		}
 
 		return apply_filters( 'usces_filter_get_order_point', $point, $mem_id, $display_mode, $cart );
@@ -7309,24 +7335,32 @@ class usc_e_shop
 			$display_mode = $this->options['display_mode'];
 		
 		$discount = 0;
-		$total = $this->get_total_price( $cart );
 		if ( $display_mode == 'Promotionsale' ) {
 			if ( $this->options['campaign_privilege'] == 'discount' ){
 				if( 0 === (int)$this->options['campaign_category'] ){
-					$discount = sprintf('%.3f', $total * $this->options['privilege_discount'] / 100 );
+					$total = $this->get_total_price( $cart );
+					$discount = (float)sprintf('%.3f', $total * (float)$this->options['privilege_discount'] / 100 );
 				}else{
 					foreach($cart as $cart_row){
 						if( in_category((int)$this->options['campaign_category'], $cart_row['post_id']) ){
-							$discount = sprintf('%.3f', $discount + ($cart_row['price'] * $cart_row['quantity'] * $this->options['privilege_discount'] / 100) );
+							$discount += (float)sprintf( '%.3f', (float)$cart_row['price'] * (float)$cart_row['quantity'] * (float)$this->options['privilege_discount'] / 100 );
 						}
 					}
+				}
+				if( 0 != $discount ) {
+					$decimal = $this->get_currency_decimal();
+					if( 0 == $decimal ) {
+						$discount = ceil( $discount );
+					} else {
+						$decipad = (int)str_pad( '1', $decimal+1, '0', STR_PAD_RIGHT );
+						$discount = ceil( $discount * $decipad ) / $decipad;
+					}
+					$discount = $discount * -1;
 				}
 			}else if ( $this->options['campaign_privilege'] == 'point' ){
 				$discount = 0;
 			}
 		}
-
-		$discount = ceil($discount * -1);
 		$discount = apply_filters('usces_order_discount', $discount, $cart);
 		return $discount;
 	}
@@ -7364,18 +7398,18 @@ class usc_e_shop
 				$s_charge_id = $this->getItemShippingCharge($rows['post_id']);
 				//商品送料index
 				$s_charge_index = $this->get_shipping_charge_index($s_charge_id);
-				$charge = isset($this->options['shipping_charge'][$s_charge_index][$country][$pref]) ? $this->options['shipping_charge'][$s_charge_index][$country][$pref] : 0;
+				$s_charge = isset($this->options['shipping_charge'][$s_charge_index][$country][$pref]) ? (float)$this->options['shipping_charge'][$s_charge_index][$country][$pref] : 0;
 			}else{
 			
 				$s_charge_index = $this->get_shipping_charge_index($fixed_charge_id);
-				$charge = isset($this->options['shipping_charge'][$s_charge_index][$country][$pref]) ? $this->options['shipping_charge'][$s_charge_index][$country][$pref] : 0;
+				$s_charge = isset($this->options['shipping_charge'][$s_charge_index][$country][$pref]) ? (float)$this->options['shipping_charge'][$s_charge_index][$country][$pref] : 0;
 			}
 			
 			if($this->getItemIndividualSCharge($rows['post_id'])){
-				$individual_quant += $rows['quantity'];
-				$individual_charges[] = $rows['quantity'] * $charge;
+				$individual_quant += (float)$rows['quantity'];
+				$individual_charges[] = (float)$rows['quantity'] * $s_charge;
 			}else{
-				$charges[] = $charge;
+				$charges[] = $s_charge;
 			}
 			$total_quant += $rows['quantity'];
 		}
@@ -7406,9 +7440,10 @@ class usc_e_shop
 		}else{
 			$materials = array(
 				'total_items_price' => $current_entries['order']['total_items_price'],
-				'discount' => $current_entries['order']['discount'],
-				'shipping_charge' => $current_entries['order']['shipping_charge'],
+				'discount' => ( isset($current_entries['order']['discount']) ) ? $current_entries['order']['discount'] : 0,
+				'shipping_charge' => ( isset($current_entries['order']['shipping_charge']) ) ? $current_entries['order']['shipping_charge'] : 0,
 				'cod_fee' => 0,
+				'use_point' => 0,
 			);
 			$price = $amount_by_cod + $this->getTax( $amount_by_cod, $materials );
 			if( $price <= $this->options['cod_first_amount'] ){
@@ -7447,9 +7482,9 @@ class usc_e_shop
 		if( empty($materials) ) {
 
 			if( 'include' == $this->options['tax_mode'] ) {
-				$tax = sprintf('%.3f', $total * $this->options['tax_rate'] / ( 100 + $this->options['tax_rate'] ) );
+				$tax = (float)sprintf('%.3f', (float)$total * (float)$this->options['tax_rate'] / ( 100 + (float)$this->options['tax_rate'] ) );
 			} else {
-				$tax = sprintf('%.3f', $total * $this->options['tax_rate'] / 100 );
+				$tax = (float)sprintf('%.3f', (float)$total * (float)$this->options['tax_rate'] / 100 );
 			}
 
 		} else {
@@ -7460,25 +7495,25 @@ class usc_e_shop
 
 			if( 1 == $this->options['point_coverage'] ) {
 				if( 'products' == $this->options['tax_target'] ){
-					$total = $total_items_price + $discount;
+					$total = (float)$total_items_price + (float)$discount;
 				}else{
-					$total = $total_items_price + $discount + $shipping_charge + $cod_fee;
+					$total = (float)$total_items_price + (float)$discount + (float)$shipping_charge + (float)$cod_fee;
 				}
 			} else {
 				if( 'products' == $this->options['tax_target'] ){
-					$total = $total_items_price + $discount;
+					$total = (float)$total_items_price + (float)$discount;
 				}else{
 					if( empty($use_point) ) $use_point = 0;
-					$total = $total_items_price + $discount - $use_point + $shipping_charge + $cod_fee;
+					$total = (float)$total_items_price + (float)$discount - (int)$use_point + (float)$shipping_charge + (float)$cod_fee;
 				}
 			}
 			$total = apply_filters( 'usces_filter_getTax_total', $total, $materials);
 
-			$tax = sprintf('%.3f', $total * $this->options['tax_rate'] / 100 );
+			$tax = (float)sprintf('%.3f', (float)$total * (float)$this->options['tax_rate'] / 100 );
 		}
 
 		$cr = $this->options['system']['currency'];
-		$decimal = $usces_settings['currency'][$cr][1];
+		$decimal = (int)$usces_settings['currency'][$cr][1];
 		$decipad = (int)str_pad( '1', $decimal+1, '0', STR_PAD_RIGHT );
 		switch( $this->options['tax_method'] ){
 			case 'cutting':
@@ -7489,7 +7524,7 @@ class usc_e_shop
 				break;
 			case 'rounding':
 				if( 0 < $decimal ){
-					$tax = round( (float)$tax, (int)$decimal );
+					$tax = round( (float)$tax, $decimal );
 				}else{
 					$tax = round( (float)$tax );
 				}
@@ -7517,7 +7552,7 @@ class usc_e_shop
 
 		$payments = $this->getPayments( $entries['order']['payment_name'] );
 		$discount = $this->get_order_discount( NULL, $carts );
-		$use_point = (int)$entries['order']['usedpoint'];
+		$use_point = ( isset( $entries['order']['usedpoint'] ) ) ? (int)$entries['order']['usedpoint'] : 0;
 		$amount_by_cod = $total_items_price - $use_point + $discount + $shipping_charge;
 		$amount_by_cod = apply_filters('usces_filter_set_cart_fees_amount_by_cod', $amount_by_cod, $entries, $total_items_price, $use_point, $discount, $shipping_charge);
 		$cod_fee = $this->getCODFee($entries['order']['payment_name'], $amount_by_cod, $entries);
@@ -8182,14 +8217,18 @@ class usc_e_shop
 		return $res;
 	}
 
-	function set_order_meta_value($key, $meta_value, $order_id) {
+	function set_order_meta_value($key, $meta_value, $order_id, $check=1) {
 		global $wpdb;
 
 		if( empty($order_id) ) return;
 		
 		$order_id = (int)$order_id;
-		$order = $this->get_order_data($order_id, 'direct' );
-		if ( null === $order )  return;
+		if( $check ){
+			$order = $this->get_order_data($order_id, 'direct' );
+			if ( null === $order ){
+				return;
+			}
+		}
 
 		$table_name = $wpdb->prefix . "usces_order_meta";
 		$query = $wpdb->prepare("SELECT count(*) FROM $table_name WHERE order_id = %d AND meta_key = %s", 
@@ -8416,6 +8455,7 @@ class usc_e_shop
 				}
 			}
 		}
+		$res = apply_filters( 'usces_filter_get_post_user_custom', $res, $meta_list, $post_id, $orderby, $order );
 		return $res;
 	}
 	
@@ -8443,6 +8483,13 @@ class usc_e_shop
 		$cr = $this->options['system']['currency'];
 		list($code, $decimal, $point, $seperator, $symbol) = $usces_settings['currency'][$cr];
 		return $code;
+	}
+	
+	function get_currency_decimal() {
+		global $usces_settings;
+		$cr = $this->options['system']['currency'];
+		list( $code, $decimal, $point, $seperator, $symbol ) = $usces_settings['currency'][$cr];
+		return $decimal;
 	}
 	
 	function get_next_page_uri( $type, $current ){

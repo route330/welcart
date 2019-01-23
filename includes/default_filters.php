@@ -113,8 +113,6 @@ add_filter('usces_filter_memberinfo_page_header', array(&$usces, 'filter_memberi
 add_filter('usces_filter_memberinfo_page_footer', array(&$usces, 'filter_memberinfo_page_footer'));
 add_filter('usces_filter_membercompletion_page_header', array(&$usces, 'filter_membercompletion_page_header'));
 add_filter('usces_filter_membercompletion_page_footer', array(&$usces, 'filter_membercompletion_page_footer'));
-add_filter('usces_filter_confirm_inform', 'wc_purchase_nonce', 20, 5 );
-add_filter('usces_filter_changepassword_inform', 'usces_filter_lostmail_inform' );
 add_filter('usces_filter_uscesL10n', 'usces_confirm_uscesL10n', 11, 2);
 add_filter('usces_filter_states_form_js', 'usces_search_zipcode_check' );
 add_filter('usces_purchase_check', 'wc_purchase_nonce_check', 1 );
@@ -152,17 +150,8 @@ add_action('usces_post_reg_orderdata', 'usces_post_reg_orderdata', 10, 2);
 add_action('usces_action_reg_orderdata', 'usces_action_reg_orderdata');
 add_action('usces_action_reg_orderdata', 'usces_reg_ordercartdata');
 add_action('usces_action_reg_orderdata', 'usces_action_reg_orderdata_stocks');
-add_action('usces_action_confirm_page_point_inform', 'usces_use_point_nonce' );
-add_action('usces_action_newmember_page_inform', 'usces_post_member_nonce' );
-add_action('usces_action_memberinfo_page_inform', 'usces_post_member_nonce' );
-add_action('usces_action_newpass_page_inform', 'usces_post_member_nonce' );
-add_action('usces_action_changepass_page_inform', 'usces_action_lostmail_inform' );
-add_action('usces_action_changepass_page_inform', 'usces_post_member_nonce' );
-add_action('usces_action_customer_page_inform', 'usces_post_member_nonce' );
 add_action('usces_action_login_page_footer', 'usces_action_login_page_liwpp', 8);
 add_filter('usces_filter_login_page_footer', 'usces_filter_login_page_liwpp', 8);
-add_action('usces_action_customer_page_member_inform', 'usces_action_customer_page_liwpp', 8);
-add_filter('usces_filter_customer_page_member_inform', 'usces_filter_customer_page_liwpp', 8);
 add_filter('usces_filter_login_widget', 'usces_filter_login_widget_liwpp', 8);
 
 add_filter('usces_filter_customer_check', 'usces_filter_customer_check_custom_customer', 10);
@@ -172,6 +161,23 @@ add_filter('usces_filter_member_check', 'usces_filter_member_check_custom_member
 add_filter('usces_filter_member_check_fromcart', 'usces_filter_customer_check_custom_customer', 10);
 add_filter('usces_filter_member_check', 'usces_memberreg_spamcheck', 10);
 add_filter('usces_filter_member_check_fromcart', 'usces_fromcart_memberreg_spamcheck', 10);
+
+add_filter('usces_filter_changepassword_inform', 'usces_filter_lostmail_inform' );
+add_action('usces_action_changepass_page_inform', 'usces_action_lostmail_inform' );
+
+add_filter('usces_filter_confirm_inform', 'wc_purchase_nonce', 20, 5 );
+add_action('usces_action_confirm_page_point_inform', 'usces_use_point_nonce' );
+
+add_action('usces_action_newmember_page_inform', 'usces_post_member_nonce' );
+add_action('usces_action_memberinfo_page_inform', 'usces_post_member_nonce' );
+add_action('usces_action_newpass_page_inform', 'usces_post_member_nonce' );
+add_action('usces_action_changepass_page_inform', 'usces_post_member_nonce' );
+add_action('usces_action_customer_page_inform', 'usces_post_member_nonce' );
+add_action('usces_action_login_page_inform', 'usces_member_login_nonce' );
+add_action('usces_action_customer_page_member_inform', 'usces_member_login_nonce' );
+
+add_action('usces_action_customer_page_member_inform', 'usces_action_customer_page_liwpp', 8);
+add_filter('usces_filter_customer_page_member_inform', 'usces_filter_customer_page_liwpp', 8);
 
 if( version_compare($wp_version, '4.4-beta', '>') ) {
 	add_filter('pre_get_document_title', 'filter_mainTitle');

@@ -2,9 +2,9 @@
 Contributors: Collne Inc., uscnanbu
 Tags: Welcart, e-Commerce, shopping, cart, eShop, store, admin, calendar, manage, plugin, shortcode, widgets, membership
 Requires at least: 4.8
-Tested up to: 4.9
-Requires PHP: 5.6 or 7.2
-Stable tag: 1.9.14
+Tested up to: 5.0
+Requires PHP: 5.6 - 7.2
+Stable tag: 1.9.15
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -80,7 +80,7 @@ All the procedures must be done with self-responsibility of each user.
 = RECOMMENDED ENVIRONMENT =
 
 WordPress Ver.4.8 or greater
-PHP 5.6, 7.0
+PHP 5.6, 7.2
 MySQL 5.5 or greater
 Original domain and SSL (Shared SSL is not recommended)
 
@@ -103,6 +103,23 @@ Please see [Welcart Forum(Japanese)](https://www.welcart.com/community/forums).
 
 
 == Changelog ==
+= V1.9.15 =
+-----------
+15 Jan 2019
+* Fixed the bug that the customfield can't registered when new registration by item CSV.
+* Fixed the bug that you can't registrate item batch registration using slug name of category.
+* Fixed the bug that the serialized customfield become broken when new or update registration by item CSV.
+* [SBPS]Changed trade name of SB Payment Sevice.
+* [WelcartPay]Fixed the bug that you can't record the sales after doing re-authorization.
+* [WelcartPay]The email address which is automatically sending when the transaction of the automatically-renewed payments happens was changed to the member data's email address.
+* Fixed the bug that some total amount displays isn't correct  when the currency is USD.
+* Fixed the bug that the number of campaign discount calculation is round to the integer in case of the currency which needs to display after the decimal number.
+* Changed the specification that the complettion notice become easy to find out on my page when users updated their information.
+* Enhanced security of the member log-in.
+* Added the hook at $usces->get_post_user_custom().
+* Added the argument at $usces->get_post_user_custom().
+* Added the hook at usces_action_reg_orderdata_stocks($args).
+
 = V1.9.14 =
 -----------
 1 Nov 2018

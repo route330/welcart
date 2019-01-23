@@ -1187,7 +1187,7 @@ function usces_reg_orderdata( $results = array() ) {
 				$usces->set_member_meta_value( 'continue_memberid_'.$order_id, $_REQUEST['X-AC_MEMBERID'] );
 			}
 		}
-		//*** Cloud Payment (J-Payment) ***//
+		//*** ROBOT PAYMENT (Cloud Payment,J-Payment) ***//
 		if(isset($_REQUEST['acting']) && ('jpayment_card' == $_REQUEST['acting'] || 'jpayment_conv' == $_REQUEST['acting'] || 'jpayment_bank' == $_REQUEST['acting'])) {
 			$usces->set_order_meta_value( 'settlement_id', $_GET['cod'], $order_id );
 			if( !empty($_GET['gid']) ) {
@@ -5387,13 +5387,13 @@ function usces_get_link_key( $results ) {
 	if( isset($_REQUEST['X-S_TORIHIKI_NO']) ) {
 		$linkkey = $_REQUEST['S_TORIHIKI_NO'];//remise
 	} elseif( isset($_REQUEST['acting']) && ('jpayment_card' == $_REQUEST['acting'] || 'jpayment_conv' == $_REQUEST['acting'] || 'jpayment_bank' == $_REQUEST['acting']) && isset($_REQUEST['cod']) ) {
-		$linkkey = $_REQUEST['cod'];//Cloud Payment (J-Payment)
+		$linkkey = $_REQUEST['cod'];//ROBOT PAYMENT (Cloud Payment,J-Payment)
 	} elseif( isset($_REQUEST['txn_type']) && 'pro_hosted' == $_REQUEST['txn_type'] && isset($_REQUEST['custom']) ) {
 		$linkkey = $_REQUEST['custom'];//PayPal Webpayment Plus
 	} elseif( isset($_REQUEST['res_tracking_id']) ) {
-		$linkkey = $_REQUEST['res_tracking_id'];//SoftBankPayment,DSK
+		$linkkey = $_REQUEST['res_tracking_id'];//SBPayment,DSK
 	} elseif( isset($_REQUEST['SID']) && isset($_REQUEST['FUKA']) ) {
-		$linkkey = $_REQUEST['SID'];//paydesign (digitalcheck)
+		$linkkey = $_REQUEST['SID'];//MetapsPayment (paydesign,digitalcheck)
 	} elseif( isset($_REQUEST['acting']) && ('mizuho_card' == $_REQUEST['acting'] || 'mizuho_conv' == $_REQUEST['acting']) && isset($_REQUEST['stran']) ) {
 		$linkkey = $_REQUEST['stran'];//mizuho
 	} elseif( isset($_REQUEST['SiteId']) && $usces->options['acting_settings']['anotherlane']['siteid'] == $_REQUEST['SiteId'] && isset($_REQUEST['TransactionId']) ) {

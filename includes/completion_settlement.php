@@ -52,7 +52,7 @@ if( isset($usces->payment_results['X-TRANID']) ){ //remise_card
 
 }elseif( isset($_REQUEST['acting']) && ( 'sbps_conv' == $_REQUEST['acting'] || 'sbps_payeasy' == $_REQUEST['acting'] ) ){ //SoftBank Payment
 	$title = ( 'sbps_conv' == $_REQUEST['acting'] ) ? 'コンビニ決済' : 'ペイジー決済';
-	$html .= '<div id="status_table"><h5>ソフトバンク・ペイメント・サービス　'.$title.'</h5>'."\n";
+	$html .= '<div id="status_table"><h5>SBペイメントサービス　'.$title.'</h5>'."\n";
 	$html .= '<p>「お支払いのご案内」は、' . esc_html($usces_entries['customer']['mailaddress1']) . '　宛にメールさせていただいております。</p>'."\n";
 	$html .= "</div>\n";
 }

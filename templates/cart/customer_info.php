@@ -36,6 +36,9 @@ if(usces_is_membersystem_state()){
 	</table>
 	<div class="send"><input name="customerlogin" type="submit" value="'.__(' Next ', 'usces').'" /></div>';
 	$html = apply_filters( 'usces_filter_customer_page_member_inform', $html, $usces_entries );
+
+	$noncekey = 'post_member' . $this->get_uscesid(false);
+	$html .= wp_nonce_field( $noncekey, 'wel_nonce', true, false );
 	$html .= '</form>
 	<h5>' . __('The nonmember please enter at here.','usces') . '</h5>';
 }
