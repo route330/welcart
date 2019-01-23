@@ -208,7 +208,7 @@ if($order_action == 'new'){
 		$navibutton = '<a href="' . admin_url('admin.php?page=usces_orderlist&returnList=1') . '" class="back-list"><span class="dashicons dashicons-list-view"></span>' . __('to order list', 'usces') . '</a>';
 	}
 }
-$delivery_after_days = apply_filters( 'usces_filter_delivery_after_days', ( !empty($usces->options['delivery_after_days']) ? (int)$usces->options['delivery_after_days'] : 100 ) );
+$delivery_after_days = apply_filters( 'usces_filter_delivery_after_days', ( !empty($this->options['delivery_after_days']) ? (int)$this->options['delivery_after_days'] : 100 ) );
 $noreceipt_status = apply_filters( 'usces_filter_noreceipt_status', get_option( 'usces_noreceipt_status' ) );
 $filter_args = compact( 'order_action', 'order_id', 'data', 'cart' ); 
 $action_args = compact( 'order_action', 'order_id', 'cart' ); 
@@ -446,12 +446,14 @@ jQuery(function($){
 			var quant = [];
 			var sub_total = <?php echo apply_filters('order_edit_form_sub_total', 0, $data); ?>;
 			var total_full = 0;
+			var n = <?php esc_html_e( $this->get_currency_decimal() ); ?>;// 小数点第n位まで残す
 
-//商品合計計算部分（海外通貨で少数有りの場合、有効桁数（2桁）決めて丸める）
+			//商品合計計算部分（海外通貨で少数有りの場合、有効桁数（2桁）決めて丸める）
 			for( var i = 0; i < p.length; i++) {
-				var n = 2 ;	// 小数点第n位まで残す
-				v =  parseFloat($(p[i]).val()) * $(q[i]).val();
-				v = Math.round( v * Math.pow( 10, n ) ) / Math.pow( 10, n ) ;
+				v = parseFloat($(p[i]).val()) * $(q[i]).val();
+				if( 0 < n ) {
+					v = Math.round( v * Math.pow( 10, n ) ) / Math.pow( 10, n );
+				}
 				$(t[i]).html(addComma(v+''));
 				sub_total += v;
 				sub_total = Math.round( sub_total * Math.pow( 10, n ) ) / Math.pow( 10, n ) ;
@@ -464,6 +466,9 @@ jQuery(function($){
 			var order_cod_fee =  parseFloat($("#order_cod_fee").val());
 			var order_tax =  parseFloat($("#order_tax").val());
 			total_full = sub_total - order_usedpoint + order_discount + order_shipping_charge + order_cod_fee + order_tax;
+			if( 0 < n ) {
+				total_full = Math.round( total_full * Math.pow( 10, n ) ) / Math.pow( 10, n );
+			}
 			$("#total_full").html(addComma(total_full+''));
 			$("#total_full_top").html(addComma(total_full+''));
 			<?php do_action( 'order_edit_form_sumPrice',$data); ?>

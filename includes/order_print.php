@@ -150,7 +150,7 @@ function usces_pdf_out($pdf, $data){
 			}
 			$optstr = apply_filters( 'usces_filter_option_pdf', $optstr, $cart_row['options'] );
 		}
-		$optstr = apply_filters( 'usces_filter_all_option_pdf', $optstr, $cart_row['options'], $post_id, $sku, $cart_row['advance'] );
+		$optstr = apply_filters( 'usces_filter_all_option_pdf', $optstr, $cart_row['options'], $post_id, $sku, $cart_row['advance'], $cart_row );
 
 		$args = compact('cart', 'cart_row', 'post_id', 'sku', 'index' );
 		$fontsizes = apply_filters( 'useces_filter_order_pdfbody_fontsize', $fontsizes, $args, $data );

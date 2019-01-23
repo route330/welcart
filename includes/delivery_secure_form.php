@@ -18,7 +18,7 @@ foreach ( (array)$payments as $id => $payment ) {
 					|| 'on' != $usces->options['acting_settings'][$paymod_id]['activate']
 					|| 'activate' != $payment['use'] 
 					|| ( $have_continue_charge || $have_regular_order ) ){
-					continue;
+					break;
 				}
 
 				$div = isset( $_POST['div'] ) ? esc_html($_POST['div']) : '0';

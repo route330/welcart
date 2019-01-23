@@ -593,7 +593,8 @@ function usces_item_uploadcsv() {
 						}
 						break;
 					case USCES_COL_SKU_ZAIKO:
-						if( !preg_match("/^[0-9]+$/", $data) || 4 < $data ) {
+						$stock_status = apply_filters( 'usces_filter_csv_upload_check_stock_status', $data );
+						if( !preg_match("/^[0-9]+$/", $data) || $stock_status < $data ) {
 							$mes = "No.".$line_num."\t".__('A value of the stock status is abnormal.', 'usces');
 							$logtemp .= $mes.$yn;
 							$mestemp .= $mes.$br.$yn;
@@ -738,6 +739,23 @@ function usces_item_uploadcsv() {
 					$cdatas['post_name'] = sanitize_title($cdatas['post_title'], $post_id);
 				}
 
+				$cfdata = array();
+				$cfrows = ( $usces->options['system']['csv_encode_type'] == 0 ) ? explode( ';', trim(mb_convert_encoding($datas[USCES_COL_CUSTOM_FIELD], 'UTF-8', 'SJIS')) ) : explode(';', trim($datas[USCES_COL_CUSTOM_FIELD]));
+				if( is_array( $cfrows ) &&  0 < count($cfrows) ) {
+					reset($cfrows);
+
+					foreach( $cfrows as $cfindex => $row ) {
+						if( false !== strpos( $row, '=' ) ) {
+							$cfdata[] = $row;
+						}else{
+							$cfdend = count($cfdata)-1;
+							if( false !== strpos( $cfdata[$cfdend], ':{' ) && false === strpos( $cfdata[$cfdend], '}' ) ){
+								$cfdata[$cfdend] = $cfdata[$cfdend].';'.$row;
+							}
+						}
+					}
+				}
+
 				if( $mode == 'add' ) {
 
 					$cdatas['guid'] = '';
@@ -781,9 +799,12 @@ function usces_item_uploadcsv() {
 
 					//delete metas of Item only
 					$meta_key_table = array( '_itemCode', '_itemName', '_itemRestriction', '_itemPointrate', '_itemGpNum1', '_itemGpDis1', '_itemGpNum2', '_itemGpDis2', '_itemGpNum3', '_itemGpDis3', '_itemShipping', '_itemDeliveryMethod', '_itemShippingCharge', '_itemIndividualSCharge', '_iopt_', '_isku_' );
-					$cfrows = ( $usces->options['system']['csv_encode_type'] == 0 ) ? explode( ';', trim(mb_convert_encoding($datas[USCES_COL_CUSTOM_FIELD], 'UTF-8', 'SJIS')) ) : explode(';', trim($datas[USCES_COL_CUSTOM_FIELD]));
-					if( $cfrows && is_array( $cfrows ) && !(1 === count($cfrows) && '' == reset($cfrows)) ) {
-						foreach( $cfrows as $row ) {
+
+
+					if( is_array( $cfrows ) &&  0 < count($cfrows) ) {
+						reset($cfrows);
+
+						foreach( $cfdata as $row ) {
 							$cf = explode( '=', $row );
 							if( !WCUtils::is_blank($cf[0]) ) {
 								array_push( $meta_key_table, trim($cf[0]) );
@@ -867,22 +888,21 @@ function usces_item_uploadcsv() {
 				$valstr .= '('.$post_id.", '_itemShippingCharge','".$datas[USCES_COL_ITEM_SHIPPINGCHARGE]."'),";
 				$valstr .= '('.$post_id.", '_itemIndividualSCharge','".$datas[USCES_COL_ITEM_INDIVIDUALSCHARGE]."'),";
 
-				$cfrows = ( $usces->options['system']['csv_encode_type'] == 0 ) ? explode(';', trim(mb_convert_encoding($datas[USCES_COL_CUSTOM_FIELD], 'UTF-8', 'SJIS'))) : explode(';', trim($datas[USCES_COL_CUSTOM_FIELD]));
-				if( $cfrows && is_array( $cfrows ) && !(1 === count($cfrows) && '' == reset($cfrows)) ) {
-					foreach( $cfrows as $row ) {
-						$cf = explode( '=', $row );
-						if( !WCUtils::is_blank($cf[0]) && !empty($cf[1]) && in_array( $cf[0], $item_custom_fields ) ) {
-							$valstr .= '('.$post_id.", '".$cf[0]."','".$cf[1]."'),";
-						}
-					}
-				}
 				$valstr = rtrim($valstr, ',');
 
 				$db_res = $wpdb->query("INSERT INTO {$wpdb->postmeta} (post_id, meta_key, meta_value) VALUES {$valstr}");
 
 				//add term_relationships, edit term_taxonomy
 				//category
-				$categories = explode(';', $datas[USCES_COL_CATEGORY]);
+				if( $category_format_slug ) {
+					$categories = array();
+					$category_slug = explode( ';', $datas[USCES_COL_CATEGORY] );
+					foreach( (array)$category_slug as $slug ) {
+						$categories[] = usces_get_cat_id( $slug );
+					}
+				} else {
+					$categories = explode(';', $datas[USCES_COL_CATEGORY]);
+				}
 				wp_set_post_categories( $post_id, $categories );
 
 				//tag
@@ -892,17 +912,20 @@ function usces_item_uploadcsv() {
 				/*////////////////////////////////////////*/
 				// Add Custom Field 
 				/*////////////////////////////////////////*/
-				if( $cfrows && is_array( $cfrows ) && !(1 === count($cfrows) && '' == reset($cfrows)) ) {
-					$valstr = '';
-					foreach( $cfrows as $row ) {
+				if( is_array( $cfdata ) && 0 <= count($cfdata) ) {
+					reset($cfdata);
+					$cfstr = '';
+
+					foreach( $cfdata as $row ) {
 						$cf = explode( '=', $row );
-						if( !WCUtils::is_blank($cf[0]) && !empty($cf[1]) && !in_array( $cf[0], $item_custom_fields ) ) {
-							$valstr .= $wpdb->prepare("( %d, %s, %s),", $post_id, trim($cf[0]), trim($cf[1]));
+						if( !WCUtils::is_blank($cf[0]) ) {
+							$cfstr .= '('.$post_id.", '".$cf[0]."','".$cf[1]."'),";
 						}
 					}
-					if( !WCUtils::is_blank($valstr) ) {
-						$valstr = rtrim($valstr, ',');
-						$db_res = $wpdb->query("INSERT INTO {$wpdb->postmeta} (post_id, meta_key, meta_value) VALUES {$valstr}");
+					
+					if( !WCUtils::is_blank($cfstr) ) {
+						$cfstr = rtrim($cfstr, ',');
+						$db_res = $wpdb->query("INSERT INTO {$wpdb->postmeta} (post_id, meta_key, meta_value) VALUES {$cfstr}");
 					}
 				}
 
@@ -1051,19 +1074,19 @@ function usces_download_item_list() {
 	global $wpdb, $usces;
 
 	$ext = 'csv';
-    $table_h = "";
-    $table_f = "";
-    $tr_h = "";
-    $tr_f = "";
-    $th_h1 = '"';
-    $th_h = ',"';
-    $th_f = '"';
-    $td_h1 = '"';
-    $td_h = ',"';
-    $td_f = '"';
-    $sp = ";";
-    $eq = "=";
-    $lf = "\n";
+	$table_h = "";
+	$table_f = "";
+	$tr_h = "";
+	$tr_f = "";
+	$th_h1 = '"';
+	$th_h = ',"';
+	$th_f = '"';
+	$td_h1 = '"';
+	$td_h = ',"';
+	$td_f = '"';
+	$sp = ";";
+	$eq = "=";
+	$lf = "\n";
 	$end = '';
 
 	//==========================================================================
@@ -1193,6 +1216,7 @@ function usces_download_item_list() {
 			$line_item .= $td_h.$usces->getItemGpNum2($post_id).$td_f.$td_h.$usces->getItemGpDis2($post_id).$td_f;
 			$line_item .= $td_h.$usces->getItemGpNum3($post_id).$td_f.$td_h.$usces->getItemGpDis3($post_id).$td_f;
 			$line_item .= $td_h.$usces->getItemShipping($post_id).$td_f;
+
 			$delivery_method = '';
 			$itemDeliveryMethod = $usces->getItemDeliveryMethod($post_id);
 			foreach( (array)$itemDeliveryMethod as $k => $v ) {
@@ -1303,7 +1327,7 @@ function usces_download_item_list() {
 				$line .= $tr_h.$line_item.$line_sku.$line_options.$tr_f.$lf;
 			}
 			if( $usces->options['system']['csv_encode_type'] == 0 ) {
-				$line = mb_convert_encoding($line, apply_filters( 'usces_filter_output_csv_encode', 'SJIS-win'), "UTF-8");
+				$line = mb_convert_encoding( $line, apply_filters( 'usces_filter_output_csv_encode', 'SJIS-win'), "UTF-8" );
 			}
 			print($line);
 
@@ -1320,7 +1344,7 @@ function usces_download_item_list() {
 	//==========================================================================
 
 	if( $usces->options['system']['csv_encode_type'] == 0 ) {
-		$end = mb_convert_encoding($end, apply_filters( 'usces_filter_output_csv_encode', 'SJIS-win'), "UTF-8");
+		$end = mb_convert_encoding( $end, apply_filters( 'usces_filter_output_csv_encode', 'SJIS-win'), "UTF-8" );
 	}
 	print($end);
 	unset($rows, $DT, $line, $line_item, $line_options, $line_sku);
@@ -1630,15 +1654,28 @@ function usces_get_item_custom_field_value( $key, $custom_field ) {
 	global $usces;
 
 	$value = '';
+	$cfdata = array();
 	$cfrows = explode( ';', $custom_field );
-	foreach( $cfrows as $row ) {
+
+	foreach( $cfrows as $cfindex => $row ) {
+		if( false !== strpos( $row, '=' ) ) {
+			$cfdata[] = $row;
+		}else{
+			$cfdend = count($cfdata)-1;
+			if( $cfdend && 0 <= $cfdend ) {
+				$cfdata[$cfdend] = $cfdata[$cfdend].';'.$row;
+			}
+		}
+	}
+
+	foreach( $cfdata as $row ) {
 		$cf = explode( '=', $row );
-		if( !WCUtils::is_blank($cf[0]) && !empty($cf[1]) ) {
+		if( !WCUtils::is_blank($cf[0]) ) {
 			if( $key == $cf[0] ) {
-				$value = trim($cf[1]);
+				$value = $cf[1];
 				break;
 			}
 		}
 	}
-	return $value;
+	return trim($value);
 }

@@ -11,6 +11,8 @@ class Welcart_login extends WP_Widget {
 
 	/** @see WP_Widget::widget */
 	function widget($args, $instance) {
+		global $usces;
+		
 		extract( $args );
 		$title = ( !isset($instance['title']) || WCUtils::is_blank($instance['title'])) ? 'Welcart '.__('Log-in', 'usces') : $instance['title'];
 		$icon = ( !isset($instance['icon']) || WCUtils::is_blank($instance['icon'])) ? 1 : (int)$instance['icon'];
@@ -38,7 +40,11 @@ class Welcart_login extends WP_Widget {
 		<p class="submit">
 		<input type="submit" name="member_login" id="member_loginw" value="<?php _e('Log-in', 'usces'); ?>" />
 		</p>
-		<?php echo apply_filters('usces_filter_login_inform', NULL); ?>
+		<?php
+			echo apply_filters('usces_filter_login_inform', NULL);
+			$noncekey = 'post_member' . $usces->get_uscesid(false);
+			wp_nonce_field( $noncekey, 'wel_nonce' );
+		?>
 		</form>
 		<a href="<?php echo USCES_LOSTMEMBERPASSWORD_URL; ?>" title="<?php _e('Pssword Lost and Found', 'usces'); ?>"><?php _e('Lost your password?', 'usces'); ?></a><br />
 		<a href="<?php echo USCES_NEWMEMBER_URL; ?>" title="<?php _e('New enrollment for membership.', 'usces'); ?>"><?php _e('New enrollment for membership.', 'usces'); ?></a>

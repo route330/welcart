@@ -60,7 +60,8 @@ function usces_action_reg_orderdata_stocks($args){
 		$usces->updateItemZaikoNum( $cartrow['post_id'], $sku, $zaikonum );
 		if( $itemOrderAcceptable != 1 ) {
 			if($zaikonum <= 0){
-				$usces->updateItemZaiko( $cartrow['post_id'], $sku, 2 );
+				$default_empty_status = apply_filters( 'usces_filter_default_empty_status', 2 );
+				$usces->updateItemZaiko( $cartrow['post_id'], $sku, $default_empty_status );
 				do_action( 'usces_action_outofstock', $cartrow['post_id'], $sku, $cartrow, $args );
 			}
 		}
@@ -88,39 +89,6 @@ function usces_action_ogp_meta(){
 		echo "\n" . '<meta property="og:' . $key . '" content="' . $value . '">';
 	}
 
-}
-
-function wc_purchase_nonce($html, $payments, $acting_flag, $rand, $purchase_disabled){
-	global $usces;
-	$nonacting_settlements = apply_filters( 'usces_filter_nonacting_settlements', $usces->nonacting_settlements );
-	if( strpos($html, 'wc_nonce') || !in_array( $payments['settlement'], $nonacting_settlements) )
-		return $html;
-
-	$noncekey = 'wc_purchase_nonce' . $usces->get_uscesid(false);
-	$html .= wp_nonce_field( $noncekey, 'wc_nonce', false, false )."\n";
-	return $html;
-}
-
-function wc_purchase_nonce_check(){
-	global $usces;
-	$entry = $usces->cart->get_entry();
-	if( !isset($entry['order']['payment_name']) || empty($entry['order']['payment_name']) ){
-		wp_redirect( home_url() );
-		exit;	
-	}
-	
-	$nonacting_settlements = apply_filters( 'usces_filter_nonacting_settlements', $usces->nonacting_settlements );
-	$payments = usces_get_payments_by_name($entry['order']['payment_name']);
-	if( !in_array( $payments['settlement'], $nonacting_settlements) )
-		return true;
-
-	$nonce = isset($_REQUEST['wc_nonce']) ? $_REQUEST['wc_nonce'] : '';
-	$noncekey = 'wc_purchase_nonce' . $usces->get_uscesid(false);
-	if( wp_verify_nonce($nonce, $noncekey) )
-		return true;
-		
-	wp_redirect( home_url() );
-	exit;	
 }
 
 function wc_mkdir(){
@@ -863,21 +831,6 @@ function usces_Classic_trackPageview_by_Yoast($push){
 	return $push;
 }
 
-
-function usces_use_point_nonce(){
-	global $usces;
-	
-	$noncekey = 'use_point' . $usces->get_uscesid(false);
-	wp_nonce_field( $noncekey, 'wc_nonce');
-}
-
-function usces_post_member_nonce(){
-	global $usces;
-	
-	$noncekey = 'post_member' . $usces->get_uscesid(false);
-	wp_nonce_field( $noncekey, 'wc_nonce');
-}
-
 function usces_order_memo_form_detail_top( $data, $csod_meta ){
 	global $usces;
 
@@ -967,23 +920,6 @@ function usces_update_tracking_number($new_orderdata){
 		$usces->set_order_meta_value('delivery_company', $_POST['delivery_company'], $new_orderdata->ID);
 }
 
-function usces_action_lostmail_inform(){
-	$mem_mail = $_REQUEST['mem'];
-	$lostkey = $_REQUEST['key'];
-	$html = '
-	<input type="hidden" name="mem" value="' . esc_attr($mem_mail) . '" />
-	<input type="hidden" name="key" value="' . esc_attr($lostkey) . '" />' . "\n";
-	echo $html;
-}
-function usces_filter_lostmail_inform($html){
-	$mem_mail = $_REQUEST['mem'];
-	$lostkey = $_REQUEST['key'];
-	$html .= '
-	<input type="hidden" name="mem" value="' . esc_attr($mem_mail) . '" />
-	<input type="hidden" name="key" value="' . esc_attr($lostkey) . '" />' . "\n";
-	return $html;
-}
-
 function usces_admin_enqueue_scripts( $hook_suffix ){
 	if( false !== strpos($hook_suffix, 'usc-e-shop') 
 		|| false !== strpos($hook_suffix, 'welcart') 
@@ -1018,7 +954,7 @@ function usces_responce_wcsite() {
 	$my_wcid = get_option('usces_wcid');
 	
 	
-	if( isset($_POST['sname']) && isset($_POST['wcid']) && $my_wcid == $_POST['wcid'] && '54.64.221.23' == $_SERVER['REMOTE_ADDR'] ){
+	if( isset($_POST['sname']) && isset($_POST['wcid']) && '54.64.221.23' == $_SERVER['REMOTE_ADDR'] ){
 		$data['usces'] = get_option('usces');
 		$data['usces_settlement_selected'] = get_option('usces_settlement_selected');
 		$res = json_encode($data);
@@ -1610,3 +1546,77 @@ function usces_priority_active_plugins( $active_plugins, $old_value ) {
 	}
 	return $active_plugins;
 }
+
+function usces_action_lostmail_inform(){
+	$mem_mail = $_REQUEST['mem'];
+	$lostkey = $_REQUEST['key'];
+	$html = '
+	<input type="hidden" name="mem" value="' . esc_attr($mem_mail) . '" />
+	<input type="hidden" name="key" value="' . esc_attr($lostkey) . '" />' . "\n";
+	echo $html;
+}
+function usces_filter_lostmail_inform($html){
+	$mem_mail = $_REQUEST['mem'];
+	$lostkey = $_REQUEST['key'];
+	$html .= '
+	<input type="hidden" name="mem" value="' . esc_attr($mem_mail) . '" />
+	<input type="hidden" name="key" value="' . esc_attr($lostkey) . '" />' . "\n";
+	return $html;
+}
+
+function wc_purchase_nonce($html, $payments, $acting_flag, $rand, $purchase_disabled){
+	global $usces;
+	$nonacting_settlements = apply_filters( 'usces_filter_nonacting_settlements', $usces->nonacting_settlements );
+	if( strpos($html, 'wc_nonce') || !in_array( $payments['settlement'], $nonacting_settlements) )
+		return $html;
+
+	$noncekey = 'wc_purchase_nonce' . $usces->get_uscesid(false);
+	$html .= wp_nonce_field( $noncekey, 'wc_nonce', false, false )."\n";
+	return $html;
+}
+
+function wc_purchase_nonce_check(){
+	global $usces;
+	$entry = $usces->cart->get_entry();
+	if( !isset($entry['order']['payment_name']) || empty($entry['order']['payment_name']) ){
+		wp_redirect( home_url() );
+		exit;	
+	}
+	
+	$nonacting_settlements = apply_filters( 'usces_filter_nonacting_settlements', $usces->nonacting_settlements );
+	$payments = usces_get_payments_by_name($entry['order']['payment_name']);
+	if( !in_array( $payments['settlement'], $nonacting_settlements) )
+		return true;
+
+	$nonce = isset($_REQUEST['wc_nonce']) ? $_REQUEST['wc_nonce'] : '';
+	$noncekey = 'wc_purchase_nonce' . $usces->get_uscesid(false);
+	if( wp_verify_nonce($nonce, $noncekey) )
+		return true;
+		
+	wp_redirect( home_url() );
+	exit;	
+}
+
+//Checking in $usces->use_point()
+function usces_use_point_nonce(){
+	global $usces;
+	
+	$noncekey = 'use_point' . $usces->get_uscesid(false);
+	wp_nonce_field( $noncekey, 'wc_nonce');
+}
+
+
+function usces_post_member_nonce(){
+	global $usces;
+	
+	$noncekey = 'post_member' . $usces->get_uscesid(false);
+	wp_nonce_field( $noncekey, 'wc_nonce');
+}
+
+function usces_member_login_nonce(){
+	global $usces;
+	
+	$noncekey = 'post_member' . $usces->get_uscesid(false);
+	wp_nonce_field( $noncekey, 'wel_nonce');
+}
+

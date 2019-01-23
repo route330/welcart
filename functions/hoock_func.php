@@ -248,8 +248,8 @@ function usces_action_acting_transaction(){
 
 			usces_action_acting_getpoint( $order_id );
 
-			usces_log('Cloud Payment conv transaction : '.$_GET['gid'], 'acting_transaction.log');
-			die('Cloud Payment');
+			usces_log( 'ROBOT PAYMENT conv transaction : '.$_GET['gid'], 'acting_transaction.log' );
+			die( 'ROBOT PAYMENT' );
 			break;
 
 		case 'CVS_CAN'://入金取消
@@ -286,8 +286,8 @@ function usces_action_acting_transaction(){
 
 			usces_action_acting_getpoint( $order_id, false );
 
-			usces_log('Cloud Payment conv transaction : '.$_GET['gid'], 'acting_transaction.log');
-			die('Cloud Payment');
+			usces_log( 'ROBOT PAYMENT conv transaction : '.$_GET['gid'], 'acting_transaction.log' );
+			die( 'ROBOT PAYMENT' );
 			break;
 		}
 
@@ -337,8 +337,8 @@ function usces_action_acting_transaction(){
 				usces_action_acting_getpoint( $order_id );
 			}
 
-			usces_log('Cloud Payment bank transaction : '.$_REQUEST['gid'], 'acting_transaction.log');
-			die('Cloud Payment');
+			usces_log( 'ROBOT PAYMENT bank transaction : '.$_REQUEST['gid'], 'acting_transaction.log' );
+			die( 'ROBOT PAYMENT' );
 			break;
 		}
 

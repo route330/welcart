@@ -28,6 +28,9 @@ $loginbutton = '<input type="submit" name="member_login" id="member_login" value
 $html .= apply_filters('usces_filter_login_button', $loginbutton);
 $html .= '</p>';
 $html = apply_filters('usces_filter_login_inform', $html);
+
+$noncekey = 'post_member' . $this->get_uscesid(false);
+$html .= wp_nonce_field( $noncekey, 'wel_nonce', true, false );
 $html .= '</form>
 
 <p id="nav">

@@ -2556,10 +2556,11 @@ src="<?php esc_html_e( $acting_opts['api_token'] ); ?>?k_TokenNinsyoCode=<?php e
 			$fee = (int)$acting_opts[$acting[2].'_fee'];
 		} else {
 			$materials = array(
-				'total_items_price' => $usces_entries['order']['total_items_price'],
-				'discount' => $usces_entries['order']['discount'],
-				'shipping_charge' => $usces_entries['order']['shipping_charge'],
-				'cod_fee' => $usces_entries['order']['cod_fee']
+				'total_items_price' => $total_items_price,
+				'discount' => $discount,
+				'shipping_charge' => $shipping_charge,
+				'cod_fee' => $cod_fee,
+				'use_point' => $use_point,
 			);
 			$items_price = $total_items_price - $discount;
 			$price = $items_price + $usces->getTax( $items_price, $materials );
