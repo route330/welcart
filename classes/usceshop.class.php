@@ -3272,7 +3272,7 @@ class usc_e_shop
 		
 		$nonce = isset( $_REQUEST['wc_nonce'] ) ? $_REQUEST['wc_nonce'] : '';
 		$noncekey = 'post_member' . $this->get_uscesid(false);
-		if( !wp_verify_nonce( $nonce, $noncekey ) )
+		if( !wp_verify_nonce( $nonce, $noncekey ) && !$this->is_member_logged_in() )
 			die('Security check2');
 
 		$this->cart->entry();
@@ -4427,7 +4427,7 @@ class usc_e_shop
 					$nonce = isset( $_REQUEST['wc_nonce'] ) ? $_REQUEST['wc_nonce'] : '';
 				}
 				$noncekey = 'post_member' . $this->get_uscesid(false);
-				if( !wp_verify_nonce( $nonce, $noncekey ) )
+				if( !wp_verify_nonce( $nonce, $noncekey ) && !$this->is_member_logged_in() )
 					die('Security check4');
 			}
 
@@ -5013,7 +5013,7 @@ class usc_e_shop
 			$mes .= __('enter house numbers', 'usces') . "<br />";
 		if ( WCUtils::is_blank($_POST["customer"]["tel"]) )
 			$mes .= __('enter phone numbers', 'usces') . "<br />";
-		if( !WCUtils::is_blank($_POST['customer']["tel"]) && preg_match("/[^\d-+]/", trim($_POST["customer"]["tel"])) )
+		if( !WCUtils::is_blank($_POST['customer']["tel"]) && preg_match("/[^\d\-+]/", trim($_POST["customer"]["tel"])) )
 			$mes .= __('Please input a phone number with a half size number.', 'usces') . "<br />";
 	
 		if( isset( $this->options['agree_member']) && 'activate' === $this->options['agree_member'] ){
@@ -7978,7 +7978,7 @@ class usc_e_shop
 		global $wpdb;
 		$query = $wpdb->prepare("SELECT COUNT(ID) AS ct FROM {$wpdb->posts} 
 								WHERE post_mime_type = %s AND post_type = %s AND post_status <> %s", 
-								'item', 'post', 'trush');
+								'item', 'post', 'trash');
 		$res = $wpdb->get_var($query);
 
 		return $res;

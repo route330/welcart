@@ -227,7 +227,7 @@ function usces_order_confirm_message($order_id) {
 	$msg_payment .= usces_mail_line( 1, $data['order_email'] );//********************
 	$msg_payment .= $payment['name']. "\r\n\r\n";
 	if( 'orderConfirmMail' == $_POST['mode'] || 'changeConfirmMail' == $_POST['mode'] || 'mitumoriConfirmMail' == $_POST['mode'] || 'otherConfirmMail' == $_POST['mode'] ) {
-		if ( $payment['settlement'] == 'transferAdvance' || $payment['settlement'] == 'transferDeferred' ) {
+		if ( $payment['settlement'] == 'transferAdvance' ) {
 			$transferee = __('Transfer','usces') . " :\r\n";
 			$transferee .= $usces->options['transferee'] . "\r\n";
 			$msg_payment .= apply_filters('usces_filter_mail_transferee', $transferee, $payment, $order_id);
@@ -419,7 +419,7 @@ function usces_send_ordermail($order_id) {
 	$msg_payment = __('** Payment method **','usces') . "\r\n";
 	$msg_payment .= usces_mail_line( 1, $entry['customer']['mailaddress1'] );//********************
 	$msg_payment .= $payment['name'] . usces_payment_detail($entry) . "\r\n\r\n";
-	if ( $payment['settlement'] == 'transferAdvance' || $payment['settlement'] == 'transferDeferred' ) {
+	if ( $payment['settlement'] == 'transferAdvance' ) {
 		$transferee = __('Transfer','usces') . " : \r\n";
 		$transferee .= $usces->options['transferee'] . "\r\n";
 		$msg_payment .= apply_filters('usces_filter_mail_transferee', $transferee, $payment, $order_id);
@@ -2737,7 +2737,8 @@ function usces_check_acting_return() {
 					$results[0] = 1;
 				} else {
 					$amt = floor( $resArray["AMT"] * 100 );
-					$total_full_price = floor( $entry['order']['total_full_price'] * 100 );
+					$total_full_price = usces_crform( $entry['order']['total_full_price'], false, false, 'return', false );
+					$total_full_price = floor( $total_full_price * 100 );
 					if( $amt != $total_full_price ) {
 						usces_log('PayPal : AMT Error. AMT='.$resArray["AMT"].', total_full_price='.$entry['order']['total_full_price'], 'acting_transaction.log');
 						$results[0] = 0;
@@ -4419,7 +4420,7 @@ function usces_get_non_zerostoc_items() {
 							LEFT JOIN {$wpdb->postmeta} AS sku ON ID = sku.post_id AND '_isku_' = sku.meta_key
 							WHERE post_mime_type = %s AND post_type = %s AND post_status <> %s AND (sku.meta_value LIKE %s OR sku.meta_value LIKE %s) 
 							GROUP BY ID",
-							'item', 'post', 'trush', '%"stocknum";i:0%', '%"stocknum";s:1:"0"%');
+							'item', 'post', 'trash', '%"stocknum";i:0%', '%"stocknum";s:1:"0"%');
 	$res = $wpdb->get_results($query, ARRAY_A);
 
 	return $res;
@@ -4433,7 +4434,7 @@ function usces_get_stocs() {
 	$query = $wpdb->prepare("SELECT m.meta_value FROM {$wpdb->posts} AS p 
 							LEFT JOIN {$wpdb->postmeta} AS m ON p.ID = m.post_id AND m.meta_key = %s 
 							WHERE post_mime_type = %s AND post_type = %s AND post_status <> %s"
-							, '_isku_', 'item', 'post', 'trush');
+							, '_isku_', 'item', 'post', 'trash');
 	$values = $wpdb->get_col($query);
 	if( !$values )
 		return $status;

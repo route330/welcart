@@ -92,6 +92,8 @@ $html .= '</form>';
 $html .= '<div class="footer_explanation">';
 $footer = '';
 $html .= apply_filters('usces_filter_customer_page_footer', $footer);
+$noncekey = 'post_member' . $this->get_uscesid(false);
+$html .= wp_nonce_field( $noncekey, 'wc_nonce', true, false );
 $html .= '</div>';
 $html .= '</div>';
 ?>
