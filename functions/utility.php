@@ -868,7 +868,7 @@ function usces_filter_delivery_check_custom_order( $mes ) {
 			$name = $entry['name'];
 			$means = $entry['means'];
 			if($means == 2) {//Text
-				if( WCUtils::is_blank($_POST['custom_order'][$key]) )
+				if( isset( $_POST['custom_order'][$key] ) && WCUtils::is_blank($_POST['custom_order'][$key]) )
 					$mes .= sprintf( __("Input the %s", 'usces'), $name )."<br />";
 			} else {
 				if(!isset($_POST['custom_order'][$key]) or $_POST['custom_order'][$key] == "#NONE#")

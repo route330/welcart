@@ -4090,6 +4090,9 @@ msgstr "サウジアラビア"
 msgid "Senegal"
 msgstr "セネガル"
 
+msgid "Serbia"
+msgstr "セルビア"
+
 msgid "Slovak"
 msgstr "スロバキア"
 

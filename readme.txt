@@ -4,7 +4,7 @@ Tags: Welcart, e-Commerce, shopping, cart, eShop, store, admin, calendar, manage
 Requires at least: 4.8
 Tested up to: 5.0
 Requires PHP: 5.6 - 7.2
-Stable tag: 1.9.15
+Stable tag: 1.9.16
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -103,6 +103,19 @@ Please see [Welcart Forum(Japanese)](https://www.welcart.com/community/forums).
 
 
 == Changelog ==
+
+= V1.9.16 =
+-----------
+13 Feb 2019
+* [PayPal EC]Fixed the bug that total amount process isn't match  when the currency is dollar.
+* Fixed the bug that displaying ÅgSecurity check4Åh when reload the page after login to my page.
+* Fixed the bug that displaying ÅgSecurity check2Åh in case without wc_templetes when click the button of ÅgNext with membership for registerÅh.
+* Fixed the bug that the item registration number of Welcart Shop Home doesnÅft decrease when the item delete(into the trash box). 
+* Fixed the bug that displaying ÅgNoticeÅh on custom order field check.
+* Changed the specification that the bank account for money transfer doesn't display in case of the payment method is post-payment. 
+* Added Serbia to the sales country. 
+* Added the hook at the status response of the purchase history on the member data edit.
+
 = V1.9.15 =
 -----------
 15 Jan 2019

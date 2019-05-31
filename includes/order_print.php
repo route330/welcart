@@ -36,17 +36,14 @@ function usces_pdf_out($pdf, $data){
 		$tplfile = USCES_PLUGIN_DIR."/images/orderform_A4.pdf";
 	else
 		$tplfile = USCES_PLUGIN_DIR."/images/orderform_B5.pdf";
-
 	$tplfile = apply_filters( 'usces_filter_pdf_template', $tplfile );
 
 	$pdf->SetLeftMargin(0);
 	$pdf->SetTopMargin(0);
 	$pdf->addPage();
 
-
 	//追加
 	$font_ob = new TCPDF_FONTS();
-	
 	$font_file_name = apply_filters('usces_filter_pdf_font_file_name', USCES_PDF_FONT_FILE_NAME); //Set font file and assign font name. This method is new.
 	$font = $font_ob->addTTFfont( USCES_PLUGIN_DIR .'/pdf/tcpdf/fonts/'. $font_file_name);
 	$font = apply_filters( 'usces_filter_pdf_cfont', $font, $font_ob ); //custom addTTFfont
@@ -55,7 +52,7 @@ function usces_pdf_out($pdf, $data){
 	$pdf->SetCreator('Welcart');
 	$pdf->SetAuthor('Collne Inc.');
 	switch ($_REQUEST['type'] ){
-		case  'mitumori':
+		case 'mitumori':
 			$pdf->SetTitle('estimate');
 			$filename = 'estimate_' . usces_get_deco_order_id( $data->order['ID'] ) . '.pdf';
 			break;
@@ -104,14 +101,14 @@ function usces_pdf_out($pdf, $data){
 	$onep = apply_filters( 'usces_filter_pdf_page_height', 190 );
 	$pdf->SetXY($x, $y);
 	$next_y = $y;
-	$line_x = array();
+	$line_y = $next_y;
 	$cart = usces_get_ordercartdata($data->order['ID']);
-	
-	$fontsizes = array( 'item_name'=>8, 'item_name_receipt'=>8, 'quantity'=>7, 'unit'=>7, 'unitprice'=>7, 'row_price'=>7 );
+
+	$fontsizes = array( 'item_name'=>8, 'item_name_receipt'=>8, 'details'=>8, 'quantity'=>7, 'unit'=>7, 'unitprice'=>7, 'row_price'=>7 );
 
 	$cart_count = ( $cart && is_array( $cart ) ) ? count( $cart ) : 0;
 	for ( $index = 0; $index < $cart_count; $index++ ) {
-		 $cart_row = $cart[$index];
+		$cart_row = $cart[$index];
 		if ( $onep < $next_y ) {//ページが変わるときの処理
 
 			$pdf->addPage();
@@ -154,17 +151,18 @@ function usces_pdf_out($pdf, $data){
 
 		$args = compact('cart', 'cart_row', 'post_id', 'sku', 'index' );
 		$fontsizes = apply_filters( 'useces_filter_order_pdfbody_fontsize', $fontsizes, $args, $data );
+		$fontsizes = apply_filters( 'usces_filter_order_pdfbody_fontsize', $fontsizes, $args, $data );//alias
 
-		$line_y[$index] = $next_y;
+		$line_y = $next_y;
 
 		list($fontsize, $lineheight, $linetop) = usces_set_font_size($fontsizes['item_name']);
 		$pdf->SetFont( $font, '', $fontsize);
-		$pdf->SetXY($x-0.2, $line_y[$index]);
+		$pdf->SetXY($x-0.2, $line_y);
 		$pdf->MultiCell(4, $lineheight, '*', $border, 'C');
-		$pdf->SetXY($x+3.0, $line_y[$index]);
+		$pdf->SetXY($x+3.0, $line_y);
 		$pdf->MultiCell(84.6, $lineheight, usces_conv_euc(apply_filters('usces_filter_cart_item_name_nl', $cartItemName, $args)), $border, 'L');
 		if( 'receipt' != $_REQUEST['type'] ){
-			list($fontsize, $lineheight, $linetop) = usces_set_font_size($fontsizes['item_name_receipt']);
+			list($fontsize, $lineheight, $linetop) = usces_set_font_size($fontsizes['details']);
 			$pdf->SetFont($font, '', $fontsize);
 			$pdf->SetXY($x+6.0, $pdf->GetY()+$linetop);
 			$pdf->MultiCell(81.6, $lineheight-0.2, usces_conv_euc($optstr), $border, 'L');
@@ -176,23 +174,23 @@ function usces_pdf_out($pdf, $data){
 		$next_y = $pdf->GetY()+2;
 		list($fontsize, $lineheight, $linetop) = usces_set_font_size($fontsizes['quantity']);
 		$pdf->SetFont( $font, '', $fontsize);
-		$pdf->SetXY($x+88.0, $line_y[$index]);
+		$pdf->SetXY($x+88.0, $line_y);
 		$pdf->MultiCell(11.5, $lineheight, usces_conv_euc($cart_row['quantity']), $border, 'R');
 		list($fontsize, $lineheight, $linetop) = usces_set_font_size($fontsizes['unit']);
 		$pdf->SetFont( $font, '', $fontsize);
-		$pdf->SetXY($x+99.6, $line_y[$index]);
+		$pdf->SetXY($x+99.6, $line_y);
 		$pdf->MultiCell(11.5, $lineheight, usces_conv_euc($usces->getItemSkuUnit($post_id, urldecode($cart_row['sku']))), $border, 'C');
-		$pdf->SetXY($x+111.5, $line_y[$index]);
+		$pdf->SetXY($x+111.5, $line_y);
 		list($fontsize, $lineheight, $linetop) = usces_set_font_size($fontsizes['unitprice']);
 		$pdf->SetFont( $font, '', $fontsize);
 		$pdf->MultiCell(15.2, $lineheight, apply_filters( 'usces_filter_cart_row_unitprice_pdf', usces_conv_euc($usces->get_currency($cart_row['price']) ), $cart_row), $border, 'R');
-		$pdf->SetXY($x+126.9, $line_y[$index]);
+		$pdf->SetXY($x+126.9, $line_y);
 		list($fontsize, $lineheight, $linetop) = usces_set_font_size($fontsizes['row_price']);
 		$pdf->SetFont( $font, '', $fontsize);
 		$pdf->MultiCell(22.8, $lineheight, apply_filters( 'usces_filter_cart_row_price_pdf', usces_conv_euc($usces->get_currency($cart_row['price']*$cart_row['quantity'])), $cart_row ), $border, 'R');
 
 		if( $onep < $next_y && 0 < $index ){
-			$pdf->Rect($x, $line_y[$index]-0.4, 149.5, 197.4-$line_y[$index], 'F');
+			$pdf->Rect($x, $line_y-0.4, 149.5, 197.4-$line_y, 'F');
 
 			$pdf->SetXY($x, 193);
 			$pdf->MultiCell(88, $lineheight, usces_conv_euc(__('It continues to next.', 'usces')), $border, 'C');
@@ -224,6 +222,7 @@ function usces_pdfSetHeader($pdf, $data, $page, $font) {
 						'order_date'=>10, 'publisher'=>9, 'company_name'=>8 
 					 );
 	$fontsizes = apply_filters( 'useces_filter_order_pdfheader_fontsize', $fontsizes, $data );
+	$fontsizes = apply_filters( 'usces_filter_order_pdfheader_fontsize', $fontsizes, $data );//alias
 
 	switch ( $_REQUEST['type'] ){
 		case  'mitumori':
@@ -254,7 +253,6 @@ function usces_pdfSetHeader($pdf, $data, $page, $font) {
 				else
 					$effective_date = date(__('M j, Y', 'usces'), strtotime($data->order['modified']));
 			}
-
 			break;
 
 		case 'receipt':
@@ -621,9 +619,8 @@ function usces_pdfSetHeader($pdf, $data, $page, $font) {
 			$pdf->MultiCell($width, $lineheight, usces_conv_euc(__("Attn", 'usces') . ' : ' . usces_conv_euc(usces_get_pdf_name( $data )) . apply_filters( 'usces_filters_pdf_person_honor', $person_honor) ), $border, 'L');
 			$y = $pdf->GetY() + $linetop + 2;
 		}
+
 		// Address
-
-
 		list($fontsize, $lineheight, $linetop) = usces_set_font_size($fontsizes['customer_address']);
 		$pdf->SetFont($font, '', $fontsize);
 
@@ -637,9 +634,7 @@ function usces_pdfSetHeader($pdf, $data, $page, $font) {
 			$pdf->SetXY($leftside, $y);
 			$pdf->MultiCell($width, $lineheight, usces_conv_euc('FAX ' . $data->customer['fax']), $border, 'L');
 		}
-				$y = $pdf->GetY() + $linetop + 0.5;
-
-
+		$y = $pdf->GetY() + $linetop + 0.5;
 
 		$pdf->SetLineWidth(0.1);
 		$pdf->Line($leftside, $y, $leftside+$width+5, $y);
@@ -693,6 +688,7 @@ function usces_pdfSetFooter($pdf, $data, $font, $endflag) {
 
 	$fontsizes = array( 'footer_label'=>9, 'footer_value'=>8 );
 	$fontsizes = apply_filters( 'useces_filter_order_pdffooter_fontsize', $fontsizes, $data );
+	$fontsizes = apply_filters( 'usces_filter_order_pdffooter_fontsize', $fontsizes, $data );//alias
 
 	$border = 0;
 	list($fontsize, $lineheight, $linetop) = usces_set_font_size($fontsizes['footer_label']);
@@ -972,7 +968,7 @@ function usces_get_pdf_name( $data ){
 	$applyform = usces_get_apply_addressform($options['system']['addressform']);
 	$name = '';
 	switch ($applyform){
-	case 'JP': 
+	case 'JP':
 		$name = $data->customer['name1'] . ' ' . $data->customer['name2'];
 		break;
 	case 'US':

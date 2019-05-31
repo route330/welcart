@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: Welcart e-Commerce\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-01-20 00:00+0900\n"
-"PO-Revision-Date: 2018-11-01 12:05+0900\n"
+"PO-Revision-Date: 2019-02-05 12:52+0900\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -4517,6 +4517,9 @@ msgstr "サウジアラビア"
 
 msgid "Senegal"
 msgstr "セネガル"
+
+msgid "Serbia"
+msgstr "セルビア"
 
 msgid "Slovak"
 msgstr "スロバキア"

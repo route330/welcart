@@ -308,6 +308,7 @@ if( $this->is_status('duringorder', $value) ){
 }else{
 	$p_status = esc_html(__('new order', 'usces'));
 }
+$p_status = apply_filters( 'usces_filter_orderlist_process_status', $p_status, $value, $management_status, $order_id );
  ?>
 <td><?php echo $p_status; ?></td>
 <td class="rightnum"><?php usces_crform( $total_price, true, false ); ?></td>
